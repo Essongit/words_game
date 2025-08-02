@@ -616,7 +616,8 @@
                         gameOver: 'Game Over! The word was',
                         newGame: 'New Game',
                         finishGame: 'Finish your current game first!',
-                        allWordsCompleted: '🎉 Amazing! You\'ve played all words! Starting fresh cycle! 🔄'
+                        allWordsCompleted: '🎉 Amazing! You\'ve played all words! Starting fresh cycle! 🔄',
+                        wordsRemaining: 'words remaining of' // Add this line
                     },
                     labels: {
                         title: 'My Wordle',
@@ -679,7 +680,8 @@
                         gameOver: '¡Juego terminado! La palabra era',
                         newGame: 'Nuevo Juego',
                         finishGame: '¡Termina tu juego actual primero!',
-                        allWordsCompleted: '¡🎉 Increíble! ¡Has jugado todas las palabras! ¡Empezando nuevo ciclo! 🔄'
+                        allWordsCompleted: '¡🎉 Increíble! ¡Has jugado todas las palabras! ¡Empezando nuevo ciclo! 🔄',
+                        wordsRemaining: 'palabras restantes de' // Add this line
                     },
                     labels: {
                         title: 'Mi Wordle',
@@ -837,7 +839,8 @@
             const remaining = words.length - this.usedWords.length;
             const progressElement = document.getElementById('word-progress');
             if (progressElement) {
-                progressElement.textContent = remaining + ' words remaining of ' + words.length;
+                const wordsRemainingText = this.languages[this.currentLanguage].messages.wordsRemaining;
+                progressElement.textContent = remaining + ' ' + wordsRemainingText + ' ' + words.length;
             }
             console.log('Progress: ' + this.usedWords.length + '/' + words.length + ' words played (' + remaining + ' remaining)');
         }
