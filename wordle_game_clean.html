@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- iOS Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="My Wordle">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%236aaa64'/><text x='50' y='60' font-size='60' text-anchor='middle' fill='white'>W</text></svg>">
+    
+    <!-- Force Safari to open instead of preview -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="format-detection" content="address=no">
+    
+    <!-- Web App Manifest (for Android/PWA support) -->
+    <link rel="manifest" href="data:application/json,{
+        'name': 'My Wordle Game',
+        'short_name': 'Wordle',
+        'display': 'standalone',
+        'start_url': './',
+        'theme_color': '%236aaa64',
+        'background_color': '%23ffffff',
+        'icons': [
+            {
+                'src': 'data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%236aaa64\\'/><text x=\\'50\\' y=\\'60\\' font-size=\\'60\\' text-anchor=\\'middle\\' fill=\\'white\\'>W</text></svg>',
+                'sizes': '192x192',
+                'type': 'image/svg+xml'
+            }
+        ]
+    }">
+    
+    <title>My Wordle Game</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #121213;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 5px;
+            -webkit-user-select: none;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 0 5px;
+        }
+
+        /* Language Toggle Styles */
+        .language-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .toggle-container {
+            position: relative;
+            display: inline-block;
+            width: 80px;
+            height: 34px;
+        }
+
+        .toggle-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #6aaa64;
+            transition: .4s;
+            border-radius: 34px;
+            -webkit-transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            -webkit-transition: .4s;
+        }
+
+        .toggle-input:checked + .toggle-slider {
+            background-color: #c9b458;
+        }
+
+        .toggle-input:checked + .toggle-slider:before {
+            transform: translateX(46px);
+            -webkit-transform: translateX(46px);
+        }
+
+        .language-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #121213;
+        }
+
+        .language-label.active {
+            color: #6aaa64;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #121213;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #121213;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #787c7e;
+        }
+
+        .progress-info {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #787c7e;
+            margin-bottom: 10px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 4px;
+            margin-bottom: 20px;
+            padding: 5px;
+            justify-content: center;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .tile {
+            width: 58px;
+            height: 58px;
+            border: 2px solid #d3d6da;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            color: #121213;
+            -webkit-transition: all 0.3s ease;
+        }
+
+        .tile.filled {
+            border-color: #878a8c;
+        }
+
+        .tile.correct {
+            background-color: #6aaa64;
+            border-color: #6aaa64;
+            color: #ffffff;
+        }
+
+        .tile.present {
+            background-color: #c9b458;
+            border-color: #c9b458;
+            color: #ffffff;
+        }
+
+        .tile.absent {
+            background-color: #787c7e;
+            border-color: #787c7e;
+            color: #ffffff;
+        }
+
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 3px;
+            width: 100%;
+        }
+
+        .key {
+            padding: 12px 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: #d3d6da;
+            color: #121213;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+            flex: 1;
+            max-width: 40px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-appearance: none;
+            -webkit-transition: background-color 0.1s ease;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+        }
+
+        .key:hover {
+            background-color: #878a8c;
+            color: #ffffff;
+        }
+
+        .key:active {
+            background-color: #878a8c;
+            color: #ffffff;
+            transform: scale(0.95);
+            -webkit-transform: scale(0.95);
+        }
+
+        .key.wide {
+            flex: 1.5;
+            max-width: 65px;
+            font-size: 13px;
+        }
+
+        .key.correct {
+            background-color: #6aaa64;
+            color: #ffffff;
+        }
+
+        .key.present {
+            background-color: #c9b458;
+            color: #ffffff;
+        }
+
+        .key.absent {
+            background-color: #787c7e;
+            color: #ffffff;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+            min-height: 25px;
+            margin-top: 15px;
+            color: #121213;
+        }
+
+        .message.win {
+            color: #6aaa64;
+        }
+
+        .message.lose {
+            color: #f5793a;
+        }
+
+        .new-game-btn {
+            display: block;
+            margin: 15px auto;
+            padding: 12px 18px;
+            background-color: #6aaa64;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+            -webkit-appearance: none;
+            -webkit-transition: background-color 0.1s ease;
+            touch-action: manipulation;
+        }
+
+        .new-game-btn:hover {
+            background-color: #5a9a54;
+        }
+
+        .new-game-btn:active {
+            background-color: #5a9a54;
+            transform: scale(0.95);
+            -webkit-transform: scale(0.95);
+        }
+
+        /* Mobile responsiveness - Portrait phones */
+        @media (max-width: 480px) and (orientation: portrait) {
+            body {
+                padding: 2px;
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+
+            .container {
+                padding: 0 2px;
+            }
+
+            .language-toggle {
+                margin-bottom: 10px;
+                gap: 8px;
+            }
+
+            .language-label {
+                font-size: 12px;
+            }
+
+            .toggle-container {
+                width: 70px;
+                height: 30px;
+            }
+
+            .toggle-slider:before {
+                height: 22px;
+                width: 22px;
+                left: 4px;
+                bottom: 4px;
+            }
+
+            .toggle-input:checked + .toggle-slider:before {
+                transform: translateX(40px);
+                -webkit-transform: translateX(40px);
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 8px;
+            }
+
+            .stats {
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .stat-number {
+                font-size: 1.1rem;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+
+            .game-board {
+                gap: 3px;
+                margin-bottom: 15px;
+                padding: 2px;
+            }
+
+            .row {
+                gap: 3px;
+            }
+
+            .tile {
+                width: 48px;
+                height: 48px;
+                font-size: 1.4rem;
+            }
+
+            .keyboard {
+                gap: 4px;
+                padding: 0 2px;
+            }
+
+            .keyboard-row {
+                gap: 2px;
+            }
+
+            .key {
+                padding: 12px 4px;
+                font-size: 18px;
+                max-width: 32px;
+                min-height: 50px;
+            }
+
+            .key.wide {
+                max-width: 55px;
+                font-size: 17px;
+                min-height: 50px;
+            }
+
+            .message {
+                font-size: 0.9rem;
+                margin-top: 10px;
+            }
+
+            .new-game-btn {
+                padding: 10px 15px;
+                font-size: 12px;
+                margin: 10px auto;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 360px) and (orientation: portrait) {
+            .tile {
+                width: 42px;
+                height: 42px;
+                font-size: 1.2rem;
+            }
+
+            .key {
+                max-width: 28px;
+                min-height: 46px;
+                font-size: 14px;
+                padding: 10px 2px;
+            }
+
+            .key.wide {
+                max-width: 48px;
+                font-size: 13px;
+                min-height: 46px;
+            }
+        }
+
+        /* Landscape phones */
+        @media (max-width: 812px) and (orientation: landscape) {
+            body {
+                padding: 2px;
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+
+            .container {
+                max-width: 700px;
+            }
+
+            .tile {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+
+            .key {
+                padding: 10px 6px;
+                max-width: 35px;
+                min-height: 45px;
+                font-size: 16px;
+            }
+
+            .key.wide {
+                max-width: 60px;
+                font-size: 15px;
+                min-height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Language Toggle -->
+        <div class="language-toggle">
+            <span class="language-label" id="english-label">EN</span>
+            <label class="toggle-container">
+                <input type="checkbox" class="toggle-input" id="language-toggle">
+                <span class="toggle-slider"></span>
+            </label>
+            <span class="language-label" id="spanish-label">ES</span>
+        </div>
+
+        <header>
+            <h1 id="game-title">My Wordle</h1>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="streak">0</div>
+                    <div class="stat-label" id="streak-label">Streak</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="played">0</div>
+                    <div class="stat-label" id="played-label">Played</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="win-rate">0%</div>
+                    <div class="stat-label" id="win-rate-label">Win Rate</div>
+                </div>
+            </div>
+            <div class="progress-info" id="word-progress"></div>
+        </header>
+
+        <div class="game-board" id="game-board">
+            <!-- Game grid will be generated by JavaScript -->
+        </div>
+
+        <div class="keyboard" id="keyboard">
+            <!-- Keyboard will be generated by JavaScript -->
+        </div>
+
+        <div class="message" id="message"></div>
+        
+        <button class="new-game-btn" id="new-game-btn">New Game</button>
+    </div>
+
+    <script>
+    class WordleGame {
+        constructor() {
+            this.languages = {
+                english: {
+                    name: 'English',
+                    words: [
+                        // 532 English Words
+                        'ABOUT', 'ABOVE', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN',
+                        'AGENT', 'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE',
+                        'ALLOW', 'ALONE', 'ALONG', 'ALTER', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART', 'APPLE',
+                        'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ASIDE', 'ASSET', 'AVOID', 'AWAKE', 'AWARD',
+                        'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BEACH', 'BEGAN', 'BEGIN', 'BENCH', 'BIRDS',
+                        'BLACK', 'BLAME', 'BLANK', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD', 'BOOST', 'BOOTH', 'BOUND',
+                        'BRAIN', 'BRAND', 'BRAVE', 'BREAD', 'BREAK', 'BREED', 'BRIEF', 'BRING', 'BROAD', 'BROKE',
+                        'BROWN', 'BUILD', 'BURST', 'BUYER', 'CABLE', 'CARRY', 'CATCH', 'CAUSE', 'CHAIN', 'CHAIR',
+                        'CHAOS', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHECK', 'CHEST', 'CHIEF', 'CHILD', 'CHINA',
+                        'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR', 'CLICK', 'CLIMB', 'CLOCK', 'CLOSE',
+                        'COAST', 'CORAL', 'COUNT', 'COURT', 'COVER', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM', 'CRIME',
+                        'CRISP', 'CROSS', 'CROWD', 'CROWN', 'CRUEL', 'CRUSH', 'CURVE', 'CYCLE', 'DAILY', 'DANCE',
+                        'DATED', 'DEALT', 'DEATH', 'DEBUT', 'DELAY', 'DEPTH', 'DOING', 'DOUBT', 'DOZEN', 'DRAFT',
+                        'DRAMA', 'DRANK', 'DREAM', 'DRESS', 'DRILL', 'DRINK', 'DRIVE', 'DROVE', 'DRUNK', 'EARLY',
+                        'EARTH', 'EIGHT', 'ELITE', 'EMPTY', 'ENEMY', 'ENJOY', 'ENTER', 'EQUAL', 'ERROR', 'EVENT',
+                        'EVERY', 'EXACT', 'EXIST', 'EXTRA', 'FAITH', 'FALSE', 'FAULT', 'FAVOR', 'FERRY', 'FIBER',
+                        'FIELD', 'FIFTH', 'FIFTY', 'FIGHT', 'FINAL', 'FIRST', 'FIXED', 'FLASH', 'FLEET', 'FLOOR',
+                        'FLUID', 'FOCUS', 'FORCE', 'FORTH', 'FORTY', 'FORUM', 'FOUND', 'FRAME', 'FRANK', 'FRAUD',
+                        'FRESH', 'FRONT', 'FROST', 'FRUIT', 'FULLY', 'FUNNY', 'GIANT', 'GIVEN', 'GLASS', 'GLOBE',
+                        'GLORY', 'GOODS', 'GRACE', 'GRADE', 'GRAIN', 'GRAND', 'GRANT', 'GRASS', 'GRAVE', 'GREAT',
+                        'GREEN', 'GROSS', 'GROUP', 'GROWN', 'GUARD', 'GUESS', 'GUEST', 'GUIDE', 'HAPPY', 'HARSH',
+                        'HASTE', 'HEART', 'HEAVY', 'HENCE', 'HORSE', 'HOTEL', 'HOUSE', 'HUMAN', 'HURRY', 'IMAGE',
+                        'INDEX', 'INNER', 'INPUT', 'ISSUE', 'JAPAN', 'JOINT', 'JONES', 'JUDGE', 'KNIFE', 'KNOCK',
+                        'KNOWN', 'LABEL', 'LARGE', 'LASER', 'LATER', 'LAUGH', 'LAYER', 'LEARN', 'LEASE', 'LEAST',
+                        'LEAVE', 'LEGAL', 'LEVEL', 'LEWIS', 'LIGHT', 'LIMIT', 'LINKS', 'LIVES', 'LOCAL', 'LOOSE',
+                        'LOWER', 'LUCKY', 'LUNCH', 'LYING', 'MAGIC', 'MAJOR', 'MAKER', 'MARCH', 'MARIA', 'MATCH',
+                        'MAYBE', 'MAYOR', 'MEANT', 'MEDIA', 'METAL', 'MIGHT', 'MINOR', 'MINUS', 'MIXED', 'MODEL',
+                        'MONEY', 'MONTH', 'MORAL', 'MOTOR', 'MOUNT', 'MOUSE', 'MOUTH', 'MOVED', 'MOVIE', 'MUSIC',
+                        'NEEDS', 'NEVER', 'NEWLY', 'NIGHT', 'NOISE', 'NORTH', 'NOTED', 'NOVEL', 'NURSE', 'OCCUR',
+                        'OCEAN', 'OFFER', 'OFTEN', 'ORDER', 'OTHER', 'OUGHT', 'PAINT', 'PANEL', 'PAPER', 'PARTS',
+                        'PARTY', 'PEACE', 'PETER', 'PHASE', 'PHONE', 'PHOTO', 'PIANO', 'PIECE', 'PILOT', 'PITCH',
+                        'PLACE', 'PLAIN', 'PLANE', 'PLANT', 'PLATE', 'POINT', 'POUND', 'POWER', 'PRESS', 'PRICE',
+                        'PRIDE', 'PRIME', 'PRINT', 'PRIOR', 'PRIZE', 'PROOF', 'PROUD', 'PROVE', 'QUEEN', 'QUERY',
+                        'QUEST', 'QUICK', 'QUIET', 'QUITE', 'RADIO', 'RAISE', 'RANGE', 'RAPID', 'RATIO', 'REACH',
+                        'READY', 'REALM', 'REBEL', 'REFER', 'RELAX', 'REPLY', 'RIGHT', 'RIGID', 'RIVAL', 'RIVER',
+                        'ROBOT', 'ROGER', 'ROMAN', 'ROUGH', 'ROUND', 'ROUTE', 'ROYAL', 'RURAL', 'SCALE', 'SCENE',
+                        'SCOPE', 'SCORE', 'SENSE', 'SERVE', 'SEVEN', 'SHALL', 'SHAPE', 'SHARE', 'SHARP', 'SHEET',
+                        'SHELF', 'SHELL', 'SHIFT', 'SHINE', 'SHIRT', 'SHOCK', 'SHOOT', 'SHORT', 'SHOWN', 'SIGHT',
+                        'SILLY', 'SINCE', 'SIXTH', 'SIXTY', 'SIZED', 'SKILL', 'SLEEP', 'SLIDE', 'SMALL', 'SMART',
+                        'SMILE', 'SMITH', 'SMOKE', 'SNAKE', 'SNOW', 'SOBER', 'SOLAR', 'SOLID', 'SOLVE', 'SORRY',
+                        'SOUND', 'SOUTH', 'SPACE', 'SPARE', 'SPEAK', 'SPEED', 'SPEND', 'SPENT', 'SPLIT', 'SPOKE',
+                        'SPORT', 'STAFF', 'STAGE', 'STAKE', 'STAND', 'START', 'STATE', 'STEAM', 'STEEL', 'STEEP',
+                        'STICK', 'STILL', 'STOCK', 'STONE', 'STOOD', 'STORE', 'STORM', 'STORY', 'STRIP', 'STUCK',
+                        'STUDY', 'STUFF', 'STYLE', 'SUGAR', 'SUITE', 'SUPER', 'SWEET', 'TABLE', 'TAKEN', 'TASTE',
+                        'TAXES', 'TEACH', 'TEAMS', 'TEETH', 'TERRY', 'TEXAS', 'THANK', 'THEFT', 'THEIR', 'THEME',
+                        'THERE', 'THESE', 'THICK', 'THING', 'THINK', 'THIRD', 'THOSE', 'THREE', 'THREW', 'THROW',
+                        'THUMB', 'TIGER', 'TIGHT', 'TIRED', 'TITLE', 'TODAY', 'TOKEN', 'TOPIC', 'TOTAL', 'TOUCH',
+                        'TOUGH', 'TOWER', 'TRACK', 'TRADE', 'TRAIN', 'TREAT', 'TREND', 'TRIAL', 'TRIBE', 'TRICK',
+                        'TRIED', 'TRIES', 'TRULY', 'TRUNK', 'TRUST', 'TRUTH', 'TWICE', 'TWIST', 'TYPED', 'UNCLE',
+                        'UNDER', 'UNDUE', 'UNION', 'UNITY', 'UNTIL', 'UPPER', 'UPSET', 'URBAN', 'USAGE', 'USUAL',
+                        'VALUE', 'VIDEO', 'VIRUS', 'VISIT', 'VITAL', 'VOCAL', 'VOICE', 'WASTE', 'WATCH', 'WATER',
+                        'WHEEL', 'WHERE', 'WHICH', 'WHILE', 'WHITE', 'WHOLE', 'WHOSE', 'WOMAN', 'WOMEN', 'WORLD',
+                        'WORRY', 'WORSE', 'WORST', 'WORTH', 'WOULD', 'WRITE', 'WRONG', 'WROTE', 'YOUNG', 'YOURS',
+                        'YOUTH', 'ZONES'
+                    ],
+                    keyboard: [
+                        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+                        ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+                    ],
+                    messages: {
+                        notEnoughLetters: 'Not enough letters',
+                        congratulations: 'Congratulations! 🎉',
+                        gameOver: 'Game Over! The word was',
+                        newGame: 'New Game',
+                        finishGame: 'Finish your current game first!',
+                        allWordsCompleted: '🎉 Amazing! You\'ve played all words! Starting fresh cycle! 🔄'
+                    },
+                    labels: {
+                        title: 'My Wordle',
+                        streak: 'Streak',
+                        played: 'Played',
+                        winRate: 'Win Rate'
+                    }
+                },
+                spanish: {
+                    name: 'Spanish',
+                    words: [
+                        // 379 Spanish Words
+                        'ABAJO', 'ABEJA', 'ABRIR', 'ACEITE', 'ACERA', 'ACTOR', 'AGAVE', 'AGRIO', 'AGUA', 'AHORA',
+                        'AJENA', 'AJOYO', 'ALBUM', 'ALDEA', 'ALIEN', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANIMAL',
+                        'ANTES', 'AQUEL', 'ARENA', 'ARROZ', 'ASADO', 'ATLAS', 'BAILE', 'BANCO', 'BARCO', 'BARRIO',
+                        'BASTA', 'BEBER', 'BELLO', 'BIBLIA', 'BICHO', 'BLUSA', 'BODEGA', 'BOLSA', 'BOMBA', 'BOSQUE',
+                        'BRAVO', 'BRISA', 'BRUJA', 'BUENO', 'BURRO', 'BUSCA', 'CABAL', 'CABRA', 'CACAO', 'CALMA',
+                        'CALOR', 'CAMPO', 'CAÑA', 'CANTO', 'CARGO', 'CARNE', 'CARTA', 'CASAS', 'CAUSA', 'CELOS',
+                        'CERDO', 'CESAR', 'CHICA', 'CHILE', 'CHINA', 'CHOZA', 'CIELO', 'CINCO', 'CIRCO', 'CLASE',
+                        'CLAVO', 'CLIMA', 'COBRA', 'COCOA', 'COMER', 'COMO', 'CORAL', 'CORRO', 'COSTA', 'CREMA',
+                        'CREAR', 'CRUZ', 'CUARTO', 'CUEVA', 'DATOS', 'DEBER', 'DECIR', 'DEDO', 'DEJAR', 'DENSE',
+                        'DESDE', 'DESEO', 'DIA', 'DICHO', 'DIENTE', 'DINERO', 'DISCO', 'DOLOR', 'DONDE', 'DORMIR',
+                        'DRAMA', 'DUDA', 'DULCE', 'DURO', 'EBANO', 'EDAD', 'ENERO', 'ENTRE', 'EPOCA', 'ERROR',
+                        'ESCAPE', 'ESPEJO', 'ESTE', 'ESTILO', 'EVENTO', 'EXITO', 'EXTRA', 'FABRICA', 'FACIL', 'FALSO',
+                        'FAMA', 'FECHA', 'FELIZ', 'FERIA', 'FIESTA', 'FINCA', 'FLOR', 'FORMA', 'FOTOS', 'FRUTA',
+                        'FUEGO', 'FUERA', 'FUERZA', 'FUTBOL', 'GALLO', 'GASTO', 'GENTE', 'GLOBO', 'GOLPE', 'GORRO',
+                        'GRACE', 'GRADO', 'GRANDE', 'GRANJA', 'GRATIS', 'GRAVE', 'GRUPO', 'GUANTE', 'GUERRA', 'GUIA',
+                        'GUSTO', 'HABER', 'HACER', 'HACIA', 'HAMBRE', 'HASTA', 'HEROE', 'HIJA', 'HIJO', 'HISTORIA',
+                        'HOGAR', 'HOMBRE', 'HONOR', 'HORA', 'HOTEL', 'HUESO', 'HUEVO', 'HUMOR', 'IDEA', 'IGUAL',
+                        'IMAGEN', 'INDIO', 'JUNTO', 'JOVEN', 'JUEGO', 'JUEZ', 'JULIO', 'JUNIO', 'LARGO', 'LAVAR',
+                        'LECHE', 'LEGAL', 'LENGUA', 'LETRA', 'LIBRE', 'LIBRO', 'LINEA', 'LISTA', 'LUGAR', 'LUNA',
+                        'MADRE', 'MAGIA', 'MANGO', 'MANOS', 'MAÑANA', 'MARCA', 'MARZO', 'MASA', 'MAYO', 'MAYOR',
+                        'MEDIO', 'MEJOR', 'MENOR', 'MENOS', 'MESA', 'METAL', 'METRO', 'MIEDO', 'MIEL', 'MIRAR',
+                        'MODELO', 'MODO', 'MONJA', 'MONTE', 'MORAL', 'MORIR', 'MOTOR', 'MUCHO', 'MUERTE', 'MUJER',
+                        'MUNDO', 'MUSICA', 'NACER', 'NADA', 'NADIE', 'NAVE', 'NEGRO', 'NIETO', 'NIÑA', 'NIÑO',
+                        'NOCHE', 'NORTE', 'NOTA', 'NOVIA', 'NOVIO', 'NUBE', 'NUEVO', 'NUNCA', 'OBRA', 'OCEAN',
+                        'OESTE', 'ORDEN', 'OREJA', 'PADRE', 'PAGAR', 'PAIS', 'PAPEL', 'PARED', 'PARTE', 'PASAR',
+                        'PASO', 'PATIO', 'PATRIA', 'PAZ', 'PECHO', 'PEDIR', 'PELEA', 'PELO', 'PENA', 'PERRO',
+                        'PESO', 'PIANO', 'PIEDRA', 'PIEL', 'PIERNA', 'PLATA', 'PLAZA', 'POCO', 'PODER', 'POETA',
+                        'POLVO', 'PONER', 'PRECIO', 'PRIMO', 'PRISA', 'PRUEBA', 'PUEBLO', 'PUERTA', 'PUERTO', 'PUNTO',
+                        'QUESO', 'QUIEN', 'RADIO', 'RAIZ', 'RATON', 'RAZON', 'REINO', 'RELOJ', 'RESTO', 'REVES',
+                        'RICO', 'RIESGO', 'RIO', 'ROBAR', 'ROJO', 'ROPA', 'ROSA', 'ROSTRO', 'RUMBO', 'SABOR',
+                        'SACAR', 'SALON', 'SALUD', 'SANGRE', 'SANTO', 'SECAR', 'SEDE', 'SELLO', 'SELVA', 'SEÑOR',
+                        'SERIE', 'SIGLO', 'SIGNO', 'SILBA', 'SILLA', 'SINO', 'SITIO', 'SOBRE', 'SOLDO', 'SOLO',
+                        'SOMBRA', 'SONAR', 'SOPA', 'SORDO', 'SUAVE', 'SUBIR', 'SUCIO', 'SUEÑO', 'SUERTE', 'SUPER',
+                        'TABLA', 'TANTO', 'TARDE', 'TAREA', 'TEATRO', 'TECHO', 'TEMA', 'TENER', 'TIERRA', 'TIPO',
+                        'TITULO', 'TOCAR', 'TODO', 'TOMAR', 'TONO', 'TORRE', 'TRAER', 'TRAJE', 'TRATO', 'TREE',
+                        'TRIGO', 'TRISTE', 'ULTIMO', 'UNION', 'USAR', 'VACIO', 'VALLE', 'VALOR', 'VAMOS', 'VARIOS',
+                        'VASO', 'VECINO', 'VELA', 'VENDER', 'VENIR', 'VERDE', 'VERSO', 'VEZ', 'VIAJE', 'VIDA',
+                        'VIEJO', 'VIENTO', 'VINO', 'VISTA', 'VIVIR', 'VOLAR', 'VOLVER', 'VUELO', 'ZONA'
+                    ],
+                    keyboard: [
+                        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
+                        ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+                    ],
+                    messages: {
+                        notEnoughLetters: 'No hay suficientes letras',
+                        congratulations: '¡Felicitaciones! 🎉',
+                        gameOver: '¡Juego terminado! La palabra era',
+                        newGame: 'Nuevo Juego',
+                        finishGame: '¡Termina tu juego actual primero!',
+                        allWordsCompleted: '¡🎉 Increíble! ¡Has jugado todas las palabras! ¡Empezando nuevo ciclo! 🔄'
+                    },
+                    labels: {
+                        title: 'Mi Wordle',
+                        streak: 'Racha',
+                        played: 'Jugados',
+                        winRate: '% Ganados'
+                    }
+                }
+            };
+
+            this.currentLanguage = 'english';
+            // Force reset of used words - clean slate for sharing
+            this.clearAllProgress();
+            this.usedWords = [];
+            
+            this.currentWord = '';
+            this.currentRow = 0;
+            this.currentTile = 0;
+            this.gameOver = false;
+            this.gameStarted = false;
+            
+            this.initializeGame();
+            this.loadStats();
+            this.setupLanguageToggle();
+            this.newGame();
+        }
+
+        // Clear all saved progress for sharing
+        clearAllProgress() {
+            // Clear used words for both languages
+            localStorage.removeItem('usedWords_english');
+            localStorage.removeItem('usedWords_spanish');
+            
+            // Clear stats for both languages
+            localStorage.removeItem('wordleStats_english');
+            localStorage.removeItem('wordleStats_spanish');
+        }
+
+        setupLanguageToggle() {
+            const toggle = document.getElementById('language-toggle');
+            if (!toggle) return;
+            
+            toggle.addEventListener('change', (e) => {
+                const newLanguage = toggle.checked ? 'spanish' : 'english';
+                
+                if (this.gameStarted && !this.gameOver) {
+                    toggle.checked = this.currentLanguage === 'spanish';
+                    this.showMessage(this.languages[this.currentLanguage].messages.finishGame, 'lose');
+                    return;
+                }
+                
+                const confirmMessage = newLanguage === 'english' 
+                    ? 'Switch language to English?' 
+                    : 'Switch language to Spanish?';
+                
+                if (confirm(confirmMessage)) {
+                    this.currentLanguage = newLanguage;
+                    this.usedWords = this.loadUsedWords();
+                    this.updateLanguageLabels();
+                    this.createKeyboard();
+                    this.newGame();
+                } else {
+                    toggle.checked = this.currentLanguage === 'spanish';
+                }
+            });
+            
+            this.updateLanguageLabels();
+        }
+
+        hideLanguageToggle() {
+            const languageToggle = document.querySelector('.language-toggle');
+            if (languageToggle) {
+                languageToggle.style.opacity = '0.3';
+                languageToggle.style.pointerEvents = 'none';
+            }
+        }
+
+        showLanguageToggle() {
+            const languageToggle = document.querySelector('.language-toggle');
+            if (languageToggle) {
+                languageToggle.style.opacity = '1';
+                languageToggle.style.pointerEvents = 'auto';
+            }
+        }
+
+        updateLanguageLabels() {
+            const lang = this.languages[this.currentLanguage];
+            const englishLabel = document.getElementById('english-label');
+            const spanishLabel = document.getElementById('spanish-label');
+            
+            if (englishLabel && spanishLabel) {
+                if (this.currentLanguage === 'english') {
+                    englishLabel.classList.add('active');
+                    spanishLabel.classList.remove('active');
+                } else {
+                    spanishLabel.classList.add('active');
+                    englishLabel.classList.remove('active');
+                }
+            }
+            
+            const elements = {
+                'game-title': lang.labels.title,
+                'streak-label': lang.labels.streak,
+                'played-label': lang.labels.played,
+                'win-rate-label': lang.labels.winRate,
+                'new-game-btn': lang.messages.newGame
+            };
+            
+            for (const id in elements) {
+                const element = document.getElementById(id);
+                if (element) element.textContent = elements[id];
+            }
+        }
+
+        loadUsedWords() {
+            const key = 'usedWords_' + this.currentLanguage;
+            return JSON.parse(localStorage.getItem(key)) || [];
+        }
+
+        saveUsedWords() {
+            const key = 'usedWords_' + this.currentLanguage;
+            localStorage.setItem(key, JSON.stringify(this.usedWords));
+        }
+
+        getRandomWord() {
+            const words = this.languages[this.currentLanguage].words;
+            const availableWords = words.filter(word => !this.usedWords.includes(word));
+            
+            if (availableWords.length === 0) {
+                this.usedWords = [];
+                this.saveUsedWords();
+                setTimeout(() => {
+                    this.showMessage(this.languages[this.currentLanguage].messages.allWordsCompleted, 'win');
+                }, 1000);
+                return words[Math.floor(Math.random() * words.length)];
+            }
+            
+            const selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+            this.usedWords.push(selectedWord);
+            this.saveUsedWords();
+            
+            console.log('Words remaining: ' + (availableWords.length - 1) + ' of ' + words.length);
+            return selectedWord;
+        }
+
+        getRemainingWordsCount() {
+            const words = this.languages[this.currentLanguage].words;
+            const availableWords = words.filter(word => !this.usedWords.includes(word));
+            return availableWords.length;
+        }
+
+        updateWordProgress() {
+            const words = this.languages[this.currentLanguage].words;
+            const remaining = words.length - this.usedWords.length;
+            const progressElement = document.getElementById('word-progress');
+            if (progressElement) {
+                progressElement.textContent = remaining + ' words remaining of ' + words.length;
+            }
+            console.log('Progress: ' + this.usedWords.length + '/' + words.length + ' words played (' + remaining + ' remaining)');
+        }
+
+        initializeGame() {
+            this.createGameBoard();
+            this.createKeyboard();
+            this.setupEventListeners();
+        }
+
+        createGameBoard() {
+            const gameBoard = document.getElementById('game-board');
+            if (!gameBoard) return;
+            
+            gameBoard.innerHTML = '';
+            
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                row.id = 'row-' + i;
+                
+                for (let j = 0; j < 5; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.id = 'tile-' + i + '-' + j;
+                    row.appendChild(tile);
+                }
+                
+                gameBoard.appendChild(row);
+            }
+        }
+
+        createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            if (!keyboard) return;
+            
+            keyboard.innerHTML = '';
+            
+            const rows = this.languages[this.currentLanguage].keyboard;
+
+            for (let r = 0; r < rows.length; r++) {
+                const keyboardRow = document.createElement('div');
+                keyboardRow.className = 'keyboard-row';
+                
+                for (let k = 0; k < rows[r].length; k++) {
+                    const key = rows[r][k];
+                    const keyElement = document.createElement('button');
+                    keyElement.className = 'key';
+                    keyElement.textContent = key === 'BACKSPACE' ? '⌫' : key;
+                    keyElement.id = 'key-' + key;
+                    
+                    if (key === 'ENTER' || key === 'BACKSPACE') {
+                        keyElement.classList.add('wide');
+                    }
+                    
+                    const keyHandler = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.handleKeyPress(key);
+                    };
+                    
+                    if ('ontouchstart' in window) {
+                        keyElement.addEventListener('touchend', keyHandler, { passive: false });
+                    } else {
+                        keyElement.addEventListener('click', keyHandler);
+                    }
+                    
+                    keyboardRow.appendChild(keyElement);
+                }
+                
+                keyboard.appendChild(keyboardRow);
+            }
+        }
+
+        setupEventListeners() {
+            document.addEventListener('keydown', (e) => {
+                let key = e.key.toUpperCase();
+                
+                if (key === 'Ñ') {
+                    key = 'Ñ';
+                }
+                
+                if (key === 'ENTER') {
+                    this.handleKeyPress('ENTER');
+                } else if (key === 'BACKSPACE') {
+                    this.handleKeyPress('BACKSPACE');
+                } else if ((key.match(/[A-Z]/) && key.length === 1) || key === 'Ñ') {
+                    this.handleKeyPress(key);
+                }
+            });
+
+            const newGameBtn = document.getElementById('new-game-btn');
+            if (newGameBtn) {
+                const newGameHandler = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.newGame();
+                };
+                
+                if ('ontouchstart' in window) {
+                    newGameBtn.addEventListener('touchend', newGameHandler, { passive: false });
+                } else {
+                    newGameBtn.addEventListener('click', newGameHandler);
+                }
+            }
+        }
+
+        handleKeyPress(key) {
+            if (this.gameOver) return;
+
+            if (key === 'ENTER') {
+                this.submitGuess();
+            } else if (key === 'BACKSPACE') {
+                this.deleteLetter();
+            } else if (this.currentTile < 5) {
+                this.addLetter(key);
+            }
+        }
+
+        addLetter(letter) {
+            if (!this.gameStarted) {
+                this.gameStarted = true;
+                this.hideLanguageToggle();
+            }
+
+            const tile = document.getElementById('tile-' + this.currentRow + '-' + this.currentTile);
+            if (tile) {
+                tile.textContent = letter;
+                tile.classList.add('filled');
+                this.currentTile++;
+            }
+        }
+
+        deleteLetter() {
+            if (this.currentTile > 0) {
+                this.currentTile--;
+                const tile = document.getElementById('tile-' + this.currentRow + '-' + this.currentTile);
+                if (tile) {
+                    tile.textContent = '';
+                    tile.classList.remove('filled');
+                }
+
+                if (this.currentRow === 0 && this.currentTile === 0) {
+                    this.gameStarted = false;
+                    this.showLanguageToggle();
+                }
+            }
+        }
+
+        submitGuess() {
+            if (this.currentTile < 5) {
+                this.showMessage(this.languages[this.currentLanguage].messages.notEnoughLetters);
+                return;
+            }
+
+            const guess = this.getCurrentGuess();
+            this.checkGuess(guess);
+            
+            if (guess === this.currentWord) {
+                this.gameWon();
+            } else if (this.currentRow === 5) {
+                this.gameLost();
+            } else {
+                this.currentRow++;
+                this.currentTile = 0;
+            }
+        }
+
+        getCurrentGuess() {
+            let guess = '';
+            for (let i = 0; i < 5; i++) {
+                const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
+                if (tile) guess += tile.textContent;
+            }
+            return guess;
+        }
+
+        checkGuess(guess) {
+            const result = [];
+            const wordArray = this.currentWord.split('');
+            const guessArray = guess.split('');
+
+            for (let i = 0; i < 5; i++) {
+                if (guessArray[i] === wordArray[i]) {
+                    result[i] = 'correct';
+                    wordArray[i] = null;
+                    guessArray[i] = null;
+                }
+            }
+
+            for (let i = 0; i < 5; i++) {
+                if (guessArray[i] !== null) {
+                    const letterIndex = wordArray.indexOf(guessArray[i]);
+                    if (letterIndex !== -1) {
+                        result[i] = 'present';
+                        wordArray[letterIndex] = null;
+                    } else {
+                        result[i] = 'absent';
+                    }
+                }
+            }
+
+            this.updateTiles(result);
+            this.updateKeyboard(guess, result);
+        }
+
+        updateTiles(result) {
+            for (let i = 0; i < 5; i++) {
+                const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
+                if (tile) tile.classList.add(result[i]);
+            }
+        }
+
+        updateKeyboard(guess, result) {
+            for (let i = 0; i < 5; i++) {
+                const key = document.getElementById('key-' + guess[i]);
+                if (!key) continue;
+                
+                const currentClass = key.classList.contains('correct') ? 'correct' :
+                                   key.classList.contains('present') ? 'present' :
+                                   key.classList.contains('absent') ? 'absent' : '';
+
+                if (result[i] === 'correct' || 
+                    (result[i] === 'present' && currentClass !== 'correct') ||
+                    (result[i] === 'absent' && !currentClass)) {
+                    key.classList.remove('correct', 'present', 'absent');
+                    key.classList.add(result[i]);
+                }
+            }
+        }
+
+        gameWon() {
+            this.gameOver = true;
+            this.showMessage(this.languages[this.currentLanguage].messages.congratulations, 'win');
+            this.updateStats(true);
+            this.showLanguageToggle();
+        }
+
+        gameLost() {
+            this.gameOver = true;
+            const loseMessage = this.languages[this.currentLanguage].messages.gameOver + ' ' + this.currentWord;
+            this.showMessage(loseMessage, 'lose');
+            this.updateStats(false);
+            this.showLanguageToggle();
+        }
+
+        showMessage(text, type) {
+            const message = document.getElementById('message');
+            if (message) {
+                message.textContent = text;
+                message.className = 'message ' + (type || '');
+                
+                setTimeout(() => {
+                    message.textContent = '';
+                    message.className = 'message';
+                }, 3000);
+            }
+        }
+
+        loadStats() {
+            const statsKey = 'wordleStats_' + this.currentLanguage;
+            const stats = JSON.parse(localStorage.getItem(statsKey)) || {
+                played: 0, won: 0, streak: 0, maxStreak: 0
+            };
+
+            const elements = {
+                'streak': stats.streak,
+                'played': stats.played,
+                'win-rate': stats.played > 0 ? Math.round((stats.won / stats.played) * 100) + '%' : '0%'
+            };
+            
+            for (const id in elements) {
+                const element = document.getElementById(id);
+                if (element) element.textContent = elements[id];
+            }
+        }
+
+        updateStats(won) {
+            const statsKey = 'wordleStats_' + this.currentLanguage;
+            let stats = JSON.parse(localStorage.getItem(statsKey)) || {
+                played: 0, won: 0, streak: 0, maxStreak: 0
+            };
+
+            stats.played++;
+            
+            if (won) {
+                stats.won++;
+                stats.streak++;
+                stats.maxStreak = Math.max(stats.maxStreak, stats.streak);
+            } else {
+                stats.streak = 0;
+            }
+
+            localStorage.setItem(statsKey, JSON.stringify(stats));
+            this.loadStats();
+        }
+
+        newGame() {
+            this.currentWord = this.getRandomWord();
+            this.currentRow = 0;
+            this.currentTile = 0;
+            this.gameOver = false;
+            this.gameStarted = false;
+            
+            console.log('New game started with word:', this.currentWord);
+            this.updateWordProgress();
+            
+            const tiles = document.querySelectorAll('.tile');
+            for (let i = 0; i < tiles.length; i++) {
+                tiles[i].textContent = '';
+                tiles[i].className = 'tile';
+            }
+            
+            const keys = document.querySelectorAll('.key');
+            for (let i = 0; i < keys.length; i++) {
+                if (keys[i].id.startsWith('key-') && keys[i].id !== 'key-ENTER' && keys[i].id !== 'key-BACKSPACE') {
+                    keys[i].className = 'key';
+                    if (keys[i].id === 'key-ENTER' || keys[i].id === 'key-BACKSPACE') {
+                        keys[i].classList.add('wide');
+                    }
+                }
+            }
+            
+            const message = document.getElementById('message');
+            if (message) {
+                message.textContent = '';
+                message.className = 'message';
+            }
+            
+            this.loadStats();
+            this.showLanguageToggle();
+        }
+    }
+
+    // Initialize when DOM is ready - iOS compatible
+    function initGame() {
+        if (document.getElementById('game-board')) {
+            console.log('DOM ready, starting game...');
+            window.game = new WordleGame();
+        } else {
+            setTimeout(initGame, 50);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGame);
+    } else {
+        initGame();
+    }
+    </script>
+</body>
+</html>
