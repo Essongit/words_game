@@ -743,6 +743,7 @@
                     this.usedWords = this.loadUsedWords();
                     this.updateLanguageLabels();
                     this.createKeyboard();
+                    this.updateWordProgress(); // Add this line
                     this.newGame();
                 } else {
                     toggle.checked = this.currentLanguage === 'spanish';
