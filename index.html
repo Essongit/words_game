@@ -1089,10 +1089,17 @@
                 message.textContent = text;
                 message.className = 'message ' + (type || '');
                 
-                setTimeout(() => {
+                // Clear any existing timeout
+                if (this.messageTimeout) {
+                    clearTimeout(this.messageTimeout);
+                }
+                
+                // Set new timeout for 4 seconds
+                this.messageTimeout = setTimeout(() => {
                     message.textContent = '';
                     message.className = 'message';
-                }, 3000);
+                    this.messageTimeout = null;
+                }, 4000); // Changed from 3000 to 4000 (4 seconds)
             }
         }
 
