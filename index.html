@@ -129,6 +129,143 @@
             color: #6aaa64;
         }
 
+        /* Backup Controls Styles */
+        .backup-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .backup-btn {
+            padding: 6px 12px;
+            background-color: #787c7e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+
+        .backup-btn:hover {
+            background-color: #6aaa64;
+        }
+
+        .backup-btn:active {
+            background-color: #5a9a54;
+            transform: scale(0.95);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #121213;
+        }
+
+        .modal-text {
+            margin-bottom: 15px;
+            color: #787c7e;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .backup-code {
+            background-color: #f8f9fa;
+            border: 1px solid #d3d6da;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-bottom: 15px;
+            color: #121213;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+
+        .modal-btn.primary {
+            background-color: #6aaa64;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background-color: #5a9a54;
+        }
+
+        .modal-btn.secondary {
+            background-color: #787c7e;
+            color: white;
+        }
+
+        .modal-btn.secondary:hover {
+            background-color: #6a6d70;
+        }
+
+        .restore-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #d3d6da;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-bottom: 15px;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .restore-input:focus {
+            border-color: #6aaa64;
+            outline: none;
+        }
+
         header {
             text-align: center;
             margin-bottom: 15px;
@@ -375,6 +512,30 @@
                 -webkit-transform: translateX(40px);
             }
 
+            .backup-controls {
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+            
+            .backup-btn {
+                padding: 5px 10px;
+                font-size: 10px;
+            }
+
+            .modal-content {
+                margin: 5% auto;
+                width: 95%;
+                padding: 15px;
+            }
+
+            .modal-header {
+                font-size: 16px;
+            }
+
+            .backup-code {
+                font-size: 10px;
+            }
+
             h1 {
                 font-size: 1.5rem;
                 margin-bottom: 8px;
@@ -510,6 +671,12 @@
             <span class="language-label" id="spanish-label">ES</span>
         </div>
 
+        <!-- Backup Controls -->
+        <div class="backup-controls">
+            <button class="backup-btn" id="backup-btn">💾 Save Your Progress</button>
+            <button class="backup-btn" id="restore-btn">🔄 Restore Your Progress</button>
+        </div>
+
         <header>
             <h1 id="game-title">My Wordle</h1>
             <div class="stats">
@@ -540,6 +707,32 @@
         <div class="message" id="message"></div>
         
         <button class="new-game-btn" id="new-game-btn">New Game</button>
+    </div>
+
+    <!-- Backup Modal -->
+    <div id="backup-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-header">Your Backup Code</div>
+            <div class="modal-text" id="modal-text">Copy and save this code in a safe place. You can use it to restore your game progress later.</div>
+            <div class="backup-code" id="backup-code-display"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="copy-btn">Copy</button>
+                <button class="modal-btn secondary" id="close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restore Modal -->
+    <div id="restore-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="restore-modal-header">Restore Progress</div>
+            <div class="modal-text" id="restore-modal-text">Paste your backup code below to restore your progress:</div>
+            <input type="text" class="restore-input" id="restore-input" placeholder="Paste your backup code here...">
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="restore-confirm-btn">Restore</button>
+                <button class="modal-btn secondary" id="close-restore-modal-btn">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -617,7 +810,9 @@
                         newGame: 'New Game',
                         finishGame: 'Finish your current game first!',
                         allWordsCompleted: '🎉 Amazing! You\'ve played all words! Starting fresh cycle! 🔄',
-                        wordsRemaining: 'words remaining of' // Add this line
+                        wordsRemaining: 'words remaining of',
+                        saveProgress: '💾 Save Your Progress',
+                        restoreProgress: '🔄 Restore Your Progress'
                     },
                     labels: {
                         title: 'My Wordle',
@@ -629,7 +824,7 @@
                 spanish: {
                     name: 'Spanish',
                     words: [
-                        // 500 Spanish Words (verified count)
+                        // 500 Spanish Words (exactly 500)
                         'ABAJO', 'ABEJA', 'ABRIR', 'ACEITE', 'ACERA', 'ACTOR', 'AGAVE', 'AGRIO', 'AGUA', 'AHORA',
                         'AJENA', 'ALBUM', 'ALDEA', 'ALIEN', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANIMAL', 'ANTES',
                         'AQUEL', 'ARENA', 'ARROZ', 'ASADO', 'ATLAS', 'BAILE', 'BANCO', 'BARCO', 'BARRIO', 'BASTA',
@@ -680,6 +875,11 @@
                         'COLOR', 'COMBO', 'COMUN', 'COPAL', 'COPIA', 'CORES', 'CORTE', 'COSER', 'COVER', 'CRECE',
                         'CREER', 'CRUDO', 'CRUZA', 'CUAJO', 'CUBAN', 'CUIDAR', 'CULPA', 'CUMBO', 'CURSO', 'CURVA'
                     ],
+                    keyboard: [
+                        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
+                        ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+                    ],
                     messages: {
                         notEnoughLetters: 'No hay suficientes letras',
                         congratulations: '¡Felicitaciones! 🎉',
@@ -687,7 +887,9 @@
                         newGame: 'Nuevo Juego',
                         finishGame: '¡Termina tu juego actual primero!',
                         allWordsCompleted: '¡🎉 Increíble! ¡Has jugado todas las palabras! ¡Empezando nuevo ciclo! 🔄',
-                        wordsRemaining: 'palabras restantes de' // Add this line
+                        wordsRemaining: 'palabras restantes de',
+                        saveProgress: '💾 Guardar Progreso',
+                        restoreProgress: '🔄 Restaurar Progreso'
                     },
                     labels: {
                         title: 'Mi Wordle',
@@ -699,7 +901,6 @@
             };
 
             this.currentLanguage = 'english';
-            // Force reset of used words - clean slate for sharing
             this.clearAllProgress();
             this.usedWords = [];
             
@@ -708,23 +909,223 @@
             this.currentTile = 0;
             this.gameOver = false;
             this.gameStarted = false;
-            this.messageTimeout = null; // Add this line
+            this.messageTimeout = null;
             
             this.initializeGame();
             this.loadStats();
             this.setupLanguageToggle();
+            this.setupBackupControls();
+            this.setupModals();
             this.newGame();
         }
 
-        // Clear all saved progress for sharing
         clearAllProgress() {
-            // Clear used words for both languages
             localStorage.removeItem('usedWords_english');
             localStorage.removeItem('usedWords_spanish');
-            
-            // Clear stats for both languages
             localStorage.removeItem('wordleStats_english');
             localStorage.removeItem('wordleStats_spanish');
+        }
+
+        // Backup functionality
+        generateBackupCode() {
+            const gameData = {
+                english: {
+                    stats: JSON.parse(localStorage.getItem('wordleStats_english')) || { played: 0, won: 0, streak: 0, maxStreak: 0 },
+                    usedWords: JSON.parse(localStorage.getItem('usedWords_english')) || []
+                },
+                spanish: {
+                    stats: JSON.parse(localStorage.getItem('wordleStats_spanish')) || { played: 0, won: 0, streak: 0, maxStreak: 0 },
+                    usedWords: JSON.parse(localStorage.getItem('usedWords_spanish')) || []
+                }
+            };
+            
+            const jsonString = JSON.stringify(gameData);
+            const base64Code = btoa(jsonString);
+            return base64Code;
+        }
+
+        showBackupCode() {
+            const code = this.generateBackupCode();
+            const modal = document.getElementById('backup-modal');
+            const codeDisplay = document.getElementById('backup-code-display');
+            const modalHeader = document.getElementById('modal-header');
+            const modalText = document.getElementById('modal-text');
+            const copyBtn = document.getElementById('copy-btn');
+            const closeBtn = document.getElementById('close-modal-btn');
+            
+            // Update modal content based on language
+            if (this.currentLanguage === 'spanish') {
+                modalHeader.textContent = 'Tu Código de Respaldo';
+                modalText.textContent = 'Copia y guarda este código en un lugar seguro. Puedes usarlo para restaurar tu progreso más tarde.';
+                copyBtn.textContent = 'Copiar';
+                closeBtn.textContent = 'Cerrar';
+            } else {
+                modalHeader.textContent = 'Your Backup Code';
+                modalText.textContent = 'Copy and save this code in a safe place. You can use it to restore your progress later.';
+                copyBtn.textContent = 'Copy';
+                closeBtn.textContent = 'Close';
+            }
+            
+            codeDisplay.textContent = code;
+            modal.style.display = 'block';
+        }
+
+        restoreFromCode() {
+            const modal = document.getElementById('restore-modal');
+            const modalHeader = document.getElementById('restore-modal-header');
+            const modalText = document.getElementById('restore-modal-text');
+            const input = document.getElementById('restore-input');
+            const restoreBtn = document.getElementById('restore-confirm-btn');
+            const cancelBtn = document.getElementById('close-restore-modal-btn');
+            
+            // Update modal content based on language
+            if (this.currentLanguage === 'spanish') {
+                modalHeader.textContent = 'Restaurar Progreso';
+                modalText.textContent = 'Pega tu código de respaldo abajo para restaurar tu progreso:';
+                input.placeholder = 'Pega tu código de respaldo aquí...';
+                restoreBtn.textContent = 'Restaurar';
+                cancelBtn.textContent = 'Cancelar';
+            } else {
+                modalHeader.textContent = 'Restore Progress';
+                modalText.textContent = 'Paste your backup code below to restore your progress:';
+                input.placeholder = 'Paste your backup code here...';
+                restoreBtn.textContent = 'Restore';
+                cancelBtn.textContent = 'Cancel';
+            }
+            
+            input.value = '';
+            modal.style.display = 'block';
+        }
+
+        executeRestore() {
+            const input = document.getElementById('restore-input');
+            const code = input.value.trim();
+            
+            if (!code) return;
+            
+            try {
+                const jsonString = atob(code);
+                const gameData = JSON.parse(jsonString);
+                
+                if (!gameData.english || !gameData.spanish) {
+                    throw new Error('Invalid backup code');
+                }
+                
+                localStorage.setItem('wordleStats_english', JSON.stringify(gameData.english.stats));
+                localStorage.setItem('usedWords_english', JSON.stringify(gameData.english.usedWords));
+                localStorage.setItem('wordleStats_spanish', JSON.stringify(gameData.spanish.stats));
+                localStorage.setItem('usedWords_spanish', JSON.stringify(gameData.spanish.usedWords));
+                
+                this.usedWords = this.loadUsedWords();
+                this.loadStats();
+                this.updateWordProgress();
+                
+                const message = this.currentLanguage === 'english' 
+                    ? 'Progress restored successfully! 🎉' 
+                    : '¡Progreso restaurado exitosamente! 🎉';
+                this.showMessage(message, 'win');
+                
+                // Close modal
+                document.getElementById('restore-modal').style.display = 'none';
+                
+            } catch (error) {
+                const message = this.currentLanguage === 'english' 
+                    ? 'Invalid backup code. Please check and try again.' 
+                    : 'Código de respaldo inválido. Verifica e intenta de nuevo.';
+                this.showMessage(message, 'lose');
+            }
+        }
+
+        setupModals() {
+            // Copy button
+            const copyBtn = document.getElementById('copy-btn');
+            copyBtn.addEventListener('click', () => {
+                const code = document.getElementById('backup-code-display').textContent;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        const message = this.currentLanguage === 'english' 
+                            ? 'Backup code copied to clipboard!' 
+                            : '¡Código de respaldo copiado al portapapeles!';
+                        this.showMessage(message, 'win');
+                        document.getElementById('backup-modal').style.display = 'none';
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = code;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    const message = this.currentLanguage === 'english' 
+                        ? 'Backup code copied!' 
+                        : '¡Código de respaldo copiado!';
+                    this.showMessage(message, 'win');
+                    document.getElementById('backup-modal').style.display = 'none';
+                }
+            });
+
+            // Close backup modal
+            document.getElementById('close-modal-btn').addEventListener('click', () => {
+                document.getElementById('backup-modal').style.display = 'none';
+            });
+
+            // Restore confirm button
+            document.getElementById('restore-confirm-btn').addEventListener('click', () => {
+                this.executeRestore();
+            });
+
+            // Close restore modal
+            document.getElementById('close-restore-modal-btn').addEventListener('click', () => {
+                document.getElementById('restore-modal').style.display = 'none';
+            });
+
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                const backupModal = document.getElementById('backup-modal');
+                const restoreModal = document.getElementById('restore-modal');
+                
+                if (e.target === backupModal) {
+                    backupModal.style.display = 'none';
+                }
+                if (e.target === restoreModal) {
+                    restoreModal.style.display = 'none';
+                }
+            });
+        }
+
+        setupBackupControls() {
+            const backupBtn = document.getElementById('backup-btn');
+            const restoreBtn = document.getElementById('restore-btn');
+            
+            if (backupBtn) {
+                const backupHandler = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showBackupCode();
+                };
+                
+                if ('ontouchstart' in window) {
+                    backupBtn.addEventListener('touchend', backupHandler, { passive: false });
+                } else {
+                    backupBtn.addEventListener('click', backupHandler);
+                }
+            }
+            
+            if (restoreBtn) {
+                const restoreHandler = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.restoreFromCode();
+                };
+                
+                if ('ontouchstart' in window) {
+                    restoreBtn.addEventListener('touchend', restoreHandler, { passive: false });
+                } else {
+                    restoreBtn.addEventListener('click', restoreHandler);
+                }
+            }
         }
 
         setupLanguageToggle() {
@@ -749,7 +1150,7 @@
                     this.usedWords = this.loadUsedWords();
                     this.updateLanguageLabels();
                     this.createKeyboard();
-                    this.updateWordProgress(); // Add this line
+                    this.updateWordProgress();
                     this.newGame();
                 } else {
                     toggle.checked = this.currentLanguage === 'spanish';
@@ -795,7 +1196,9 @@
                 'streak-label': lang.labels.streak,
                 'played-label': lang.labels.played,
                 'win-rate-label': lang.labels.winRate,
-                'new-game-btn': lang.messages.newGame
+                'new-game-btn': lang.messages.newGame,
+                'backup-btn': lang.messages.saveProgress,
+                'restore-btn': lang.messages.restoreProgress
             };
             
             for (const id in elements) {
@@ -831,14 +1234,7 @@
             this.usedWords.push(selectedWord);
             this.saveUsedWords();
             
-            console.log('Words remaining: ' + (availableWords.length - 1) + ' of ' + words.length);
             return selectedWord;
-        }
-
-        getRemainingWordsCount() {
-            const words = this.languages[this.currentLanguage].words;
-            const availableWords = words.filter(word => !this.usedWords.includes(word));
-            return availableWords.length;
         }
 
         updateWordProgress() {
@@ -849,7 +1245,6 @@
                 const wordsRemainingText = this.languages[this.currentLanguage].messages.wordsRemaining;
                 progressElement.textContent = remaining + ' ' + wordsRemainingText + ' ' + words.length;
             }
-            console.log('Progress: ' + this.usedWords.length + '/' + words.length + ' words played (' + remaining + ' remaining)');
         }
 
         initializeGame() {
@@ -1100,20 +1495,17 @@
                 message.textContent = text;
                 message.className = 'message ' + (type || '');
                 
-                // Clear any existing timeout
                 if (this.messageTimeout) {
                     clearTimeout(this.messageTimeout);
                 }
                 
-                // Only set timeout for non-final messages (not win/lose)
                 if (type !== 'win' && type !== 'lose') {
                     this.messageTimeout = setTimeout(() => {
                         message.textContent = '';
                         message.className = 'message';
                         this.messageTimeout = null;
-                    }, 6000); // 6 seconds for temporary messages
+                    }, 6000);
                 }
-                // Win/lose messages stay until newGame() is called
             }
         }
 
