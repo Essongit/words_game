@@ -667,7 +667,26 @@
                         'TITULO', 'TOCAR', 'TODO', 'TOMAR', 'TONO', 'TORRE', 'TRAER', 'TRAJE', 'TRATO', 'TREE',
                         'TRIGO', 'TRISTE', 'ULTIMO', 'UNION', 'USAR', 'VACIO', 'VALLE', 'VALOR', 'VAMOS', 'VARIOS',
                         'VASO', 'VECINO', 'VELA', 'VENDER', 'VENIR', 'VERDE', 'VERSO', 'VEZ', 'VIAJE', 'VIDA',
-                        'VIEJO', 'VIENTO', 'VINO', 'VISTA', 'VIVIR', 'VOLAR', 'VOLVER', 'VUELO', 'ZONA'
+                        'VIEJO', 'VIENTO', 'VINO', 'VISTA', 'VIVIR', 'VOLAR', 'VOLVER', 'VUELO', 'ZONA',
+                        
+                        // NEW WORDS (142 additional words)
+                        'ABRIL', 'ACASO', 'ACORN', 'ADIOS', 'AFUERA', 'AGUJA', 'AJENO', 'ALADO', 'ALBA', 'ALBON',
+                        'ALETO', 'ALIAS', 'ALIJO', 'ALISO', 'ALMAS', 'ALTOS', 'ALZAR', 'AMBAR', 'AMBOS', 'AMOR',
+                        'ANCHO', 'ANCLA', 'ANGEL', 'ANIMA', 'ANIMO', 'ANSIA', 'ANTEO', 'ANUAL', 'ANZOL', 'APEGO',
+                        'ARBOL', 'ARCOS', 'ARDUO', 'AREAS', 'ARMAS', 'AROMA', 'ARQUE', 'AUDIO', 'AUTOR', 'AVENA',
+                        'AVION', 'AZOTE', 'AZUCAR', 'BACON', 'BADGE', 'BAJON', 'BANDA', 'BARON', 'BARRA', 'BATON',
+                        'BEACH', 'BELLA', 'BESAN', 'BINGO', 'BIZCO', 'BLANC', 'BLEDO', 'BOINA', 'BORDE', 'BOTON',
+                        'BRAVA', 'BREVE', 'BROCA', 'BRUNO', 'BUENA', 'BULLA', 'BURLA', 'CABRA', 'CACHO', 'CADET',
+                        'CAJAS', 'CALCA', 'CALLE', 'CANAL', 'CANAS', 'CANON', 'CAOBA', 'CARAS', 'CARBO', 'CARGO',
+                        'CASCO', 'CASTA', 'CAUCE', 'CAUCHO', 'CEDAR', 'CEGAR', 'CENSO', 'CERCA', 'CERRO', 'CESAR',
+                        'CHAMP', 'CHECO', 'CHESS', 'CHINA', 'CHINO', 'CHIVE', 'CHOZA', 'CINTA', 'CITAS', 'CIVIL',
+                        'CLARA', 'CLERO', 'CLIMA', 'COBRO', 'COCHE', 'COGER', 'COLAR', 'COLOR', 'COMBO', 'COMUN',
+                        'COPAL', 'COPIA', 'CORES', 'CORTE', 'COSER', 'COSTA', 'COVER', 'CRECE', 'CREER', 'CREMA',
+                        'CRUDO', 'CRUZA', 'CUAJO', 'CUBAN', 'CUEVA', 'CUIDAR', 'CULPA', 'CUMBO', 'CURSO', 'CURVA',
+                        'DANZA', 'DARDO', 'DEDAL', 'DELTA', 'DENSE', 'DERBY', 'DEUDA', 'DIANA', 'DICHA', 'DIETA',
+                        'DIQUE', 'DISCS', 'DOBLA', 'DOGMA', 'DONAR', 'DONUT', 'DORADA', 'DOSEL', 'DRAMA', 'DROGA',
+                        'DUELO', 'DUNAS', 'EAGLE', 'EBANO', 'EGIDO', 'ELITE', 'ENANO', 'ENJOY', 'ERIZO', 'ESCAM',
+                        'ESLAO', 'ESPER', 'ESPIR', 'ESTIO', 'EUROS', 'EXACT', 'FABUL', 'FAENA', 'FALDA', 'FALSO'
                     ],
                     keyboard: [
                         ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -1099,12 +1118,15 @@
                     clearTimeout(this.messageTimeout);
                 }
                 
-                // Set new timeout for 4 seconds
-                this.messageTimeout = setTimeout(() => {
-                    message.textContent = '';
-                    message.className = 'message';
-                    this.messageTimeout = null;
-                }, 4000); // Changed from 3000 to 4000 (4 seconds)
+                // Only set timeout for non-final messages (not win/lose)
+                if (type !== 'win' && type !== 'lose') {
+                    this.messageTimeout = setTimeout(() => {
+                        message.textContent = '';
+                        message.className = 'message';
+                        this.messageTimeout = null;
+                    }, 6000); // 6 seconds for temporary messages
+                }
+                // Win/lose messages stay until newGame() is called
             }
         }
 
