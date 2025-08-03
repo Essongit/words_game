@@ -2,36 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- iOS Web App Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="My Wordle">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%236aaa64'/><text x='50' y='60' font-size='60' text-anchor='middle' fill='white'>W</text></svg>">
-    
-    <!-- Force Safari to open instead of preview -->
-    <meta name="format-detection" content="telephone=no">
-    <meta name="format-detection" content="email=no">
-    <meta name="format-detection" content="address=no">
-    
-    <!-- Web App Manifest (for Android/PWA support) -->
-    <link rel="manifest" href="data:application/json,{
-        'name': 'My Wordle Game',
-        'short_name': 'Wordle',
-        'display': 'standalone',
-        'start_url': './',
-        'theme_color': '%236aaa64',
-        'background_color': '%23ffffff',
-        'icons': [
-            {
-                'src': 'data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%236aaa64\\'/><text x=\\'50\\' y=\\'60\\' font-size=\\'60\\' text-anchor=\\'middle\\' fill=\\'white\\'>W</text></svg>',
-                'sizes': '192x192',
-                'type': 'image/svg+xml'
-            }
-        ]
-    }">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>My Wordle Game</title>
     
     <style>
@@ -62,7 +33,6 @@
             padding: 0 5px;
         }
 
-        /* Language Toggle Styles */
         .language-toggle {
             display: flex;
             justify-content: center;
@@ -94,7 +64,6 @@
             background-color: #6aaa64;
             transition: .4s;
             border-radius: 34px;
-            -webkit-transition: .4s;
         }
 
         .toggle-slider:before {
@@ -107,7 +76,6 @@
             background-color: white;
             transition: .4s;
             border-radius: 50%;
-            -webkit-transition: .4s;
         }
 
         .toggle-input:checked + .toggle-slider {
@@ -116,7 +84,6 @@
 
         .toggle-input:checked + .toggle-slider:before {
             transform: translateX(46px);
-            -webkit-transform: translateX(46px);
         }
 
         .language-label {
@@ -127,143 +94,6 @@
 
         .language-label.active {
             color: #6aaa64;
-        }
-
-        /* Backup Controls Styles */
-        .backup-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .backup-btn {
-            padding: 6px 12px;
-            background-color: #787c7e;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.1s ease;
-            -webkit-appearance: none;
-            touch-action: manipulation;
-        }
-
-        .backup-btn:hover {
-            background-color: #6aaa64;
-        }
-
-        .backup-btn:active {
-            background-color: #5a9a54;
-            transform: scale(0.95);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            -webkit-user-select: text;
-            user-select: text;
-        }
-
-        .modal-content {
-            background-color: #ffffff;
-            margin: 10% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-header {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #121213;
-        }
-
-        .modal-text {
-            margin-bottom: 15px;
-            color: #787c7e;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .backup-code {
-            background-color: #f8f9fa;
-            border: 1px solid #d3d6da;
-            border-radius: 4px;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            word-break: break-all;
-            margin-bottom: 15px;
-            color: #121213;
-            -webkit-user-select: text;
-            user-select: text;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .modal-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.1s ease;
-            -webkit-appearance: none;
-            touch-action: manipulation;
-        }
-
-        .modal-btn.primary {
-            background-color: #6aaa64;
-            color: white;
-        }
-
-        .modal-btn.primary:hover {
-            background-color: #5a9a54;
-        }
-
-        .modal-btn.secondary {
-            background-color: #787c7e;
-            color: white;
-        }
-
-        .modal-btn.secondary:hover {
-            background-color: #6a6d70;
-        }
-
-        .restore-input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #d3d6da;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            margin-bottom: 15px;
-            -webkit-user-select: text;
-            user-select: text;
-        }
-
-        .restore-input:focus {
-            border-color: #6aaa64;
-            outline: none;
         }
 
         header {
@@ -335,7 +165,6 @@
             transition: all 0.3s ease;
             background-color: #ffffff;
             color: #121213;
-            -webkit-transition: all 0.3s ease;
         }
 
         .tile.filled {
@@ -391,10 +220,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            -webkit-appearance: none;
-            -webkit-transition: background-color 0.1s ease;
             touch-action: manipulation;
-            -webkit-tap-highlight-color: rgba(0,0,0,0.1);
         }
 
         .key:hover {
@@ -406,7 +232,6 @@
             background-color: #878a8c;
             color: #ffffff;
             transform: scale(0.95);
-            -webkit-transform: scale(0.95);
         }
 
         .key.wide {
@@ -459,8 +284,6 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.1s ease;
-            -webkit-appearance: none;
-            -webkit-transition: background-color 0.1s ease;
             touch-action: manipulation;
         }
 
@@ -471,10 +294,9 @@
         .new-game-btn:active {
             background-color: #5a9a54;
             transform: scale(0.95);
-            -webkit-transform: scale(0.95);
         }
 
-        /* Mobile responsiveness - Portrait phones */
+        /* Mobile responsiveness */
         @media (max-width: 480px) and (orientation: portrait) {
             body {
                 padding: 2px;
@@ -509,31 +331,6 @@
 
             .toggle-input:checked + .toggle-slider:before {
                 transform: translateX(40px);
-                -webkit-transform: translateX(40px);
-            }
-
-            .backup-controls {
-                gap: 8px;
-                margin-bottom: 8px;
-            }
-            
-            .backup-btn {
-                padding: 5px 10px;
-                font-size: 10px;
-            }
-
-            .modal-content {
-                margin: 5% auto;
-                width: 95%;
-                padding: 15px;
-            }
-
-            .modal-header {
-                font-size: 16px;
-            }
-
-            .backup-code {
-                font-size: 10px;
             }
 
             h1 {
@@ -604,7 +401,6 @@
             }
         }
 
-        /* Very small phones */
         @media (max-width: 360px) and (orientation: portrait) {
             .tile {
                 width: 42px;
@@ -626,7 +422,6 @@
             }
         }
 
-        /* Landscape phones */
         @media (max-width: 812px) and (orientation: landscape) {
             body {
                 padding: 2px;
@@ -671,12 +466,6 @@
             <span class="language-label" id="spanish-label">ES</span>
         </div>
 
-        <!-- Backup Controls -->
-        <div class="backup-controls">
-            <button class="backup-btn" id="backup-btn">💾 Save Your Progress</button>
-            <button class="backup-btn" id="restore-btn">🔄 Restore Your Progress</button>
-        </div>
-
         <header>
             <h1 id="game-title">My Wordle</h1>
             <div class="stats">
@@ -709,32 +498,6 @@
         <button class="new-game-btn" id="new-game-btn">New Game</button>
     </div>
 
-    <!-- Backup Modal -->
-    <div id="backup-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header" id="modal-header">Your Backup Code</div>
-            <div class="modal-text" id="modal-text">Copy and save this code in a safe place. You can use it to restore your game progress later.</div>
-            <div class="backup-code" id="backup-code-display"></div>
-            <div class="modal-buttons">
-                <button class="modal-btn primary" id="copy-btn">Copy</button>
-                <button class="modal-btn secondary" id="close-modal-btn">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Restore Modal -->
-    <div id="restore-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header" id="restore-modal-header">Restore Progress</div>
-            <div class="modal-text" id="restore-modal-text">Paste your backup code below to restore your progress:</div>
-            <input type="text" class="restore-input" id="restore-input" placeholder="Paste your backup code here...">
-            <div class="modal-buttons">
-                <button class="modal-btn primary" id="restore-confirm-btn">Restore</button>
-                <button class="modal-btn secondary" id="close-restore-modal-btn">Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <script>
     class WordleGame {
         constructor() {
@@ -742,7 +505,6 @@
                 english: {
                     name: 'English',
                     words: [
-                        // 532 English Words
                         'ABOUT', 'ABOVE', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN',
                         'AGENT', 'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE',
                         'ALLOW', 'ALONE', 'ALONG', 'ALTER', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART', 'APPLE',
@@ -779,24 +541,7 @@
                         'QUEST', 'QUICK', 'QUIET', 'QUITE', 'RADIO', 'RAISE', 'RANGE', 'RAPID', 'RATIO', 'REACH',
                         'READY', 'REALM', 'REBEL', 'REFER', 'RELAX', 'REPLY', 'RIGHT', 'RIGID', 'RIVAL', 'RIVER',
                         'ROBOT', 'ROGER', 'ROMAN', 'ROUGH', 'ROUND', 'ROUTE', 'ROYAL', 'RURAL', 'SCALE', 'SCENE',
-                        'SCOPE', 'SCORE', 'SENSE', 'SERVE', 'SEVEN', 'SHALL', 'SHAPE', 'SHARE', 'SHARP', 'SHEET',
-                        'SHELF', 'SHELL', 'SHIFT', 'SHINE', 'SHIRT', 'SHOCK', 'SHOOT', 'SHORT', 'SHOWN', 'SIGHT',
-                        'SILLY', 'SINCE', 'SIXTH', 'SIXTY', 'SIZED', 'SKILL', 'SLEEP', 'SLIDE', 'SMALL', 'SMART',
-                        'SMILE', 'SMITH', 'SMOKE', 'SNAKE', 'SNOW', 'SOBER', 'SOLAR', 'SOLID', 'SOLVE', 'SORRY',
-                        'SOUND', 'SOUTH', 'SPACE', 'SPARE', 'SPEAK', 'SPEED', 'SPEND', 'SPENT', 'SPLIT', 'SPOKE',
-                        'SPORT', 'STAFF', 'STAGE', 'STAKE', 'STAND', 'START', 'STATE', 'STEAM', 'STEEL', 'STEEP',
-                        'STICK', 'STILL', 'STOCK', 'STONE', 'STOOD', 'STORE', 'STORM', 'STORY', 'STRIP', 'STUCK',
-                        'STUDY', 'STUFF', 'STYLE', 'SUGAR', 'SUITE', 'SUPER', 'SWEET', 'TABLE', 'TAKEN', 'TASTE',
-                        'TAXES', 'TEACH', 'TEAMS', 'TEETH', 'TERRY', 'TEXAS', 'THANK', 'THEFT', 'THEIR', 'THEME',
-                        'THERE', 'THESE', 'THICK', 'THING', 'THINK', 'THIRD', 'THOSE', 'THREE', 'THREW', 'THROW',
-                        'THUMB', 'TIGER', 'TIGHT', 'TIRED', 'TITLE', 'TODAY', 'TOKEN', 'TOPIC', 'TOTAL', 'TOUCH',
-                        'TOUGH', 'TOWER', 'TRACK', 'TRADE', 'TRAIN', 'TREAT', 'TREND', 'TRIAL', 'TRIBE', 'TRICK',
-                        'TRIED', 'TRIES', 'TRULY', 'TRUNK', 'TRUST', 'TRUTH', 'TWICE', 'TWIST', 'TYPED', 'UNCLE',
-                        'UNDER', 'UNDUE', 'UNION', 'UNITY', 'UNTIL', 'UPPER', 'UPSET', 'URBAN', 'USAGE', 'USUAL',
-                        'VALUE', 'VIDEO', 'VIRUS', 'VISIT', 'VITAL', 'VOCAL', 'VOICE', 'WASTE', 'WATCH', 'WATER',
-                        'WHEEL', 'WHERE', 'WHICH', 'WHILE', 'WHITE', 'WHOLE', 'WHOSE', 'WOMAN', 'WOMEN', 'WORLD',
-                        'WORRY', 'WORSE', 'WORST', 'WORTH', 'WOULD', 'WRITE', 'WRONG', 'WROTE', 'YOUNG', 'YOURS',
-                        'YOUTH', 'ZONES'
+                        'SCOPE', 'SCORE', 'SENSE', 'SERVE', 'SEVEN'
                     ],
                     keyboard: [
                         ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -810,9 +555,7 @@
                         newGame: 'New Game',
                         finishGame: 'Finish your current game first!',
                         allWordsCompleted: '🎉 Amazing! You\'ve played all words! Starting fresh cycle! 🔄',
-                        wordsRemaining: 'words remaining of',
-                        saveProgress: '💾 Save Your Progress',
-                        restoreProgress: '🔄 Restore Your Progress'
+                        wordsRemaining: 'words remaining of'
                     },
                     labels: {
                         title: 'My Wordle',
@@ -824,56 +567,43 @@
                 spanish: {
                     name: 'Spanish',
                     words: [
-                        // 500 Spanish Words (exactly 500)
                         'ABAJO', 'ABEJA', 'ABRIR', 'ACEITE', 'ACERA', 'ACTOR', 'AGAVE', 'AGRIO', 'AGUA', 'AHORA',
-                        'AJENA', 'ALBUM', 'ALDEA', 'ALIEN', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANIMAL', 'ANTES',
+                        'AJENA', 'ALBUM', 'ALDEA', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANDEN', 'ANTES', 'ANUAL',
                         'AQUEL', 'ARENA', 'ARROZ', 'ASADO', 'ATLAS', 'BAILE', 'BANCO', 'BARCO', 'BARRIO', 'BASTA',
-                        'BEBER', 'BELLO', 'BIBLIA', 'BICHO', 'BLUSA', 'BODEGA', 'BOLSA', 'BOMBA', 'BOSQUE', 'BRAVO',
+                        'BEBER', 'BELLO', 'BICHO', 'BLUSA', 'BODEGA', 'BOLSA', 'BOMBA', 'BOSQUE', 'BRAVO', 'BREVE',
                         'BRISA', 'BRUJA', 'BUENO', 'BURRO', 'BUSCA', 'CABAL', 'CABRA', 'CACAO', 'CALMA', 'CALOR',
                         'CAMPO', 'CAÑA', 'CANTO', 'CARGO', 'CARNE', 'CARTA', 'CASAS', 'CAUSA', 'CELOS', 'CERDO',
                         'CESAR', 'CHICA', 'CHILE', 'CHINA', 'CHOZA', 'CIELO', 'CINCO', 'CIRCO', 'CLASE', 'CLAVO',
-                        'CLIMA', 'COBRA', 'COCOA', 'COMER', 'CORAL', 'CORRO', 'COSTA', 'CREMA', 'CREAR', 'CRUZ',
+                        'CLIMA', 'COBRA', 'COCOA', 'COMER', 'CORAL', 'CORRO', 'COSTA', 'CREMA', 'CREAR', 'CRUZA',
                         'CUARTO', 'CUEVA', 'DATOS', 'DEBER', 'DECIR', 'DEDO', 'DEJAR', 'DENSE', 'DESDE', 'DESEO',
                         'DICHO', 'DIENTE', 'DINERO', 'DISCO', 'DOLOR', 'DONDE', 'DORMIR', 'DRAMA', 'DUDA', 'DULCE',
                         'DURO', 'EBANO', 'EDAD', 'ENERO', 'ENTRE', 'EPOCA', 'ERROR', 'ESCAPE', 'ESPEJO', 'ESTE',
-                        'ESTILO', 'EVENTO', 'EXITO', 'EXTRA', 'FABRICA', 'FACIL', 'FALSO', 'FAMA', 'FECHA', 'FELIZ',
-                        'FERIA', 'FIESTA', 'FINCA', 'FLOR', 'FORMA', 'FOTOS', 'FRUTA', 'FUEGO', 'FUERA', 'FUERZA',
-                        'FUTBOL', 'GALLO', 'GASTO', 'GENTE', 'GLOBO', 'GOLPE', 'GORRO', 'GRACE', 'GRADO', 'GRANDE',
-                        'GRANJA', 'GRATIS', 'GRAVE', 'GRUPO', 'GUANTE', 'GUERRA', 'GUIA', 'GUSTO', 'HABER', 'HACER',
-                        'HACIA', 'HAMBRE', 'HASTA', 'HEROE', 'HIJA', 'HIJO', 'HISTORIA', 'HOGAR', 'HOMBRE', 'HONOR',
-                        'HORA', 'HOTEL', 'HUESO', 'HUEVO', 'HUMOR', 'IDEA', 'IGUAL', 'IMAGEN', 'INDIO', 'JUNTO',
-                        'JOVEN', 'JUEGO', 'JUEZ', 'JULIO', 'JUNIO', 'LARGO', 'LAVAR', 'LECHE', 'LEGAL', 'LENGUA',
-                        'LETRA', 'LIBRE', 'LIBRO', 'LINEA', 'LISTA', 'LUGAR', 'LUNA', 'MADRE', 'MAGIA', 'MANGO',
-                        'MANOS', 'MAÑANA', 'MARCA', 'MARZO', 'MASA', 'MAYO', 'MAYOR', 'MEDIO', 'MEJOR', 'MENOR',
-                        'MENOS', 'MESA', 'METAL', 'METRO', 'MIEDO', 'MIEL', 'MIRAR', 'MODELO', 'MODO', 'MONJA',
-                        'MONTE', 'MORAL', 'MORIR', 'MOTOR', 'MUCHO', 'MUERTE', 'MUJER', 'MUNDO', 'MUSICA', 'NACER',
-                        'NADA', 'NADIE', 'NAVE', 'NEGRO', 'NIETO', 'NIÑA', 'NIÑO', 'NOCHE', 'NORTE', 'NOTA',
-                        'NOVIA', 'NOVIO', 'NUBE', 'NUEVO', 'NUNCA', 'OBRA', 'OCEAN', 'OESTE', 'ORDEN', 'OREJA',
-                        'PADRE', 'PAGAR', 'PAIS', 'PAPEL', 'PARED', 'PARTE', 'PASAR', 'PASO', 'PATIO', 'PATRIA',
-                        'PECHO', 'PEDIR', 'PELEA', 'PELO', 'PENA', 'PERRO', 'PESO', 'PIANO', 'PIEDRA', 'PIEL',
-                        'PIERNA', 'PLATA', 'PLAZA', 'POCO', 'PODER', 'POETA', 'POLVO', 'PONER', 'PRECIO', 'PRIMO',
-                        'PRISA', 'PRUEBA', 'PUEBLO', 'PUERTA', 'PUERTO', 'PUNTO', 'QUESO', 'QUIEN', 'RADIO', 'RAIZ',
-                        'RATON', 'RAZON', 'REINO', 'RELOJ', 'RESTO', 'REVES', 'RICO', 'RIESGO', 'ROBAR', 'ROJO',
-                        'ROPA', 'ROSA', 'ROSTRO', 'RUMBO', 'SABOR', 'SACAR', 'SALON', 'SALUD', 'SANGRE', 'SANTO',
-                        'SECAR', 'SEDE', 'SELLO', 'SELVA', 'SEÑOR', 'SERIE', 'SIGLO', 'SIGNO', 'SILBA', 'SILLA',
-                        'SINO', 'SITIO', 'SOBRE', 'SOLDO', 'SOLO', 'SOMBRA', 'SONAR', 'SOPA', 'SORDO', 'SUAVE',
-                        'SUBIR', 'SUCIO', 'SUEÑO', 'SUERTE', 'SUPER', 'TABLA', 'TANTO', 'TARDE', 'TAREA', 'TEATRO',
-                        'TECHO', 'TEMA', 'TENER', 'TIERRA', 'TIPO', 'TITULO', 'TOCAR', 'TODO', 'TOMAR', 'TONO',
-                        'TORRE', 'TRAER', 'TRAJE', 'TRATO', 'TRIGO', 'TRISTE', 'ULTIMO', 'UNION', 'USAR', 'VACIO',
-                        'VALLE', 'VALOR', 'VAMOS', 'VARIOS', 'VASO', 'VECINO', 'VELA', 'VENDER', 'VENIR', 'VERDE',
-                        'VERSO', 'VIAJE', 'VIDA', 'VIEJO', 'VIENTO', 'VINO', 'VISTA', 'VIVIR', 'VOLAR', 'VOLVER',
-                        'VUELO', 'ZONA', 'ABRIL', 'ACASO', 'ADIOS', 'AFUERA', 'AGUJA', 'AJENO', 'ALADO', 'ALBA',
-                        'ALETO', 'ALIAS', 'ALIJO', 'ALISO', 'ALTOS', 'ALZAR', 'AMBAR', 'AMBOS', 'AMOR', 'ANCHO',
-                        'ANCLA', 'ANGEL', 'ANIMA', 'ANIMO', 'ANSIA', 'ANTEO', 'ANUAL', 'ANZOL', 'APEGO', 'ARBOL',
-                        'ARCOS', 'ARDUO', 'AREAS', 'ARMAS', 'AROMA', 'ARQUE', 'AUDIO', 'AUTOR', 'AVENA', 'AVION',
-                        'AZOTE', 'AZUCAR', 'BACON', 'BADGE', 'BAJON', 'BANDA', 'BARON', 'BARRA', 'BATON', 'BEACH',
-                        'BELLA', 'BESAN', 'BINGO', 'BIZCO', 'BLANC', 'BLEDO', 'BOINA', 'BORDE', 'BOTON', 'BRAVA',
-                        'BREVE', 'BROCA', 'BRUNO', 'BUENA', 'BULLA', 'BURLA', 'CACHO', 'CADET', 'CAJAS', 'CALCA',
-                        'CALLE', 'CANAL', 'CANAS', 'CANON', 'CAOBA', 'CARAS', 'CARBO', 'CASCO', 'CASTA', 'CAUCE',
-                        'CAUCHO', 'CEDAR', 'CEGAR', 'CENSO', 'CERCA', 'CERRO', 'CHAMP', 'CHECO', 'CHESS', 'CHINO',
-                        'CHIVE', 'CINTA', 'CITAS', 'CIVIL', 'CLARA', 'CLERO', 'COBRO', 'COCHE', 'COGER', 'COLAR',
-                        'COLOR', 'COMBO', 'COMUN', 'COPAL', 'COPIA', 'CORES', 'CORTE', 'COSER', 'COVER', 'CRECE',
-                        'CREER', 'CRUDO', 'CRUZA', 'CUAJO', 'CUBAN', 'CUIDAR', 'CULPA', 'CUMBO', 'CURSO', 'CURVA'
+                        'ESTILO', 'EVENTO', 'EXITO', 'EXTRA', 'FACIL', 'FALSO', 'FAMA', 'FECHA', 'FELIZ', 'FERIA',
+                        'FIESTA', 'FINCA', 'FLOR', 'FORMA', 'FOTOS', 'FRUTA', 'FUEGO', 'FUERA', 'FUERZA', 'GALLO',
+                        'GASTO', 'GENTE', 'GLOBO', 'GOLPE', 'GORRO', 'GRADO', 'GRANDE', 'GRANJA', 'GRATIS', 'GRAVE',
+                        'GRUPO', 'GUANTE', 'GUERRA', 'GUIA', 'GUSTO', 'HABER', 'HACER', 'HACIA', 'HAMBRE', 'HASTA',
+                        'HEROE', 'HIJA', 'HIJO', 'HOGAR', 'HOMBRE', 'HONOR', 'HORA', 'HOTEL', 'HUESO', 'HUEVO',
+                        'HUMOR', 'IDEA', 'IGUAL', 'IMAGEN', 'INDIO', 'JUNTO', 'JOVEN', 'JUEGO', 'JUEZ', 'JULIO',
+                        'JUNIO', 'LARGO', 'LAVAR', 'LECHE', 'LEGAL', 'LENGUA', 'LETRA', 'LIBRE', 'LIBRO', 'LINEA',
+                        'LISTA', 'LUGAR', 'LUNA', 'MADRE', 'MAGIA', 'MANGO', 'MANOS', 'MAÑANA', 'MARCA', 'MARZO',
+                        'MASA', 'MAYO', 'MAYOR', 'MEDIO', 'MEJOR', 'MENOR', 'MENOS', 'MESA', 'METAL', 'METRO',
+                        'MIEDO', 'MIEL', 'MIRAR', 'MODELO', 'MODO', 'MONJA', 'MONTE', 'MORAL', 'MORIR', 'MOTOR',
+                        'MUCHO', 'MUERTE', 'MUJER', 'MUNDO', 'MUSICA', 'NACER', 'NADA', 'NADIE', 'NAVE', 'NEGRO',
+                        'NIETO', 'NIÑA', 'NIÑO', 'NOCHE', 'NORTE', 'NOTA', 'NOVIA', 'NOVIO', 'NUBE', 'NUEVO',
+                        'NUNCA', 'OBRA', 'OESTE', 'ORDEN', 'OREJA', 'PADRE', 'PAGAR', 'PAIS', 'PAPEL', 'PARED',
+                        'PARTE', 'PASAR', 'PASO', 'PATIO', 'PATRIA', 'PECHO', 'PEDIR', 'PELEA', 'PELO', 'PENA',
+                        'PERRO', 'PESO', 'PIANO', 'PIEDRA', 'PIEL', 'PIERNA', 'PLATA', 'PLAZA', 'POCO', 'PODER',
+                        'POETA', 'POLVO', 'PONER', 'PRECIO', 'PRIMO', 'PRISA', 'PRUEBA', 'PUEBLO', 'PUERTA', 'PUERTO',
+                        'PUNTO', 'QUESO', 'QUIEN', 'RADIO', 'RAIZ', 'RATON', 'RAZON', 'REINO', 'RELOJ', 'RESTO',
+                        'REVES', 'RICO', 'RIESGO', 'ROBAR', 'ROJO', 'ROPA', 'ROSA', 'ROSTRO', 'RUMBO', 'SABOR',
+                        'SACAR', 'SALON', 'SALUD', 'SANGRE', 'SANTO', 'SECAR', 'SEDE', 'SELLO', 'SELVA', 'SEÑOR',
+                        'SERIE', 'SIGLO', 'SIGNO', 'SILLA', 'SINO', 'SITIO', 'SOBRE', 'SOLO', 'SOMBRA', 'SONAR',
+                        'SOPA', 'SORDO', 'SUAVE', 'SUBIR', 'SUCIO', 'SUEÑO', 'SUERTE', 'SUPER', 'TABLA', 'TANTO',
+                        'TARDE', 'TAREA', 'TEATRO', 'TECHO', 'TEMA', 'TENER', 'TIERRA', 'TIPO', 'TITULO', 'TOCAR',
+                        'TODO', 'TOMAR', 'TONO', 'TORRE', 'TRAER', 'TRAJE', 'TRATO', 'TRIGO', 'TRISTE', 'ULTIMO',
+                        'UNION', 'USAR', 'VACIO', 'VALLE', 'VALOR', 'VAMOS', 'VARIOS', 'VASO', 'VECINO', 'VELA',
+                        'VENDER', 'VENIR', 'VERDE', 'VERSO', 'VIAJE', 'VIDA', 'VIEJO', 'VIENTO', 'VINO', 'VISTA',
+                        'VIVIR', 'VOLAR', 'VOLVER', 'VUELO', 'ZONA'
                     ],
                     keyboard: [
                         ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -887,9 +617,7 @@
                         newGame: 'Nuevo Juego',
                         finishGame: '¡Termina tu juego actual primero!',
                         allWordsCompleted: '¡🎉 Increíble! ¡Has jugado todas las palabras! ¡Empezando nuevo ciclo! 🔄',
-                        wordsRemaining: 'palabras restantes de',
-                        saveProgress: '💾 Guardar Progreso',
-                        restoreProgress: '🔄 Restaurar Progreso'
+                        wordsRemaining: 'palabras restantes de'
                     },
                     labels: {
                         title: 'Mi Wordle',
@@ -901,8 +629,7 @@
             };
 
             this.currentLanguage = 'english';
-            this.clearAllProgress();
-            this.usedWords = [];
+            this.usedWords = this.loadUsedWords();
             
             this.currentWord = '';
             this.currentRow = 0;
@@ -914,248 +641,7 @@
             this.initializeGame();
             this.loadStats();
             this.setupLanguageToggle();
-            this.setupBackupControls();
-            this.setupModals();
-            this.newGame();
-        }
-
-        clearAllProgress() {
-            localStorage.removeItem('usedWords_english');
-            localStorage.removeItem('usedWords_spanish');
-            localStorage.removeItem('wordleStats_english');
-            localStorage.removeItem('wordleStats_spanish');
-        }
-
-        // Backup functionality
-        generateBackupCode() {
-            const gameData = {
-                english: {
-                    stats: JSON.parse(localStorage.getItem('wordleStats_english')) || { played: 0, won: 0, streak: 0, maxStreak: 0 },
-                    usedWords: JSON.parse(localStorage.getItem('usedWords_english')) || []
-                },
-                spanish: {
-                    stats: JSON.parse(localStorage.getItem('wordleStats_spanish')) || { played: 0, won: 0, streak: 0, maxStreak: 0 },
-                    usedWords: JSON.parse(localStorage.getItem('usedWords_spanish')) || []
-                }
-            };
-            
-            const jsonString = JSON.stringify(gameData);
-            const base64Code = btoa(jsonString);
-            return base64Code;
-        }
-
-        showBackupCode() {
-            const code = this.generateBackupCode();
-            const modal = document.getElementById('backup-modal');
-            const codeDisplay = document.getElementById('backup-code-display');
-            const modalHeader = document.getElementById('modal-header');
-            const modalText = document.getElementById('modal-text');
-            const copyBtn = document.getElementById('copy-btn');
-            const closeBtn = document.getElementById('close-modal-btn');
-            
-            // Update modal content based on language
-            if (this.currentLanguage === 'spanish') {
-                modalHeader.textContent = 'Tu Código de Respaldo';
-                modalText.textContent = 'Copia y guarda este código en un lugar seguro. Puedes usarlo para restaurar tu progreso más tarde.';
-                copyBtn.textContent = 'Copiar';
-                closeBtn.textContent = 'Cerrar';
-            } else {
-                modalHeader.textContent = 'Your Backup Code';
-                modalText.textContent = 'Copy and save this code in a safe place. You can use it to restore your progress later.';
-                copyBtn.textContent = 'Copy';
-                closeBtn.textContent = 'Close';
-            }
-            
-            codeDisplay.textContent = code;
-            modal.style.display = 'block';
-        }
-
-        restoreFromCode() {
-            const modal = document.getElementById('restore-modal');
-            const modalHeader = document.getElementById('restore-modal-header');
-            const modalText = document.getElementById('restore-modal-text');
-            const input = document.getElementById('restore-input');
-            const restoreBtn = document.getElementById('restore-confirm-btn');
-            const cancelBtn = document.getElementById('close-restore-modal-btn');
-            
-            // Update modal content based on language
-            if (this.currentLanguage === 'spanish') {
-                modalHeader.textContent = 'Restaurar Progreso';
-                modalText.textContent = 'Pega tu código de respaldo abajo para restaurar tu progreso:';
-                input.placeholder = 'Pega tu código de respaldo aquí...';
-                restoreBtn.textContent = 'Restaurar';
-                cancelBtn.textContent = 'Cancelar';
-            } else {
-                modalHeader.textContent = 'Restore Progress';
-                modalText.textContent = 'Paste your backup code below to restore your progress:';
-                input.placeholder = 'Paste your backup code here...';
-                restoreBtn.textContent = 'Restore';
-                cancelBtn.textContent = 'Cancel';
-            }
-            
-            input.value = '';
-            modal.style.display = 'block';
-        }
-
-        executeRestore() {
-            const input = document.getElementById('restore-input');
-            const code = input.value.trim();
-            
-            if (!code) return;
-            
-            try {
-                const jsonString = atob(code);
-                const gameData = JSON.parse(jsonString);
-                
-                if (!gameData.english || !gameData.spanish) {
-                    throw new Error('Invalid backup code');
-                }
-                
-                localStorage.setItem('wordleStats_english', JSON.stringify(gameData.english.stats));
-                localStorage.setItem('usedWords_english', JSON.stringify(gameData.english.usedWords));
-                localStorage.setItem('wordleStats_spanish', JSON.stringify(gameData.spanish.stats));
-                localStorage.setItem('usedWords_spanish', JSON.stringify(gameData.spanish.usedWords));
-                
-                this.usedWords = this.loadUsedWords();
-                this.loadStats();
-                this.updateWordProgress();
-                
-                // Close modal first
-                document.getElementById('restore-modal').style.display = 'none';
-                
-                // Reset game state completely
-                this.currentRow = 0;
-                this.currentTile = 0;
-                this.gameOver = false;
-                this.gameStarted = false;
-                
-                // Clear the board
-                const tiles = document.querySelectorAll('.tile');
-                for (let i = 0; i < tiles.length; i++) {
-                    tiles[i].textContent = '';
-                    tiles[i].className = 'tile';
-                }
-                
-                // Clear the keyboard
-                const keys = document.querySelectorAll('.key');
-                for (let i = 0; i < keys.length; i++) {
-                    if (keys[i].id.startsWith('key-') && keys[i].id !== 'key-ENTER' && keys[i].id !== 'key-BACKSPACE') {
-                        keys[i].className = 'key';
-                        if (keys[i].id === 'key-ENTER' || keys[i].id === 'key-BACKSPACE') {
-                            keys[i].classList.add('wide');
-                        }
-                    }
-                }
-                
-                // Start a completely new game
-                this.newGame();
-                
-                // Show success message after a short delay
-                setTimeout(() => {
-                    const message = this.currentLanguage === 'english' 
-                        ? 'Progress restored successfully! 🎉' 
-                        : '¡Progreso restaurado exitosamente! 🎉';
-                    this.showMessage(message, 'win');
-                }, 100);
-                
-            } catch (error) {
-                const message = this.currentLanguage === 'english' 
-                    ? 'Invalid backup code. Please check and try again.' 
-                    : 'Código de respaldo inválido. Verifica e intenta de nuevo.';
-                this.showMessage(message, 'lose');
-            }
-        }
-
-        setupModals() {
-            // Copy button
-            const copyBtn = document.getElementById('copy-btn');
-            copyBtn.addEventListener('click', () => {
-                const code = document.getElementById('backup-code-display').textContent;
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(code).then(() => {
-                        const message = this.currentLanguage === 'english' 
-                            ? 'Backup code copied to clipboard!' 
-                            : '¡Código de respaldo copiado al portapapeles!';
-                        this.showMessage(message, 'win');
-                        document.getElementById('backup-modal').style.display = 'none';
-                    });
-                } else {
-                    // Fallback for older browsers
-                    const textArea = document.createElement('textarea');
-                    textArea.value = code;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    
-                    const message = this.currentLanguage === 'english' 
-                        ? 'Backup code copied!' 
-                        : '¡Código de respaldo copiado!';
-                    this.showMessage(message, 'win');
-                    document.getElementById('backup-modal').style.display = 'none';
-                }
-            });
-
-            // Close backup modal
-            document.getElementById('close-modal-btn').addEventListener('click', () => {
-                document.getElementById('backup-modal').style.display = 'none';
-            });
-
-            // Restore confirm button
-            document.getElementById('restore-confirm-btn').addEventListener('click', () => {
-                this.executeRestore();
-            });
-
-            // Close restore modal
-            document.getElementById('close-restore-modal-btn').addEventListener('click', () => {
-                document.getElementById('restore-modal').style.display = 'none';
-            });
-
-            // Close modals when clicking outside
-            window.addEventListener('click', (e) => {
-                const backupModal = document.getElementById('backup-modal');
-                const restoreModal = document.getElementById('restore-modal');
-                
-                if (e.target === backupModal) {
-                    backupModal.style.display = 'none';
-                }
-                if (e.target === restoreModal) {
-                    restoreModal.style.display = 'none';
-                }
-            });
-        }
-
-        setupBackupControls() {
-            const backupBtn = document.getElementById('backup-btn');
-            const restoreBtn = document.getElementById('restore-btn');
-            
-            if (backupBtn) {
-                const backupHandler = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.showBackupCode();
-                };
-                
-                if ('ontouchstart' in window) {
-                    backupBtn.addEventListener('touchend', backupHandler, { passive: false });
-                } else {
-                    backupBtn.addEventListener('click', backupHandler);
-                }
-            }
-            
-            if (restoreBtn) {
-                const restoreHandler = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.restoreFromCode();
-                };
-                
-                if ('ontouchstart' in window) {
-                    restoreBtn.addEventListener('touchend', restoreHandler, { passive: false });
-                } else {
-                    restoreBtn.addEventListener('click', restoreHandler);
-                }
-            }
+            this.updateWordProgress();
         }
 
         setupLanguageToggle() {
@@ -1173,14 +659,17 @@
                 
                 const confirmMessage = newLanguage === 'english' 
                     ? 'Switch language to English?' 
-                    : 'Switch language to Spanish?';
+                    : '¿Cambiar idioma a Español?';
                 
                 if (confirm(confirmMessage)) {
                     this.currentLanguage = newLanguage;
                     this.usedWords = this.loadUsedWords();
+                    
+                    this.clearMessage();
                     this.updateLanguageLabels();
                     this.createKeyboard();
                     this.updateWordProgress();
+                    this.loadStats();
                     this.newGame();
                 } else {
                     toggle.checked = this.currentLanguage === 'spanish';
@@ -1226,9 +715,7 @@
                 'streak-label': lang.labels.streak,
                 'played-label': lang.labels.played,
                 'win-rate-label': lang.labels.winRate,
-                'new-game-btn': lang.messages.newGame,
-                'backup-btn': lang.messages.saveProgress,
-                'restore-btn': lang.messages.restoreProgress
+                'new-game-btn': lang.messages.newGame
             };
             
             for (const id in elements) {
@@ -1331,12 +818,38 @@
                     const keyHandler = (e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        
+                        if (keyElement.disabled) return;
+                        
+                        keyElement.disabled = true;
+                        setTimeout(() => {
+                            keyElement.disabled = false;
+                        }, 150);
+                        
                         this.handleKeyPress(key);
                     };
                     
                     if ('ontouchstart' in window) {
+                        keyElement.addEventListener('touchstart', (e) => {
+                            e.preventDefault();
+                            keyElement.classList.add('active');
+                        }, { passive: false });
+                        
                         keyElement.addEventListener('touchend', keyHandler, { passive: false });
+                        
+                        keyElement.addEventListener('touchcancel', (e) => {
+                            keyElement.classList.remove('active');
+                        });
                     } else {
+                        keyElement.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            keyElement.classList.add('active');
+                        });
+                        
+                        keyElement.addEventListener('mouseup', (e) => {
+                            keyElement.classList.remove('active');
+                        });
+                        
                         keyElement.addEventListener('click', keyHandler);
                     }
                     
@@ -1348,23 +861,11 @@
         }
 
         setupEventListeners() {
+            let keyPressed = false;
+            
             document.addEventListener('keydown', (e) => {
-                // Check if any modal is open
-                const backupModal = document.getElementById('backup-modal');
-                const restoreModal = document.getElementById('restore-modal');
-                const isModalOpen = (backupModal && backupModal.style.display === 'block') || 
-                                   (restoreModal && restoreModal.style.display === 'block');
-                
-                // Only block keyboard input on desktop when modal is open
-                // On mobile, users can't physically type on the keyboard anyway
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-                                'ontouchstart' in window ||
-                                window.innerWidth <= 768;
-                
-                // If modal is open AND user is on desktop, don't process game keys
-                if (isModalOpen && !isMobile) {
-                    return;
-                }
+                if (keyPressed) return;
+                keyPressed = true;
                 
                 let key = e.key.toUpperCase();
                 
@@ -1380,12 +881,20 @@
                     this.handleKeyPress(key);
                 }
             });
+            
+            document.addEventListener('keyup', () => {
+                keyPressed = false;
+            });
 
             const newGameBtn = document.getElementById('new-game-btn');
             if (newGameBtn) {
                 const newGameHandler = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    
+                    newGameBtn.blur();
+                    newGameBtn.classList.remove('active');
+                    
                     this.newGame();
                 };
                 
@@ -1413,6 +922,10 @@
             if (!this.gameStarted) {
                 this.gameStarted = true;
                 this.hideLanguageToggle();
+                
+                if (this.currentWord === '') {
+                    this.currentWord = this.getRandomWord();
+                }
             }
 
             const tile = document.getElementById('tile-' + this.currentRow + '-' + this.currentTile);
@@ -1469,23 +982,27 @@
 
         checkGuess(guess) {
             const result = [];
-            const wordArray = this.currentWord.split('');
-            const guessArray = guess.split('');
-
+            const wordArray = [...this.currentWord];
+            const guessArray = [...guess];
+            const letterCount = {};
+            
+            for (let letter of wordArray) {
+                letterCount[letter] = (letterCount[letter] || 0) + 1;
+            }
+            
             for (let i = 0; i < 5; i++) {
                 if (guessArray[i] === wordArray[i]) {
                     result[i] = 'correct';
-                    wordArray[i] = null;
+                    letterCount[guessArray[i]]--;
                     guessArray[i] = null;
                 }
             }
-
+            
             for (let i = 0; i < 5; i++) {
                 if (guessArray[i] !== null) {
-                    const letterIndex = wordArray.indexOf(guessArray[i]);
-                    if (letterIndex !== -1) {
+                    if (letterCount[guessArray[i]] > 0) {
                         result[i] = 'present';
-                        wordArray[letterIndex] = null;
+                        letterCount[guessArray[i]]--;
                     } else {
                         result[i] = 'absent';
                     }
@@ -1551,8 +1068,20 @@
                         message.textContent = '';
                         message.className = 'message';
                         this.messageTimeout = null;
-                    }, 6000);
+                    }, 3000);
                 }
+            }
+        }
+
+        clearMessage() {
+            const message = document.getElementById('message');
+            if (message) {
+                message.textContent = '';
+                message.className = 'message';
+            }
+            if (this.messageTimeout) {
+                clearTimeout(this.messageTimeout);
+                this.messageTimeout = null;
             }
         }
 
@@ -1570,7 +1099,9 @@
             
             for (const id in elements) {
                 const element = document.getElementById(id);
-                if (element) element.textContent = elements[id];
+                if (element) {
+                    element.textContent = elements[id];
+                }
             }
         }
 
@@ -1595,14 +1126,16 @@
         }
 
         newGame() {
+            if (this.currentWord === '' && !this.gameStarted) {
+                this.updateWordProgress();
+                return;
+            }
+            
             this.currentWord = this.getRandomWord();
             this.currentRow = 0;
             this.currentTile = 0;
             this.gameOver = false;
             this.gameStarted = false;
-            
-            console.log('New game started with word:', this.currentWord);
-            this.updateWordProgress();
             
             const tiles = document.querySelectorAll('.tile');
             for (let i = 0; i < tiles.length; i++) {
@@ -1612,40 +1145,18 @@
             
             const keys = document.querySelectorAll('.key');
             for (let i = 0; i < keys.length; i++) {
-                if (keys[i].id.startsWith('key-') && keys[i].id !== 'key-ENTER' && keys[i].id !== 'key-BACKSPACE') {
-                    keys[i].className = 'key';
-                    if (keys[i].id === 'key-ENTER' || keys[i].id === 'key-BACKSPACE') {
-                        keys[i].classList.add('wide');
-                    }
-                }
+                keys[i].classList.remove('correct', 'present', 'absent');
             }
             
-            const message = document.getElementById('message');
-            if (message) {
-                message.textContent = '';
-                message.className = 'message';
-            }
-            
-            this.loadStats();
+            this.clearMessage();
+            this.updateWordProgress();
             this.showLanguageToggle();
         }
     }
 
-    // Initialize when DOM is ready - iOS compatible
-    function initGame() {
-        if (document.getElementById('game-board')) {
-            console.log('DOM ready, starting game...');
-            window.game = new WordleGame();
-        } else {
-            setTimeout(initGame, 50);
-        }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initGame);
-    } else {
-        initGame();
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+        new WordleGame();
+    });
     </script>
 </body>
 </html>
