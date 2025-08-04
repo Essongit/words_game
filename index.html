@@ -129,9 +129,9 @@
             color: #787c7e;
         }
 
-        .progress-info {
+        .word-length-info {
             text-align: center;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             color: #787c7e;
             margin-bottom: 10px;
         }
@@ -147,7 +147,6 @@
 
         .row {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
             gap: 4px;
             justify-content: center;
         }
@@ -189,7 +188,20 @@
             color: #ffffff;
         }
 
-        .keyboard {
+        /* Dynamic tile sizing based on word length */
+        .row.length-5 { grid-template-columns: repeat(5, 1fr); }
+        .row.length-6 { grid-template-columns: repeat(6, 1fr); }
+        .row.length-7 { grid-template-columns: repeat(7, 1fr); }
+        .row.length-8 { grid-template-columns: repeat(8, 1fr); }
+        .row.length-9 { grid-template-columns: repeat(9, 1fr); }
+        .row.length-10 { grid-template-columns: repeat(10, 1fr); }
+
+        .row.length-6 .tile { width: 48px; height: 48px; font-size: 1.6rem; }
+        .row.length-7 .tile { width: 42px; height: 42px; font-size: 1.4rem; }
+        .row.length-8 .tile { width: 38px; height: 38px; font-size: 1.3rem; }
+        .row.length-9 .tile { width: 34px; height: 34px; font-size: 1.2rem; }
+        .row.length-10 .tile { width: 30px; height: 30px; font-size: 1.1rem; }
+                .keyboard {
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -297,160 +309,61 @@
         }
 
         /* Mobile responsiveness */
-        @media (max-width: 480px) and (orientation: portrait) {
-            body {
-                padding: 2px;
-                padding-top: env(safe-area-inset-top);
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-
-            .container {
-                padding: 0 2px;
-            }
-
-            .language-toggle {
-                margin-bottom: 10px;
-                gap: 8px;
-            }
-
-            .language-label {
-                font-size: 12px;
-            }
-
-            .toggle-container {
-                width: 70px;
-                height: 30px;
-            }
-
-            .toggle-slider:before {
-                height: 22px;
-                width: 22px;
-                left: 4px;
-                bottom: 4px;
-            }
-
-            .toggle-input:checked + .toggle-slider:before {
-                transform: translateX(40px);
-            }
-
-            h1 {
-                font-size: 1.5rem;
-                margin-bottom: 8px;
-            }
-
-            .stats {
-                gap: 10px;
-                margin-bottom: 10px;
-            }
-
-            .stat-number {
-                font-size: 1.1rem;
-            }
-
-            .stat-label {
-                font-size: 0.65rem;
-            }
-
-            .game-board {
-                gap: 3px;
-                margin-bottom: 15px;
-                padding: 2px;
-            }
-
-            .row {
-                gap: 3px;
-            }
-
-            .tile {
-                width: 48px;
-                height: 48px;
-                font-size: 1.4rem;
-            }
-
-            .keyboard {
-                gap: 4px;
-                padding: 0 2px;
-            }
-
-            .keyboard-row {
-                gap: 2px;
-            }
-
-            .key {
-                padding: 12px 4px;
-                font-size: 18px;
-                max-width: 32px;
-                min-height: 50px;
-            }
-
-            .key.wide {
-                max-width: 55px;
-                font-size: 17px;
-                min-height: 50px;
-            }
-
-            .message {
-                font-size: 0.9rem;
-                margin-top: 10px;
-            }
-
-            .new-game-btn {
-                padding: 10px 15px;
-                font-size: 12px;
-                margin: 10px auto;
-            }
+        @media (max-width: 480px) {
+            .row.length-5 .tile { width: 48px; height: 48px; font-size: 1.4rem; }
+            .row.length-6 .tile { width: 40px; height: 40px; font-size: 1.3rem; }
+            .row.length-7 .tile { width: 35px; height: 35px; font-size: 1.2rem; }
+            .row.length-8 .tile { width: 32px; height: 32px; font-size: 1.1rem; }
+            .row.length-9 .tile { width: 28px; height: 28px; font-size: 1.0rem; }
+            .row.length-10 .tile { width: 25px; height: 25px; font-size: 0.9rem; }
         }
 
-        @media (max-width: 360px) and (orientation: portrait) {
-            .tile {
-                width: 42px;
-                height: 42px;
-                font-size: 1.2rem;
-            }
-
-            .key {
-                max-width: 28px;
-                min-height: 46px;
-                font-size: 14px;
-                padding: 10px 2px;
-            }
-
-            .key.wide {
-                max-width: 48px;
-                font-size: 13px;
-                min-height: 46px;
-            }
+        .confirm-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
 
-        @media (max-width: 812px) and (orientation: landscape) {
-            body {
-                padding: 2px;
-                padding-left: env(safe-area-inset-left);
-                padding-right: env(safe-area-inset-right);
-            }
+        .confirm-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+            width: 100%;
+            text-align: center;
+        }
 
-            .container {
-                max-width: 700px;
-            }
+        .confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
 
-            .tile {
-                width: 45px;
-                height: 45px;
-                font-size: 1.3rem;
-            }
+        .confirm-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-            .key {
-                padding: 10px 6px;
-                max-width: 35px;
-                min-height: 45px;
-                font-size: 16px;
-            }
+        #confirm-yes {
+            background-color: #6aaa64;
+            color: white;
+        }
 
-            .key.wide {
-                max-width: 60px;
-                font-size: 15px;
-                min-height: 45px;
-            }
+        #confirm-no {
+            background-color: #d3d6da;
+            color: #121213;
         }
     </style>
 </head>
@@ -482,7 +395,7 @@
                     <div class="stat-label" id="win-rate-label">Win Rate</div>
                 </div>
             </div>
-            <div class="progress-info" id="word-progress"></div>
+            <div class="word-length-info" id="word-length-info"></div>
         </header>
 
         <div class="game-board" id="game-board">
@@ -496,53 +409,31 @@
         <div class="message" id="message"></div>
         
         <button class="new-game-btn" id="new-game-btn">New Game</button>
+
+        <div id="confirm-dialog" class="confirm-dialog">
+            <div class="confirm-content">
+                <p id="confirm-message"></p>
+                <div class="confirm-buttons">
+                    <button id="confirm-yes">Yes</button>
+                    <button id="confirm-no">No</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-    class WordleGame {
+    <script>    class WordleGame {
         constructor() {
             this.languages = {
                 english: {
                     name: 'English',
-                    words: [
-                        'ABOUT', 'ABOVE', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN',
-                        'AGENT', 'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE',
-                        'ALLOW', 'ALONE', 'ALONG', 'ALTER', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART', 'APPLE',
-                        'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ASIDE', 'ASSET', 'AVOID', 'AWAKE', 'AWARD',
-                        'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BEACH', 'BEGAN', 'BEGIN', 'BENCH', 'BIRDS',
-                        'BLACK', 'BLAME', 'BLANK', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD', 'BOOST', 'BOOTH', 'BOUND',
-                        'BRAIN', 'BRAND', 'BRAVE', 'BREAD', 'BREAK', 'BREED', 'BRIEF', 'BRING', 'BROAD', 'BROKE',
-                        'BROWN', 'BUILD', 'BURST', 'BUYER', 'CABLE', 'CARRY', 'CATCH', 'CAUSE', 'CHAIN', 'CHAIR',
-                        'CHAOS', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHECK', 'CHEST', 'CHIEF', 'CHILD', 'CHINA',
-                        'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR', 'CLICK', 'CLIMB', 'CLOCK', 'CLOSE',
-                        'COAST', 'CORAL', 'COUNT', 'COURT', 'COVER', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM', 'CRIME',
-                        'CRISP', 'CROSS', 'CROWD', 'CROWN', 'CRUEL', 'CRUSH', 'CURVE', 'CYCLE', 'DAILY', 'DANCE',
-                        'DATED', 'DEALT', 'DEATH', 'DEBUT', 'DELAY', 'DEPTH', 'DOING', 'DOUBT', 'DOZEN', 'DRAFT',
-                        'DRAMA', 'DRANK', 'DREAM', 'DRESS', 'DRILL', 'DRINK', 'DRIVE', 'DROVE', 'DRUNK', 'EARLY',
-                        'EARTH', 'EIGHT', 'ELITE', 'EMPTY', 'ENEMY', 'ENJOY', 'ENTER', 'EQUAL', 'ERROR', 'EVENT',
-                        'EVERY', 'EXACT', 'EXIST', 'EXTRA', 'FAITH', 'FALSE', 'FAULT', 'FAVOR', 'FERRY', 'FIBER',
-                        'FIELD', 'FIFTH', 'FIFTY', 'FIGHT', 'FINAL', 'FIRST', 'FIXED', 'FLASH', 'FLEET', 'FLOOR',
-                        'FLUID', 'FOCUS', 'FORCE', 'FORTH', 'FORTY', 'FORUM', 'FOUND', 'FRAME', 'FRANK', 'FRAUD',
-                        'FRESH', 'FRONT', 'FROST', 'FRUIT', 'FULLY', 'FUNNY', 'GIANT', 'GIVEN', 'GLASS', 'GLOBE',
-                        'GLORY', 'GOODS', 'GRACE', 'GRADE', 'GRAIN', 'GRAND', 'GRANT', 'GRASS', 'GRAVE', 'GREAT',
-                        'GREEN', 'GROSS', 'GROUP', 'GROWN', 'GUARD', 'GUESS', 'GUEST', 'GUIDE', 'HAPPY', 'HARSH',
-                        'HASTE', 'HEART', 'HEAVY', 'HENCE', 'HORSE', 'HOTEL', 'HOUSE', 'HUMAN', 'HURRY', 'IMAGE',
-                        'INDEX', 'INNER', 'INPUT', 'ISSUE', 'JAPAN', 'JOINT', 'JONES', 'JUDGE', 'KNIFE', 'KNOCK',
-                        'KNOWN', 'LABEL', 'LARGE', 'LASER', 'LATER', 'LAUGH', 'LAYER', 'LEARN', 'LEASE', 'LEAST',
-                        'LEAVE', 'LEGAL', 'LEVEL', 'LEWIS', 'LIGHT', 'LIMIT', 'LINKS', 'LIVES', 'LOCAL', 'LOOSE',
-                        'LOWER', 'LUCKY', 'LUNCH', 'LYING', 'MAGIC', 'MAJOR', 'MAKER', 'MARCH', 'MARIA', 'MATCH',
-                        'MAYBE', 'MAYOR', 'MEANT', 'MEDIA', 'METAL', 'MIGHT', 'MINOR', 'MINUS', 'MIXED', 'MODEL',
-                        'MONEY', 'MONTH', 'MORAL', 'MOTOR', 'MOUNT', 'MOUSE', 'MOUTH', 'MOVED', 'MOVIE', 'MUSIC',
-                        'NEEDS', 'NEVER', 'NEWLY', 'NIGHT', 'NOISE', 'NORTH', 'NOTED', 'NOVEL', 'NURSE', 'OCCUR',
-                        'OCEAN', 'OFFER', 'OFTEN', 'ORDER', 'OTHER', 'OUGHT', 'PAINT', 'PANEL', 'PAPER', 'PARTS',
-                        'PARTY', 'PEACE', 'PETER', 'PHASE', 'PHONE', 'PHOTO', 'PIANO', 'PIECE', 'PILOT', 'PITCH',
-                        'PLACE', 'PLAIN', 'PLANE', 'PLANT', 'PLATE', 'POINT', 'POUND', 'POWER', 'PRESS', 'PRICE',
-                        'PRIDE', 'PRIME', 'PRINT', 'PRIOR', 'PRIZE', 'PROOF', 'PROUD', 'PROVE', 'QUEEN', 'QUERY',
-                        'QUEST', 'QUICK', 'QUIET', 'QUITE', 'RADIO', 'RAISE', 'RANGE', 'RAPID', 'RATIO', 'REACH',
-                        'READY', 'REALM', 'REBEL', 'REFER', 'RELAX', 'REPLY', 'RIGHT', 'RIGID', 'RIVAL', 'RIVER',
-                        'ROBOT', 'ROGER', 'ROMAN', 'ROUGH', 'ROUND', 'ROUTE', 'ROYAL', 'RURAL', 'SCALE', 'SCENE',
-                        'SCOPE', 'SCORE', 'SENSE', 'SERVE', 'SEVEN'
-                    ],
+                    words: {
+                        5: ['ABOUT', 'ABOVE', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN', 'AGENT', 'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE', 'ALLOW', 'ALONE', 'ALONG', 'ALTER', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART', 'APPLE', 'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ASIDE', 'ASSET', 'AVOID', 'AWAKE', 'AWARD', 'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BEACH', 'BEGAN', 'BEGIN', 'BENCH', 'BIRDS', 'BLACK', 'BLAME', 'BLANK', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD', 'BOOST', 'BOOTH', 'BOUND', 'BRAIN', 'BRAND', 'BRAVE', 'BREAD', 'BREAK', 'BREED', 'BRIEF', 'BRING', 'BROAD', 'BROKE', 'BROWN', 'BUILD', 'BURST', 'BUYER', 'CABLE', 'CARRY', 'CATCH', 'CAUSE', 'CHAIN', 'CHAIR', 'CHAOS', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHECK', 'CHEST', 'CHIEF', 'CHILD', 'CHINA', 'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR', 'CLICK', 'CLIMB', 'CLOCK', 'CLOSE', 'COAST', 'CORAL', 'COUNT', 'COURT', 'COVER', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM', 'CRIME'],
+                        6: ['ACCEPT', 'ACCESS', 'ACROSS', 'ACTION', 'ACTIVE', 'ACTUAL', 'AFFECT', 'AFRAID', 'AGENCY', 'AMOUNT', 'ANIMAL', 'ANNUAL', 'ANSWER', 'ANYONE', 'APPEAR', 'AROUND', 'ARRIVE', 'ARTIST', 'ASSUME', 'ATTACK', 'AUTHOR', 'AUTUMN', 'AVENUE', 'BACKUP', 'BATTLE', 'BECAME', 'BECOME', 'BEFORE', 'BEHALF', 'BEHAVE', 'BELONG', 'BEYOND', 'BORDER', 'BOTTLE', 'BOTTOM', 'BRANCH', 'BREATH', 'BRIDGE', 'BRIGHT', 'BROKEN', 'BUDGET', 'BUTTON'],
+                        7: ['ABILITY', 'ABSENCE', 'ACADEMY', 'ACCOUNT', 'ACHIEVE', 'ACQUIRE', 'ADDRESS', 'ADVANCE', 'ADVISER', 'AGAINST', 'AIRPORT', 'ALCOHOL', 'ALREADY', 'AMAZING', 'ANCIENT', 'ANOTHER', 'ANXIETY', 'ANXIOUS', 'ANYBODY', 'ANYMORE'],
+                        8: ['ABSOLUTE', 'ABSTRACT', 'ACADEMIC', 'ACCEPTED', 'ACCIDENT', 'ACCURACY', 'ACCURATE', 'ACHIEVED', 'ACOUSTIC', 'ACQUIRED', 'ACTUALLY', 'ADEQUATE', 'ADVANCED', 'ADVISORY', 'ADVOCACY'],
+                        9: ['ABANDONED', 'ABILITIES', 'ABSOLUTES', 'ABSTRACTS', 'ACCIDENTS', 'ACCORDING', 'ACHIEVING', 'ACQUIRING', 'ACTIVISTS', 'ADDRESSED'],
+                        10: ['ABSOLUTELY', 'ACCEPTABLE', 'ACCESSIBLE', 'ACCOUNTING', 'ACCORDANCE', 'ACCURATELY', 'ADVANTAGES', 'ADVENTURE', 'AFTERWARDS', 'ALGORITHMS']
+                    },
                     keyboard: [
                         ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                         ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
@@ -553,9 +444,9 @@
                         congratulations: 'Congratulations! 🎉',
                         gameOver: 'Game Over! The word was',
                         newGame: 'New Game',
+                        enter: 'Enter',
                         finishGame: 'Finish your current game first!',
-                        allWordsCompleted: '🎉 Amazing! You\'ve played all words! Starting fresh cycle! 🔄',
-                        wordsRemaining: 'words remaining of'
+                        startGame: 'Select your first word to begin the game.'
                     },
                     labels: {
                         title: 'My Wordle',
@@ -566,45 +457,14 @@
                 },
                 spanish: {
                     name: 'Spanish',
-                    words: [
-                        'ABAJO', 'ABEJA', 'ABRIR', 'ACEITE', 'ACERA', 'ACTOR', 'AGAVE', 'AGRIO', 'AGUA', 'AHORA',
-                        'AJENA', 'ALBUM', 'ALDEA', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANDEN', 'ANTES', 'ANUAL',
-                        'AQUEL', 'ARENA', 'ARROZ', 'ASADO', 'ATLAS', 'BAILE', 'BANCO', 'BARCO', 'BARRIO', 'BASTA',
-                        'BEBER', 'BELLO', 'BICHO', 'BLUSA', 'BODEGA', 'BOLSA', 'BOMBA', 'BOSQUE', 'BRAVO', 'BREVE',
-                        'BRISA', 'BRUJA', 'BUENO', 'BURRO', 'BUSCA', 'CABAL', 'CABRA', 'CACAO', 'CALMA', 'CALOR',
-                        'CAMPO', 'CAÑA', 'CANTO', 'CARGO', 'CARNE', 'CARTA', 'CASAS', 'CAUSA', 'CELOS', 'CERDO',
-                        'CESAR', 'CHICA', 'CHILE', 'CHINA', 'CHOZA', 'CIELO', 'CINCO', 'CIRCO', 'CLASE', 'CLAVO',
-                        'CLIMA', 'COBRA', 'COCOA', 'COMER', 'CORAL', 'CORRO', 'COSTA', 'CREMA', 'CREAR', 'CRUZA',
-                        'CUARTO', 'CUEVA', 'DATOS', 'DEBER', 'DECIR', 'DEDO', 'DEJAR', 'DENSE', 'DESDE', 'DESEO',
-                        'DICHO', 'DIENTE', 'DINERO', 'DISCO', 'DOLOR', 'DONDE', 'DORMIR', 'DRAMA', 'DUDA', 'DULCE',
-                        'DURO', 'EBANO', 'EDAD', 'ENERO', 'ENTRE', 'EPOCA', 'ERROR', 'ESCAPE', 'ESPEJO', 'ESTE',
-                        'ESTILO', 'EVENTO', 'EXITO', 'EXTRA', 'FACIL', 'FALSO', 'FAMA', 'FECHA', 'FELIZ', 'FERIA',
-                        'FIESTA', 'FINCA', 'FLOR', 'FORMA', 'FOTOS', 'FRUTA', 'FUEGO', 'FUERA', 'FUERZA', 'GALLO',
-                        'GASTO', 'GENTE', 'GLOBO', 'GOLPE', 'GORRO', 'GRADO', 'GRANDE', 'GRANJA', 'GRATIS', 'GRAVE',
-                        'GRUPO', 'GUANTE', 'GUERRA', 'GUIA', 'GUSTO', 'HABER', 'HACER', 'HACIA', 'HAMBRE', 'HASTA',
-                        'HEROE', 'HIJA', 'HIJO', 'HOGAR', 'HOMBRE', 'HONOR', 'HORA', 'HOTEL', 'HUESO', 'HUEVO',
-                        'HUMOR', 'IDEA', 'IGUAL', 'IMAGEN', 'INDIO', 'JUNTO', 'JOVEN', 'JUEGO', 'JUEZ', 'JULIO',
-                        'JUNIO', 'LARGO', 'LAVAR', 'LECHE', 'LEGAL', 'LENGUA', 'LETRA', 'LIBRE', 'LIBRO', 'LINEA',
-                        'LISTA', 'LUGAR', 'LUNA', 'MADRE', 'MAGIA', 'MANGO', 'MANOS', 'MAÑANA', 'MARCA', 'MARZO',
-                        'MASA', 'MAYO', 'MAYOR', 'MEDIO', 'MEJOR', 'MENOR', 'MENOS', 'MESA', 'METAL', 'METRO',
-                        'MIEDO', 'MIEL', 'MIRAR', 'MODELO', 'MODO', 'MONJA', 'MONTE', 'MORAL', 'MORIR', 'MOTOR',
-                        'MUCHO', 'MUERTE', 'MUJER', 'MUNDO', 'MUSICA', 'NACER', 'NADA', 'NADIE', 'NAVE', 'NEGRO',
-                        'NIETO', 'NIÑA', 'NIÑO', 'NOCHE', 'NORTE', 'NOTA', 'NOVIA', 'NOVIO', 'NUBE', 'NUEVO',
-                        'NUNCA', 'OBRA', 'OESTE', 'ORDEN', 'OREJA', 'PADRE', 'PAGAR', 'PAIS', 'PAPEL', 'PARED',
-                        'PARTE', 'PASAR', 'PASO', 'PATIO', 'PATRIA', 'PECHO', 'PEDIR', 'PELEA', 'PELO', 'PENA',
-                        'PERRO', 'PESO', 'PIANO', 'PIEDRA', 'PIEL', 'PIERNA', 'PLATA', 'PLAZA', 'POCO', 'PODER',
-                        'POETA', 'POLVO', 'PONER', 'PRECIO', 'PRIMO', 'PRISA', 'PRUEBA', 'PUEBLO', 'PUERTA', 'PUERTO',
-                        'PUNTO', 'QUESO', 'QUIEN', 'RADIO', 'RAIZ', 'RATON', 'RAZON', 'REINO', 'RELOJ', 'RESTO',
-                        'REVES', 'RICO', 'RIESGO', 'ROBAR', 'ROJO', 'ROPA', 'ROSA', 'ROSTRO', 'RUMBO', 'SABOR',
-                        'SACAR', 'SALON', 'SALUD', 'SANGRE', 'SANTO', 'SECAR', 'SEDE', 'SELLO', 'SELVA', 'SEÑOR',
-                        'SERIE', 'SIGLO', 'SIGNO', 'SILLA', 'SINO', 'SITIO', 'SOBRE', 'SOLO', 'SOMBRA', 'SONAR',
-                        'SOPA', 'SORDO', 'SUAVE', 'SUBIR', 'SUCIO', 'SUEÑO', 'SUERTE', 'SUPER', 'TABLA', 'TANTO',
-                        'TARDE', 'TAREA', 'TEATRO', 'TECHO', 'TEMA', 'TENER', 'TIERRA', 'TIPO', 'TITULO', 'TOCAR',
-                        'TODO', 'TOMAR', 'TONO', 'TORRE', 'TRAER', 'TRAJE', 'TRATO', 'TRIGO', 'TRISTE', 'ULTIMO',
-                        'UNION', 'USAR', 'VACIO', 'VALLE', 'VALOR', 'VAMOS', 'VARIOS', 'VASO', 'VECINO', 'VELA',
-                        'VENDER', 'VENIR', 'VERDE', 'VERSO', 'VIAJE', 'VIDA', 'VIEJO', 'VIENTO', 'VINO', 'VISTA',
-                        'VIVIR', 'VOLAR', 'VOLVER', 'VUELO', 'ZONA'
-                    ],
+                    words: {
+                        5: ['ABAJO', 'ABEJA', 'ABRIR', 'ACEITE', 'ACERA', 'ACTOR', 'AGAVE', 'AGRIO', 'AGUA', 'AHORA', 'AJENA', 'ALBUM', 'ALDEA', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANDEN', 'ANTES', 'ANUAL', 'AQUEL', 'ARENA', 'ARROZ', 'ASADO', 'ATLAS', 'BAILE', 'BANCO', 'BARCO', 'BARRIO', 'BASTA', 'BEBER', 'BELLO', 'BICHO', 'BLUSA', 'BODEGA', 'BOLSA', 'BOMBA', 'BOSQUE', 'BRAVO', 'BREVE', 'BRISA', 'BRUJA', 'BUENO', 'BURRO', 'BUSCA', 'CABAL', 'CABRA', 'CACAO', 'CALMA', 'CALOR'],
+                        6: ['ACCION', 'ACEPTO', 'ACTIVO', 'ACTUAL', 'ADORAR', 'AGONIA', 'ALEGRE', 'ALGUNA', 'ALGUNO', 'ALMEJA', 'ALTURA', 'AMARGO', 'AMIGOS', 'AMPLIO', 'ANCIANO', 'ANGULO', 'ANIMAL', 'ANILLO'],
+                        7: ['ABSOLUTO', 'ACADEMIA', 'ACABADO', 'ACOGEDOR', 'ACTITUD', 'ADELANTE', 'ADVERBIO', 'AGUACATE', 'ALABANZA', 'ALCANZAR'],
+                        8: ['ABANDONO', 'ABOGADOS', 'ABORDAJE', 'ABSTRACTO', 'ABUNDANTE', 'ACADEMICO', 'ACEPTADO', 'ACERTADO', 'ACOGEDOR'],
+                        9: ['ABANDERADO', 'ABASTECIDO', 'ABDICACION', 'ABERRACION', 'ABILIDADES', 'ABOGADILLO', 'ABOLENGO', 'ABORIGENES'],
+                        10: ['ABANDONADOS', 'ABANDONISMO', 'ABARATAMIENTO', 'ABARROTEROS', 'ABASTECIDOS', 'ABDICACIONES', 'ABECEDARIOS']
+                    },
                     keyboard: [
                         ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                         ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
@@ -615,9 +475,9 @@
                         congratulations: '¡Felicitaciones! 🎉',
                         gameOver: '¡Juego terminado! La palabra era',
                         newGame: 'Nuevo Juego',
+                        enter: 'Enviar',
                         finishGame: '¡Termina tu juego actual primero!',
-                        allWordsCompleted: '¡🎉 Increíble! ¡Has jugado todas las palabras! ¡Empezando nuevo ciclo! 🔄',
-                        wordsRemaining: 'palabras restantes de'
+                        startGame: 'Selecciona tu primera palabra para comenzar el juego.'
                     },
                     labels: {
                         title: 'Mi Wordle',
@@ -628,8 +488,12 @@
                 }
             };
 
+            // Add this line:
+            this.validateWordLists();
+            
             this.currentLanguage = 'english';
             this.usedWords = this.loadUsedWords();
+            this.selectedWordLength = 5; // Default to 5 letter words
             
             this.currentWord = '';
             this.currentRow = 0;
@@ -641,7 +505,29 @@
             this.initializeGame();
             this.loadStats();
             this.setupLanguageToggle();
-            this.updateWordProgress();
+            this.updateButtonText(); // Add this line to set button text at initialization
+        }
+
+        loadUsedWords() {
+            const key = `usedWords_${this.currentLanguage}`;
+            return JSON.parse(localStorage.getItem(key)) || {};
+        }
+
+        initializeGame() {
+            this.selectedWordLength = this.getDefaultWordLength();
+            this.createGameBoard();
+            this.createKeyboard();
+            this.setupEventListeners();
+            this.setupWordLengthSelector();
+        }
+
+        getDefaultWordLength() {
+            // Default to 5 or the smallest available word
+            const availableLengths = Object.keys(this.languages[this.currentLanguage].words)
+                .map(Number)
+                .sort((a, b) => a - b);
+            
+            return availableLengths.includes(5) ? 5 : availableLengths[0] || 5;
         }
 
         setupLanguageToggle() {
@@ -649,125 +535,191 @@
             if (!toggle) return;
             
             toggle.addEventListener('change', (e) => {
-                const newLanguage = toggle.checked ? 'spanish' : 'english';
+                // Prevent the default toggle behavior immediately
+                e.preventDefault();
                 
+                const newLanguage = toggle.checked ? 'spanish' : 'english';
+                const currentLanguage = this.currentLanguage;
+                
+                // Don't allow switching if game is in progress
                 if (this.gameStarted && !this.gameOver) {
                     toggle.checked = this.currentLanguage === 'spanish';
                     this.showMessage(this.languages[this.currentLanguage].messages.finishGame, 'lose');
                     return;
                 }
                 
-                const confirmMessage = newLanguage === 'english' 
-                    ? 'Switch language to English?' 
-                    : '¿Cambiar idioma a Español?';
+                // Show custom confirmation dialog
+                const confirmDialog = document.getElementById('confirm-dialog');
+                const confirmMessage = document.getElementById('confirm-message');
+                const confirmYes = document.getElementById('confirm-yes');
+                const confirmNo = document.getElementById('confirm-no');
                 
-                if (confirm(confirmMessage)) {
+                // Set the confirmation message
+                confirmMessage.textContent = `Switch language to ${newLanguage === 'spanish' ? 'Spanish' : 'English'}?`;
+                
+                // Show the dialog
+                confirmDialog.style.display = 'flex';
+                
+                // Handle confirmation
+                const handleYes = () => {
+                    toggle.checked = newLanguage === 'spanish';
                     this.currentLanguage = newLanguage;
                     this.usedWords = this.loadUsedWords();
                     
                     this.clearMessage();
                     this.updateLanguageLabels();
                     this.createKeyboard();
-                    this.updateWordProgress();
                     this.loadStats();
+                    this.updateWordLengthInfo();
+                    this.updateButtonText();
                     this.newGame();
-                } else {
-                    toggle.checked = this.currentLanguage === 'spanish';
-                }
+                    
+                    confirmDialog.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                };
+                
+                // Handle cancellation
+                const handleNo = () => {
+                    toggle.checked = currentLanguage === 'spanish';
+                    confirmDialog.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                };
+                
+                confirmYes.addEventListener('click', handleYes);
+                confirmNo.addEventListener('click', handleNo);
             });
             
             this.updateLanguageLabels();
         }
 
-        hideLanguageToggle() {
-            const languageToggle = document.querySelector('.language-toggle');
-            if (languageToggle) {
-                languageToggle.style.opacity = '0.3';
-                languageToggle.style.pointerEvents = 'none';
-            }
-        }
-
-        showLanguageToggle() {
-            const languageToggle = document.querySelector('.language-toggle');
-            if (languageToggle) {
-                languageToggle.style.opacity = '1';
-                languageToggle.style.pointerEvents = 'auto';
-            }
-        }
-
         updateLanguageLabels() {
-            const lang = this.languages[this.currentLanguage];
             const englishLabel = document.getElementById('english-label');
             const spanishLabel = document.getElementById('spanish-label');
+            const gameTitle = document.getElementById('game-title');
+            const streakLabel = document.getElementById('streak-label');
+            const playedLabel = document.getElementById('played-label');
+            const winRateLabel = document.getElementById('win-rate-label');
             
-            if (englishLabel && spanishLabel) {
-                if (this.currentLanguage === 'english') {
-                    englishLabel.classList.add('active');
-                    spanishLabel.classList.remove('active');
-                } else {
-                    spanishLabel.classList.add('active');
-                    englishLabel.classList.remove('active');
+            if (this.currentLanguage === 'english') {
+                if (englishLabel) englishLabel.classList.add('active');
+                if (spanishLabel) spanishLabel.classList.remove('active');
+            } else {
+                if (englishLabel) englishLabel.classList.remove('active');
+                if (spanishLabel) spanishLabel.classList.add('active');
+            }
+            
+            const labels = this.languages[this.currentLanguage].labels;
+            if (gameTitle) gameTitle.textContent = labels.title;
+            if (streakLabel) streakLabel.textContent = labels.streak;
+            if (playedLabel) playedLabel.textContent = labels.played;
+            if (winRateLabel) winRateLabel.textContent = labels.winRate;
+            
+            // Remove this line that was overriding the button text:
+            // if (newGameBtn) newGameBtn.textContent = this.languages[this.currentLanguage].messages.newGame;
+            
+            // Instead, call updateButtonText which will set the appropriate text based on game state
+            this.updateButtonText();
+        }
+
+        setupWordLengthSelector() {
+            // Create word length selector controls
+            const container = document.createElement('div');
+            container.className = 'word-length-selector';
+            
+            const decreaseBtn = document.createElement('button');
+            decreaseBtn.className = 'length-btn decrease';
+            decreaseBtn.textContent = '−';
+            decreaseBtn.setAttribute('aria-label', 'Decrease word length');
+            
+            const increaseBtn = document.createElement('button');
+            increaseBtn.className = 'length-btn increase';
+            increaseBtn.textContent = '+';
+            increaseBtn.setAttribute('aria-label', 'Increase word length');
+            
+            container.appendChild(decreaseBtn);
+            container.appendChild(increaseBtn);
+            
+            // Add event listeners
+            decreaseBtn.addEventListener('click', () => this.changeWordLength(-1));
+            increaseBtn.addEventListener('click', () => this.changeWordLength(1));
+            
+            // Insert after stats
+            const stats = document.querySelector('.stats');
+            if (stats && stats.parentNode) {
+                stats.parentNode.insertBefore(container, stats.nextSibling);
+            }
+            
+            this.updateWordLengthInfo();
+            
+            // Add styles for selector
+            const style = document.createElement('style');
+            style.textContent = `
+                .word-length-selector {
+                    display: flex;
+                    justify-content: center;
+                    gap: 20px;
+                    margin-bottom: 10px;
                 }
+                .length-btn {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    border: none;
+                    background-color: #d3d6da;
+                    color: #121213;
+                    font-size: 20px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background-color 0.2s;
+                }
+                .length-btn:hover {
+                    background-color: #878a8c;
+                    color: #ffffff;
+                }
+                .length-btn:active {
+                    transform: scale(0.95);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        changeWordLength(delta) {
+            if (this.gameStarted && !this.gameOver) {
+                this.showMessage(this.languages[this.currentLanguage].messages.finishGame, 'lose');
+                return;
             }
             
-            const elements = {
-                'game-title': lang.labels.title,
-                'streak-label': lang.labels.streak,
-                'played-label': lang.labels.played,
-                'win-rate-label': lang.labels.winRate,
-                'new-game-btn': lang.messages.newGame
-            };
+            const availableLengths = Object.keys(this.languages[this.currentLanguage].words)
+                                          .map(Number)
+                                          .sort((a, b) => a - b);
             
-            for (const id in elements) {
-                const element = document.getElementById(id);
-                if (element) element.textContent = elements[id];
-            }
-        }
-
-        loadUsedWords() {
-            const key = 'usedWords_' + this.currentLanguage;
-            return JSON.parse(localStorage.getItem(key)) || [];
-        }
-
-        saveUsedWords() {
-            const key = 'usedWords_' + this.currentLanguage;
-            localStorage.setItem(key, JSON.stringify(this.usedWords));
-        }
-
-        getRandomWord() {
-            const words = this.languages[this.currentLanguage].words;
-            const availableWords = words.filter(word => !this.usedWords.includes(word));
+            if (availableLengths.length === 0) return;
             
-            if (availableWords.length === 0) {
-                this.usedWords = [];
-                this.saveUsedWords();
-                setTimeout(() => {
-                    this.showMessage(this.languages[this.currentLanguage].messages.allWordsCompleted, 'win');
-                }, 1000);
-                return words[Math.floor(Math.random() * words.length)];
-            }
+            const currentIndex = availableLengths.indexOf(this.selectedWordLength);
+            let newIndex = currentIndex + delta;
             
-            const selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
-            this.usedWords.push(selectedWord);
-            this.saveUsedWords();
+            if (newIndex < 0) newIndex = availableLengths.length - 1;
+            if (newIndex >= availableLengths.length) newIndex = 0;
             
-            return selectedWord;
-        }
-
-        updateWordProgress() {
-            const words = this.languages[this.currentLanguage].words;
-            const remaining = words.length - this.usedWords.length;
-            const progressElement = document.getElementById('word-progress');
-            if (progressElement) {
-                const wordsRemainingText = this.languages[this.currentLanguage].messages.wordsRemaining;
-                progressElement.textContent = remaining + ' ' + wordsRemainingText + ' ' + words.length;
-            }
-        }
-
-        initializeGame() {
+            this.selectedWordLength = availableLengths[newIndex];
+            this.updateWordLengthInfo();
             this.createGameBoard();
-            this.createKeyboard();
-            this.setupEventListeners();
+            this.clearMessage();
+        }
+
+        updateWordLengthInfo() {
+            const infoElement = document.getElementById('word-length-info');
+            if (infoElement) {
+                const text = this.currentLanguage === 'english' ? 
+                    `Word length: ${this.selectedWordLength} letters` :
+                    `Longitud de palabra: ${this.selectedWordLength} letras`;
+                infoElement.textContent = text;
+            }
         }
 
         createGameBoard() {
@@ -778,10 +730,10 @@
             
             for (let i = 0; i < 6; i++) {
                 const row = document.createElement('div');
-                row.className = 'row';
+                row.className = `row length-${this.selectedWordLength}`;
                 row.id = 'row-' + i;
                 
-                for (let j = 0; j < 5; j++) {
+                for (let j = 0; j < this.selectedWordLength; j++) {
                     const tile = document.createElement('div');
                     tile.className = 'tile';
                     tile.id = 'tile-' + i + '-' + j;
@@ -798,111 +750,64 @@
             
             keyboard.innerHTML = '';
             
-            const rows = this.languages[this.currentLanguage].keyboard;
-
-            for (let r = 0; r < rows.length; r++) {
-                const keyboardRow = document.createElement('div');
-                keyboardRow.className = 'keyboard-row';
+            const keyboardLayout = this.languages[this.currentLanguage].keyboard;
+            
+            for (let i = 0; i < keyboardLayout.length; i++) {
+                const row = document.createElement('div');
+                row.className = 'keyboard-row';
                 
-                for (let k = 0; k < rows[r].length; k++) {
-                    const key = rows[r][k];
-                    const keyElement = document.createElement('button');
-                    keyElement.className = 'key';
-                    keyElement.textContent = key === 'BACKSPACE' ? '⌫' : key;
-                    keyElement.id = 'key-' + key;
+                for (let j = 0; j < keyboardLayout[i].length; j++) {
+                    const key = document.createElement('button');
+                    key.className = 'key';
+                    key.setAttribute('type', 'button');
                     
-                    if (key === 'ENTER' || key === 'BACKSPACE') {
-                        keyElement.classList.add('wide');
+                    const letter = keyboardLayout[i][j];
+                    key.textContent = letter === 'BACKSPACE' ? '⌫' : 
+                                     letter === 'ENTER' ? this.languages[this.currentLanguage].messages.enter : 
+                                     letter;
+                    
+                    if (letter === 'ENTER' || letter === 'BACKSPACE') {
+                        key.classList.add('wide');
                     }
                     
-                    const keyHandler = (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        if (keyElement.disabled) return;
-                        
-                        keyElement.disabled = true;
-                        setTimeout(() => {
-                            keyElement.disabled = false;
-                        }, 150);
-                        
-                        this.handleKeyPress(key);
-                    };
-                    
-                    if ('ontouchstart' in window) {
-                        keyElement.addEventListener('touchstart', (e) => {
-                            e.preventDefault();
-                            keyElement.classList.add('active');
-                        }, { passive: false });
-                        
-                        keyElement.addEventListener('touchend', keyHandler, { passive: false });
-                        
-                        keyElement.addEventListener('touchcancel', (e) => {
-                            keyElement.classList.remove('active');
-                        });
-                    } else {
-                        keyElement.addEventListener('mousedown', (e) => {
-                            e.preventDefault();
-                            keyElement.classList.add('active');
-                        });
-                        
-                        keyElement.addEventListener('mouseup', (e) => {
-                            keyElement.classList.remove('active');
-                        });
-                        
-                        keyElement.addEventListener('click', keyHandler);
-                    }
-                    
-                    keyboardRow.appendChild(keyElement);
+                    key.addEventListener('click', () => this.handleKeyPress(letter));
+                    row.appendChild(key);
                 }
                 
-                keyboard.appendChild(keyboardRow);
+                keyboard.appendChild(row);
             }
         }
 
         setupEventListeners() {
-            let keyPressed = false;
-            
+            // Physical keyboard support
             document.addEventListener('keydown', (e) => {
-                if (keyPressed) return;
-                keyPressed = true;
+                if (e.ctrlKey || e.metaKey) return;
                 
-                let key = e.key.toUpperCase();
-                
-                if (key === 'Ñ') {
-                    key = 'Ñ';
-                }
-                
-                if (key === 'ENTER') {
+                if (e.key === 'Enter') {
                     this.handleKeyPress('ENTER');
-                } else if (key === 'BACKSPACE') {
+                } else if (e.key === 'Backspace') {
                     this.handleKeyPress('BACKSPACE');
-                } else if ((key.match(/[A-Z]/) && key.length === 1) || key === 'Ñ') {
-                    this.handleKeyPress(key);
+                } else {
+                    const key = e.key.toUpperCase();
+                    if (/^[A-ZÑ]$/.test(key)) {
+                        this.handleKeyPress(key);
+                    }
                 }
             });
             
-            document.addEventListener('keyup', () => {
-                keyPressed = false;
-            });
-
+            // New Game/Enter button
             const newGameBtn = document.getElementById('new-game-btn');
             if (newGameBtn) {
-                const newGameHandler = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    newGameBtn.blur();
-                    newGameBtn.classList.remove('active');
-                    
-                    this.newGame();
-                };
-                
-                if ('ontouchstart' in window) {
-                    newGameBtn.addEventListener('touchend', newGameHandler, { passive: false });
-                } else {
-                    newGameBtn.addEventListener('click', newGameHandler);
-                }
+                newGameBtn.addEventListener('click', () => {
+                    if (this.gameOver) {
+                        this.newGame(); // Start a new game when game is over
+                    } else if (this.gameStarted) {
+                        this.submitGuess(); // Submit guess when game is in progress
+                    } else {
+                        // Show message when no letters have been entered yet
+                        this.showMessage(this.languages[this.currentLanguage].messages.startGame);
+                    }
+                });
             }
         }
 
@@ -913,7 +818,7 @@
                 this.submitGuess();
             } else if (key === 'BACKSPACE') {
                 this.deleteLetter();
-            } else if (this.currentTile < 5) {
+            } else if (this.currentTile < this.selectedWordLength) {
                 this.addLetter(key);
             }
         }
@@ -922,6 +827,7 @@
             if (!this.gameStarted) {
                 this.gameStarted = true;
                 this.hideLanguageToggle();
+                this.updateButtonText();
                 
                 if (this.currentWord === '') {
                     this.currentWord = this.getRandomWord();
@@ -944,16 +850,11 @@
                     tile.textContent = '';
                     tile.classList.remove('filled');
                 }
-
-                if (this.currentRow === 0 && this.currentTile === 0) {
-                    this.gameStarted = false;
-                    this.showLanguageToggle();
-                }
             }
         }
 
         submitGuess() {
-            if (this.currentTile < 5) {
+            if (this.currentTile < this.selectedWordLength) {
                 this.showMessage(this.languages[this.currentLanguage].messages.notEnoughLetters);
                 return;
             }
@@ -973,7 +874,7 @@
 
         getCurrentGuess() {
             let guess = '';
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < this.selectedWordLength; i++) {
                 const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
                 if (tile) guess += tile.textContent;
             }
@@ -986,21 +887,25 @@
             const guessArray = [...guess];
             const letterCount = {};
             
+            // Count occurrences of each letter in the target word
             for (let letter of wordArray) {
                 letterCount[letter] = (letterCount[letter] || 0) + 1;
             }
             
-            for (let i = 0; i < 5; i++) {
+            // First pass: Mark correct positions
+            for (let i = 0; i < this.selectedWordLength; i++) {
                 if (guessArray[i] === wordArray[i]) {
                     result[i] = 'correct';
                     letterCount[guessArray[i]]--;
-                    guessArray[i] = null;
+                } else {
+                    result[i] = null; // Placeholder for second pass
                 }
             }
             
-            for (let i = 0; i < 5; i++) {
-                if (guessArray[i] !== null) {
-                    if (letterCount[guessArray[i]] > 0) {
+            // Second pass: Mark present or absent letters
+            for (let i = 0; i < this.selectedWordLength; i++) {
+                if (result[i] === null) { // Skip already marked positions
+                    if (letterCount[guessArray[i]] && letterCount[guessArray[i]] > 0) {
                         result[i] = 'present';
                         letterCount[guessArray[i]]--;
                     } else {
@@ -1014,27 +919,117 @@
         }
 
         updateTiles(result) {
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < this.selectedWordLength; i++) {
                 const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
-                if (tile) tile.classList.add(result[i]);
+                if (tile) {
+                    setTimeout(() => {
+                        tile.classList.add(result[i]);
+                    }, i * 100); // Stagger animation
+                }
             }
         }
 
         updateKeyboard(guess, result) {
-            for (let i = 0; i < 5; i++) {
-                const key = document.getElementById('key-' + guess[i]);
-                if (!key) continue;
+            const keys = document.querySelectorAll('.key');
+            const guessArray = [...guess];
+            
+            for (let i = 0; i < guessArray.length; i++) {
+                const letter = guessArray[i];
+                const status = result[i];
                 
-                const currentClass = key.classList.contains('correct') ? 'correct' :
-                                   key.classList.contains('present') ? 'present' :
-                                   key.classList.contains('absent') ? 'absent' : '';
-
-                if (result[i] === 'correct' || 
-                    (result[i] === 'present' && currentClass !== 'correct') ||
-                    (result[i] === 'absent' && !currentClass)) {
-                    key.classList.remove('correct', 'present', 'absent');
-                    key.classList.add(result[i]);
+                // Find the corresponding key in the keyboard
+                for (let key of keys) {
+                    if (key.textContent === letter) {
+                        // Only update if the new status is better than the current one
+                        if (status === 'correct' || 
+                            (status === 'present' && !key.classList.contains('correct')) ||
+                            (status === 'absent' && !key.classList.contains('correct') && !key.classList.contains('present'))) {
+                        
+                            key.classList.remove('correct', 'present', 'absent');
+                            key.classList.add(status);
+                        }
+                        break;
+                    }
                 }
+            }
+        }
+
+        getRandomWord() {
+            const words = this.languages[this.currentLanguage].words[this.selectedWordLength];
+            
+            // First filter the words to ensure they have the exact correct length
+            const validWords = words ? words.filter(word => word.length === this.selectedWordLength) : [];
+            
+            if (!validWords || validWords.length === 0) {
+                // If no valid words found for selected length, try to find closest length
+                const availableLengths = Object.keys(this.languages[this.currentLanguage].words)
+                    .map(Number)
+                    .sort((a, b) => Math.abs(a - this.selectedWordLength) - Math.abs(b - this.selectedWordLength));
+                
+                if (availableLengths.length > 0) {
+                    this.selectedWordLength = availableLengths[0];
+                    this.updateWordLengthInfo();
+                    this.createGameBoard();
+                    return this.getRandomWord();
+                }
+                return "ERROR"; // This should never happen if the words are properly set up
+            }
+            
+            // Use validWords instead of original words list
+            const usedKey = `usedWords_${this.currentLanguage}_${this.selectedWordLength}`;
+            let usedWords = JSON.parse(localStorage.getItem(usedKey)) || [];
+            
+            // Reset used words if all words have been used
+            if (usedWords.length >= validWords.length) {
+                usedWords = [];
+            }
+            
+            // Filter out used words
+            const availableWords = validWords.filter(word => !usedWords.includes(word));
+            
+            if (availableWords.length === 0) {
+                usedWords = [];
+                localStorage.setItem(usedKey, JSON.stringify(usedWords));
+                return validWords[Math.floor(Math.random() * validWords.length)];
+            }
+            
+            const selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+            usedWords.push(selectedWord);
+            localStorage.setItem(usedKey, JSON.stringify(usedWords));
+            
+            return selectedWord;
+        }
+
+        showMessage(message, type = '') {
+            const messageElement = document.getElementById('message');
+            if (!messageElement) return;
+            
+            messageElement.textContent = message;
+            messageElement.className = 'message';
+            if (type) messageElement.classList.add(type);
+            
+            if (this.messageTimeout) {
+                clearTimeout(this.messageTimeout);
+            }
+            
+            // Clear non-game-end messages after a delay
+            if (type !== 'win' && type !== 'lose') {
+                this.messageTimeout = setTimeout(() => {
+                    messageElement.textContent = '';
+                    messageElement.className = 'message';
+                }, 2000);
+            }
+        }
+
+        clearMessage() {
+            const messageElement = document.getElementById('message');
+            if (messageElement) {
+                messageElement.textContent = '';
+                messageElement.className = 'message';
+            }
+            
+            if (this.messageTimeout) {
+                clearTimeout(this.messageTimeout);
             }
         }
 
@@ -1043,94 +1038,93 @@
             this.showMessage(this.languages[this.currentLanguage].messages.congratulations, 'win');
             this.updateStats(true);
             this.showLanguageToggle();
+            this.updateButtonText(); // Add this line
         }
 
         gameLost() {
             this.gameOver = true;
-            const loseMessage = this.languages[this.currentLanguage].messages.gameOver + ' ' + this.currentWord;
-            this.showMessage(loseMessage, 'lose');
+            this.showMessage(this.languages[this.currentLanguage].messages.gameOver + ' ' + this.currentWord, 'lose');
             this.updateStats(false);
             this.showLanguageToggle();
-        }
-
-        showMessage(text, type) {
-            const message = document.getElementById('message');
-            if (message) {
-                message.textContent = text;
-                message.className = 'message ' + (type || '');
-                
-                if (this.messageTimeout) {
-                    clearTimeout(this.messageTimeout);
-                }
-                
-                if (type !== 'win' && type !== 'lose') {
-                    this.messageTimeout = setTimeout(() => {
-                        message.textContent = '';
-                        message.className = 'message';
-                        this.messageTimeout = null;
-                    }, 3000);
-                }
-            }
-        }
-
-        clearMessage() {
-            const message = document.getElementById('message');
-            if (message) {
-                message.textContent = '';
-                message.className = 'message';
-            }
-            if (this.messageTimeout) {
-                clearTimeout(this.messageTimeout);
-                this.messageTimeout = null;
-            }
+            this.updateButtonText(); // Add this line
         }
 
         loadStats() {
-            const statsKey = 'wordleStats_' + this.currentLanguage;
+            const statsKey = `stats_${this.currentLanguage}`;
             const stats = JSON.parse(localStorage.getItem(statsKey)) || {
-                played: 0, won: 0, streak: 0, maxStreak: 0
-            };
-
-            const elements = {
-                'streak': stats.streak,
-                'played': stats.played,
-                'win-rate': stats.played > 0 ? Math.round((stats.won / stats.played) * 100) + '%' : '0%'
+                streak: 0,
+                maxStreak: 0,
+                played: 0,
+                won: 0
             };
             
-            for (const id in elements) {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.textContent = elements[id];
-                }
+            const streakElement = document.getElementById('streak');
+            const playedElement = document.getElementById('played');
+            const winRateElement = document.getElementById('win-rate');
+            
+            if (streakElement) streakElement.textContent = stats.streak;
+            if (playedElement) playedElement.textContent = stats.played;
+            if (winRateElement) {
+                const winRate = stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0;
+                winRateElement.textContent = `${winRate}%`;
             }
         }
 
-        updateStats(won) {
-            const statsKey = 'wordleStats_' + this.currentLanguage;
-            let stats = JSON.parse(localStorage.getItem(statsKey)) || {
-                played: 0, won: 0, streak: 0, maxStreak: 0
+        updateStats(win) {
+            const statsKey = `stats_${this.currentLanguage}`;
+            const stats = JSON.parse(localStorage.getItem(statsKey)) || {
+                streak: 0,
+                maxStreak: 0,
+                played: 0,
+                won: 0
             };
-
-            stats.played++;
             
-            if (won) {
-                stats.won++;
-                stats.streak++;
+            stats.played += 1;
+            
+            if (win) {
+                stats.won += 1;
+                stats.streak += 1;
                 stats.maxStreak = Math.max(stats.maxStreak, stats.streak);
             } else {
                 stats.streak = 0;
             }
-
+            
             localStorage.setItem(statsKey, JSON.stringify(stats));
             this.loadStats();
         }
 
-        newGame() {
-            if (this.currentWord === '' && !this.gameStarted) {
-                this.updateWordProgress();
-                return;
-            }
+        hideLanguageToggle() {
+            const toggle = document.querySelector('.language-toggle');
+            if (toggle) toggle.style.visibility = 'hidden';
             
+            // Also hide word length selector when game starts
+            const lengthSelector = document.querySelector('.word-length-selector');
+            if (lengthSelector) lengthSelector.style.visibility = 'hidden';
+        }
+
+        showLanguageToggle() {
+            const toggle = document.querySelector('.language-toggle');
+            if (toggle) toggle.style.visibility = 'visible';
+            
+            // Also show word length selector when game ends
+            const lengthSelector = document.querySelector('.word-length-selector');
+            if (lengthSelector) lengthSelector.style.visibility = 'visible';
+        }
+
+        updateButtonText() {
+            const button = document.getElementById('new-game-btn');
+            if (button) {
+                if (this.gameOver) {
+                    // Show "New Game" when game is over
+                    button.textContent = this.languages[this.currentLanguage].messages.newGame;
+                } else {
+                    // Show "Enter" in all other cases (whether game started or not)
+                    button.textContent = this.currentLanguage === 'english' ? 'Enter' : 'Enviar';
+                }
+            }
+        }
+
+        newGame() {
             this.currentWord = this.getRandomWord();
             this.currentRow = 0;
             this.currentTile = 0;
@@ -1149,8 +1143,41 @@
             }
             
             this.clearMessage();
-            this.updateWordProgress();
             this.showLanguageToggle();
+            this.updateButtonText(); // This will now set it to "Enter"/"Enviar"
+        }
+
+        validateWordLists() {
+            console.log("Validating word lists...");
+            let fixedWords = 0;
+            
+            for (const language of Object.keys(this.languages)) {
+                const wordsByLength = this.languages[language].words;
+                
+                for (const length of Object.keys(wordsByLength)) {
+                    const numericLength = parseInt(length, 10);
+                    const originalList = [...wordsByLength[length]];
+                    
+                    // Filter words to only include those of the correct length
+                    wordsByLength[length] = originalList.filter(word => word.length === numericLength);
+                    
+                    const removedCount = originalList.length - wordsByLength[length].length;
+                    if (removedCount > 0) {
+                        fixedWords += removedCount;
+                        console.warn(`Removed ${removedCount} invalid words from ${language} ${length}-letter word list`);
+                        
+                        // Log some examples of invalid words that were removed
+                        const invalidWords = originalList.filter(word => word.length !== numericLength);
+                        console.warn(`Examples of invalid words: ${invalidWords.slice(0, 5).join(', ')}`);
+                    }
+                }
+            }
+            
+            if (fixedWords > 0) {
+                console.log(`Total fixed words: ${fixedWords}`);
+            } else {
+                console.log("All word lists are valid!");
+            }
         }
     }
 
