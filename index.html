@@ -423,6 +423,7 @@
 
     <script>    class WordleGame {
         constructor() {
+            // Set up languages object
             this.languages = {
                 english: {
                     name: 'English',
@@ -490,10 +491,15 @@
                 }
             };
 
-            // Add this line:
+            // Validate word lists
             this.validateWordLists();
             
-            this.currentLanguage = 'english';
+            // Add this line to verify word lengths at startup
+            this.verifyAllWordLengths();
+            
+            // Load previously selected language from local storage
+            this.currentLanguage = localStorage.getItem('selectedLanguage') || 'english';
+            
             this.usedWords = this.loadUsedWords();
             this.selectedWordLength = 5; // Default to 5 letter words
             
@@ -537,6 +543,9 @@
             const toggle = document.getElementById('language-toggle');
             if (!toggle) return;
             
+            // Set initial toggle state based on current language (THIS LINE WAS MISSING)
+            toggle.checked = this.currentLanguage === 'spanish';
+            
             toggle.addEventListener('change', (e) => {
                 // Prevent the default toggle behavior immediately
                 e.preventDefault();
@@ -567,6 +576,10 @@
                 const handleYes = () => {
                     toggle.checked = newLanguage === 'spanish';
                     this.currentLanguage = newLanguage;
+                    
+                    // Save language preference
+                    localStorage.setItem('selectedLanguage', newLanguage);
+                    
                     this.usedWords = this.loadUsedWords();
                     
                     this.clearMessage();
@@ -958,25 +971,33 @@
         }
 
         getRandomWord() {
+            // Get words for the current length and language
             const words = this.languages[this.currentLanguage].words[this.selectedWordLength];
             
-            // First filter the words to ensure they have the exact correct length
-            const validWords = words ? words.filter(word => word.length === this.selectedWordLength) : [];
-            
-            if (!validWords || validWords.length === 0) {
-                // If no valid words found for selected length, try to find closest length
-                const availableLengths = Object.keys(this.languages[this.currentLanguage].words)
-                    .map(Number)
-                    .sort((a, b) => Math.abs(a - this.selectedWordLength) - Math.abs(b - this.selectedWordLength));
-                
-                if (availableLengths.length > 0) {
-                    this.selectedWordLength = availableLengths[0];
-                    this.updateWordLengthInfo();
-                    this.createGameBoard();
-                    return this.getRandomWord();
-                }
-                return "ERROR"; // This should never happen if the words are properly set up
+            if (!words || words.length === 0) {
+                console.error(`No words found for ${this.currentLanguage} with length ${this.selectedWordLength}`);
+                return "ERROR";
             }
+            
+            // TRIPLE VALIDATION SYSTEM:
+            
+            // 1. First validation - strict filtering for exact length match
+            const validWords = words.filter(word => {
+                if (word.length !== this.selectedWordLength) {
+                    console.warn(`Invalid word found: "${word}" is ${word.length} letters, but should be ${this.selectedWordLength} letters`);
+                    return false;
+                }
+                return true;
+            });
+            
+            // 2. Second validation - check if any valid words were found
+            if (validWords.length === 0) {
+                console.error(`No valid words of length ${this.selectedWordLength} found in ${this.currentLanguage}`);
+                return "ERROR";
+            }
+            
+            // Log validation results
+            console.log(`Found ${validWords.length} valid ${this.selectedWordLength}-letter words for ${this.currentLanguage}`);
             
             // Get used words for this language and length
             const usedWordsKey = `usedWords_${this.currentLanguage}_${this.selectedWordLength}`;
@@ -1002,11 +1023,18 @@
             // Select a random word from available words
             const selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
             
+            // 3. Third validation - final verification before returning
+            if (selectedWord.length !== this.selectedWordLength) {
+                console.error(`Selected word "${selectedWord}" has length ${selectedWord.length}, expected ${this.selectedWordLength}`);
+                // Try again with a different word
+                return this.getRandomWord();
+            }
+            
             // Add to used words and save
             usedWords.push(selectedWord);
             localStorage.setItem(usedWordsKey, JSON.stringify(usedWords));
             
-            console.log(`Selected word: ${selectedWord} (${availableWords.length-1} words remaining in current cycle)`);
+            console.log(`Selected word: ${selectedWord} (${selectedWord.length} letters) - ${availableWords.length-1} words remaining in current cycle`);
             
             return selectedWord;
         }
@@ -1187,16 +1215,19 @@
                         // Check if word has correct length
                         const isCorrectLength = word.length === numericLength;
                         
-                        if (isCorrectLength) {
-                            // Check if word is a duplicate
-                            if (uniqueWords.has(word)) {
-                                duplicatesRemoved++;
-                                return false;
-                            }
-                            uniqueWords.add(word);
-                            return true;
+                        if (!isCorrectLength) {
+                            console.warn(`Removing invalid word "${word}" (${word.length} letters) from ${language} ${numericLength}-letter list`);
+                            return false;
                         }
-                        return false;
+                        
+                        // Check if word is a duplicate
+                        if (uniqueWords.has(word)) {
+                            console.warn(`Removing duplicate word "${word}" from ${language} ${numericLength}-letter list`);
+                            duplicatesRemoved++;
+                            return false;
+                        }
+                        uniqueWords.add(word);
+                        return true;
                     });
                     
                     const removedCount = originalList.length - wordsByLength[length].length;
@@ -1219,6 +1250,29 @@
                 console.log(`Total fixed words: ${fixedWords}`);
             } else {
                 console.log("All word lists are valid!");
+            }
+        }
+
+        verifyAllWordLengths() {
+            console.log("Performing complete word length verification...");
+            
+            for (const language of Object.keys(this.languages)) {
+                const wordsByLength = this.languages[language].words;
+                
+                for (const length of Object.keys(wordsByLength)) {
+                    const numericLength = parseInt(length, 10);
+                    const words = wordsByLength[length];
+                    
+                    // Check each word in this category
+                    const incorrectWords = words.filter(word => word.length !== numericLength);
+                    
+                    if (incorrectWords.length > 0) {
+                        console.error(`CRITICAL: Found ${incorrectWords.length} incorrect length words in ${language} ${length}-letter list:`);
+                        console.error(incorrectWords);
+                    } else {
+                        console.log(`✓ ${language} ${length}-letter words: All ${words.length} words are correct length`);
+                    }
+                }
             }
         }
     }
