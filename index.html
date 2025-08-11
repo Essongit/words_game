@@ -1373,6 +1373,10 @@
         }
 
         getRandomWord() {
+            // Debug logging
+            console.log(`=== SELECTING WORD FOR ${this.currentLanguage.toUpperCase()} ===`);
+            console.log(`Target word length: ${this.selectedWordLength}`);
+            
             // Get words for the current length and language
             const words = this.languages[this.currentLanguage].words[this.selectedWordLength];
             
@@ -1381,12 +1385,14 @@
                 return "ERROR";
             }
             
+            console.log(`Found word list with ${words.length} words for length ${this.selectedWordLength}`);
+            
             // TRIPLE VALIDATION SYSTEM:
             
             // 1. First validation - strict filtering for exact length match
             const validWords = words.filter(word => {
                 if (word.length !== this.selectedWordLength) {
-                    console.warn(`Invalid word found: "${word}" is ${word.length} letters, but should be ${this.selectedWordLength} letters`);
+                    console.warn(`INVALID WORD DETECTED: "${word}" is ${word.length} letters, but should be ${this.selectedWordLength} letters`);
                     return false;
                 }
                 return true;
@@ -1427,7 +1433,7 @@
             
             // 3. Third validation - final verification before returning
             if (selectedWord.length !== this.selectedWordLength) {
-                console.error(`Selected word "${selectedWord}" has length ${selectedWord.length}, expected ${this.selectedWordLength}`);
+                console.error(`CRITICAL ERROR: Selected word "${selectedWord}" has length ${selectedWord.length}, expected ${this.selectedWordLength}`);
                 // Try again with a different word
                 return this.getRandomWord();
             }
@@ -1436,7 +1442,8 @@
             usedWords.push(selectedWord);
             localStorage.setItem(usedWordsKey, JSON.stringify(usedWords));
             
-            console.log(`Selected word: ${selectedWord} (${selectedWord.length} letters) - ${availableWords.length-1} words remaining in current cycle`);
+            console.log(`✓ FINAL SELECTION: "${selectedWord}" (${selectedWord.length} letters) - ${availableWords.length-1} words remaining in current cycle`);
+            console.log(`=== WORD SELECTION COMPLETE ===`);
             
             return selectedWord;
         }
@@ -1755,6 +1762,7 @@
 
         verifyAllWordLengths() {
             console.log("Performing complete word length verification...");
+            let totalErrors = 0;
             
             for (const language of Object.keys(this.languages)) {
                 const wordsByLength = this.languages[language].words;
@@ -1769,11 +1777,72 @@
                     if (incorrectWords.length > 0) {
                         console.error(`CRITICAL: Found ${incorrectWords.length} incorrect length words in ${language} ${length}-letter list:`);
                         console.error(incorrectWords);
+                        totalErrors += incorrectWords.length;
+                        
+                        // Show detailed information about each incorrect word
+                        incorrectWords.forEach(word => {
+                            console.error(`  - "${word}" is ${word.length} letters but listed in ${length}-letter category`);
+                        });
                     } else {
                         console.log(`✓ ${language} ${length}-letter words: All ${words.length} words are correct length`);
                     }
                 }
             }
+            
+            if (totalErrors > 0) {
+                console.error(`TOTAL ERRORS FOUND: ${totalErrors} words need to be moved to correct categories`);
+                alert(`Word list validation found ${totalErrors} errors! Check console for details.`);
+                
+                // Auto-fix the word lists
+                this.autoFixWordLists();
+            } else {
+                console.log("✓ All word lists validated successfully - no length errors found!");
+            }
+        }
+        
+        autoFixWordLists() {
+            console.log("Auto-fixing word lists...");
+            let totalFixed = 0;
+            
+            for (const language of Object.keys(this.languages)) {
+                const wordsByLength = this.languages[language].words;
+                
+                for (const length of Object.keys(wordsByLength)) {
+                    const numericLength = parseInt(length, 10);
+                    const words = wordsByLength[length];
+                    
+                    // Find words that don't belong in this category
+                    const correctWords = [];
+                    const incorrectWords = [];
+                    
+                    words.forEach(word => {
+                        if (word.length === numericLength) {
+                            correctWords.push(word);
+                        } else {
+                            incorrectWords.push(word);
+                            totalFixed++;
+                        }
+                    });
+                    
+                    // Update the current category with only correct words
+                    this.languages[language].words[length] = correctWords;
+                    
+                    // Move incorrect words to their proper categories
+                    incorrectWords.forEach(word => {
+                        const correctLength = word.length;
+                        if (!this.languages[language].words[correctLength]) {
+                            this.languages[language].words[correctLength] = [];
+                        }
+                        this.languages[language].words[correctLength].push(word);
+                        console.log(`Moved "${word}" from ${length}-letter to ${correctLength}-letter category`);
+                    });
+                }
+            }
+            
+            console.log(`Auto-fix complete! Fixed ${totalFixed} word placements.`);
+            
+            // Re-verify after fixing
+            this.verifyAllWordLengths();
         }
     }
 
