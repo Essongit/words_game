@@ -158,7 +158,7 @@
 
         h1 {
             font-size: 1.8rem;
-            margin-bottom: 8px;
+            margin-bottom: 4px; /* Reduced from 8px to bring stats closer to title */
             color: #121213;
         }
 
@@ -166,7 +166,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 5px;
+            margin-bottom: 10px; /* Increased from 5px to add more space below the stats */
         }
 
         .stat {
@@ -188,7 +188,8 @@
             text-align: center;
             font-size: 0.8rem;
             color: #787c7e;
-            margin-bottom: 5px;
+            margin-bottom: 8px; /* Increased from 5px to provide more space */
+            margin-top: 2px; /* Added small top margin for better spacing */
         }
 
         .word-length-value {
@@ -601,15 +602,14 @@
                 <span class="language-label" id="spanish-label">ES</span>
             </div>
 
-            <!-- Lightning Round Toggle with Tooltip -->
-            <div class="lightning-toggle tooltip">
+            <!-- Lightning Round Toggle -->
+            <div class="lightning-toggle">
                 <span class="lightning-label" id="normal-mode-label">Normal</span>
                 <label class="toggle-container">
                     <input type="checkbox" class="toggle-input" id="lightning-toggle">
                     <span class="toggle-slider lightning-slider"></span>
                 </label>
                 <span class="lightning-label" id="lightning-mode-label"><span class="lightning-icon">60s</span></span>
-                <span class="tooltip-text">Lightning Round: You have 60 seconds to solve the word!</span>
             </div>
         </div>
 
@@ -665,7 +665,7 @@
                         finishGame: 'Finish your current game first!',
                         startGame: 'Select your first word to begin the game.',
                         timeUp: 'Time\'s up! The word was',
-                        switchLightningMode: 'Switch to Lightning Mode?',
+                        switchLightningMode: 'Activate fast mode? You\'ll have 60 seconds to solve the word!',
                         switchNormalMode: 'Switch to Normal Mode?',
                         yes: 'Yes',
                         no: 'No'
@@ -705,7 +705,7 @@
                         finishGame: '¡Termina tu juego actual primero!',
                         startGame: 'Selecciona tu primera palabra para comenzar el juego.',
                         timeUp: '¡Se acabó el tiempo! La palabra era',
-                        switchLightningMode: '¿Cambiar al modo Relámpago?',
+                        switchLightningMode: '¿Activar modo rápido? ¡Tendrás 60 segundos para resolver la palabra!',
                         switchNormalMode: '¿Cambiar al modo Normal?',
                         yes: 'Sí',
                         no: 'No'
@@ -973,15 +973,8 @@
         }
         
         updateLightningTooltip() {
-            const tooltipText = document.querySelector('.lightning-toggle .tooltip-text');
-            if (tooltipText) {
-                const labels = this.languages[this.currentLanguage].labels;
-                if (this.currentLanguage === 'english') {
-                    tooltipText.textContent = `${labels.lightning} Round: You have 60 seconds to solve the word!`;
-                } else {
-                    tooltipText.textContent = `¡Ronda ${labels.lightning}: Tienes 60 segundos para resolver la palabra!`;
-                }
-            }
+            // Function is kept but does nothing to avoid breaking references to it
+            // Tooltip has been removed from the UI
         }
 
         updateLanguageLabels() {
@@ -1078,7 +1071,8 @@
                     display: flex;
                     justify-content: center;
                     gap: 20px;
-                    margin-bottom: 5px;
+                    margin-bottom: 8px; /* Increased from 5px for better spacing */
+                    margin-top: 5px; /* Added top margin to separate from stats */
                 }
                 .length-btn {
                     width: 30px;
