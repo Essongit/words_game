@@ -638,6 +638,9 @@
 
     <script>    class WordleGame {
         constructor() {
+            // Enable or disable debug logging
+            this.debugMode = false;
+            
             // Set up languages object
             this.languages = {
                 english: {
@@ -746,6 +749,11 @@
             this.timeRemaining = 60; // 60 seconds for lightning round
             this.timerInterval = null;
             
+            // Clean up any existing word length selectors (in case of previous instances)
+            const existingSelectors = document.querySelectorAll('.word-length-selector');
+            existingSelectors.forEach(selector => selector.remove());
+            
+            // Initialize game after checking for saved state
             this.initializeGame();
             this.loadStats();
             this.setupLanguageToggle();
@@ -753,6 +761,9 @@
             this.updateLanguageLabels(); // Ensure labels are set up with correct active state
             // No need to call updateLightningLabels explicitly as it's called within setupLightningToggle
             this.updateButtonText(); // Set button text at initialization
+            
+            // Try to load saved game state after everything else is initialized
+            this.loadGameState();
         }
 
         loadUsedWords() {
@@ -1035,9 +1046,18 @@
         }
 
         setupWordLengthSelector() {
+            // Check if the selector already exists
+            const existingSelector = document.querySelector('.word-length-selector');
+            if (existingSelector) {
+                // Selector already exists, just update the info
+                this.updateWordLengthInfo();
+                return;
+            }
+            
             // Create word length selector controls
             const container = document.createElement('div');
             container.className = 'word-length-selector';
+            container.id = 'word-length-selector'; // Add an ID for easier reference
             
             const decreaseBtn = document.createElement('button');
             decreaseBtn.className = 'length-btn decrease';
@@ -1257,6 +1277,9 @@
                 tile.textContent = letter;
                 tile.classList.add('filled');
                 this.currentTile++;
+                
+                // Save game state after adding a letter
+                this.saveGameState();
             }
         }
 
@@ -1267,6 +1290,9 @@
                 if (tile) {
                     tile.textContent = '';
                     tile.classList.remove('filled');
+                    
+                    // Save game state after deleting a letter
+                    this.saveGameState();
                 }
             }
         }
@@ -1287,6 +1313,9 @@
             } else {
                 this.currentRow++;
                 this.currentTile = 0;
+                
+                // Note: We don't save the game state here anymore
+                // saveGameState is called after animations complete in updateTiles
             }
         }
 
@@ -1332,19 +1361,68 @@
                 }
             }
 
+            if (this.debugMode) {
+                console.log(`Guess: ${guess}, Result:`, result);
+            }
+
             this.updateTiles(result);
             this.updateKeyboard(guess, result);
+            
+            // Multiple staged saves to ensure we catch all color changes
+            
+            // First backup save - immediate
+            setTimeout(() => {
+                if (this.debugMode) console.log("First backup save");
+                this.saveGameState();
+            }, 50);
+            
+            // Second backup save - mid-animation
+            setTimeout(() => {
+                if (this.debugMode) console.log("Second backup save");
+                this.saveGameState();
+            }, (this.selectedWordLength * 100) / 2);
+            
+            // Third backup save - after animations should be done
+            setTimeout(() => {
+                if (this.debugMode) console.log("Third backup save");
+                this.saveGameState();
+            }, (this.selectedWordLength * 100) + 300); // Extra buffer time after animations
         }
 
         updateTiles(result) {
+            // Calculate total animation time
+            const totalDelay = this.selectedWordLength * 100;
+            
             for (let i = 0; i < this.selectedWordLength; i++) {
                 const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
                 if (tile) {
                     setTimeout(() => {
+                        // First remove any existing state classes to ensure clean state
+                        tile.classList.remove('correct', 'present', 'absent');
+                        // Then add the new class
                         tile.classList.add(result[i]);
+                        
+                        if (this.debugMode) {
+                            console.log(`Setting tile ${this.currentRow}-${i} to "${result[i]}" class`);
+                        }
                     }, i * 100); // Stagger animation
                 }
             }
+            
+            // Save game state after all animations are complete
+            setTimeout(() => {
+                this.saveGameState();
+                
+                // Extra safety check - verify all tiles have proper classes
+                if (this.debugMode) {
+                    for (let i = 0; i < this.selectedWordLength; i++) {
+                        const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
+                        if (tile) {
+                            console.log(`Verification - tile ${this.currentRow}-${i} has classes: ${Array.from(tile.classList).join(', ')}`);
+                        }
+                    }
+                }
+            }, totalDelay + 150); // Increased buffer time for safety
         }
 
         updateKeyboard(guess, result) {
@@ -1488,6 +1566,9 @@
             this.showLanguageToggle();
             this.stopTimer();
             this.updateButtonText(); // Add this line
+            
+            // Clear game state on win
+            this.clearGameState();
         }
 
         gameLost() {
@@ -1497,6 +1578,9 @@
             this.showLanguageToggle();
             this.stopTimer();
             this.updateButtonText(); // Add this line
+            
+            // Clear game state on loss
+            this.clearGameState();
         }
         
         startTimer() {
@@ -1545,6 +1629,9 @@
                 this.updateStats(false);
                 this.showLanguageToggle();
                 this.updateButtonText();
+                
+                // Clear game state when time's up
+                this.clearGameState();
                 return;
             }
             
@@ -1565,6 +1652,11 @@
                 } else {
                     timerDisplay.style.color = '';
                 }
+            }
+            
+            // Save game state with updated timer
+            if (this.gameStarted && !this.gameOver) {
+                this.saveGameState();
             }
         }
 
@@ -1691,6 +1783,9 @@
             this.clearMessage();
             this.showLanguageToggle();
             this.updateButtonText(); // This will now set it to "Enter"/"Enviar"
+            
+            // Clear saved game state
+            this.clearGameState();
         }
 
         validateWordLists() {
@@ -1844,7 +1939,241 @@
             // Re-verify after fixing
             this.verifyAllWordLengths();
         }
+        
+        // Save current game state to localStorage
+        saveGameState() {
+            if (!this.gameStarted || this.gameOver) {
+                return;
+            }
+            
+            if (this.debugMode) {
+                console.log("Saving game state...");
+            }
+            
+            // Build a matrix of the current board state
+            const boardState = [];
+            const boardClasses = [];
+            
+            for (let i = 0; i <= 5; i++) {
+                const rowLetters = [];
+                const rowClasses = [];
+                
+                for (let j = 0; j < this.selectedWordLength; j++) {
+                    const tile = document.getElementById(`tile-${i}-${j}`);
+                    if (tile) {
+                        rowLetters.push(tile.textContent || '');
+                        
+                        // Save the tile classes (correct, present, absent)
+                        const classList = Array.from(tile.classList);
+                        let classStatus = '';
+                        
+                        // Check for status classes in priority order
+                        // IMPORTANT: We must check for exact class presence, not just includes
+                        // This ensures we correctly identify the color status
+                        if (classList.includes('correct')) {
+                            classStatus = 'correct';
+                        } else if (classList.includes('present')) {
+                            classStatus = 'present';
+                        } else if (classList.includes('absent')) {
+                            classStatus = 'absent';
+                        } else if (classList.includes('filled')) {
+                            classStatus = 'filled';
+                        }
+                        
+                        // Debug logging for class status
+                        // console.log(`Tile ${i}-${j}: "${tile.textContent}", classList=[${classList.join(',')}], status=${classStatus}`);
+                        
+                        rowClasses.push(classStatus);
+                    } else {
+                        rowLetters.push('');
+                        rowClasses.push('');
+                    }
+                }
+                
+                boardState.push(rowLetters);
+                boardClasses.push(rowClasses);
+            }
+            
+            // Save keyboard state
+            const keyboardState = {};
+            const keys = document.querySelectorAll('.key');
+            
+            keys.forEach(key => {
+                const letter = key.textContent === '⌫' ? 'BACKSPACE' : 
+                              key.textContent === this.languages[this.currentLanguage].messages.enter ? 'ENTER' : 
+                              key.textContent;
+                
+                if (key.classList.contains('correct')) {
+                    keyboardState[letter] = 'correct';
+                } else if (key.classList.contains('present')) {
+                    keyboardState[letter] = 'present';
+                } else if (key.classList.contains('absent')) {
+                    keyboardState[letter] = 'absent';
+                }
+            });
+            
+            // Create the game state object
+            const gameState = {
+                currentLanguage: this.currentLanguage,
+                lightningMode: this.lightningMode,
+                selectedWordLength: this.selectedWordLength,
+                currentWord: this.currentWord,
+                currentRow: this.currentRow,
+                currentTile: this.currentTile,
+                boardState: boardState,
+                boardClasses: boardClasses,
+                keyboardState: keyboardState,
+                gameStarted: this.gameStarted,
+                gameOver: this.gameOver,
+                timeRemaining: this.timeRemaining
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('wordleGameState', JSON.stringify(gameState));
+        }
+        
+        // Load saved game state from localStorage
+        loadGameState() {
+            const savedState = localStorage.getItem('wordleGameState');
+            if (!savedState) {
+                return false;
+            }
+            
+            try {
+                const gameState = JSON.parse(savedState);
+                
+                // Verify the saved game state has the same parameters as current
+                if (gameState.currentLanguage !== this.currentLanguage || 
+                    gameState.lightningMode !== this.lightningMode) {
+                    // Game parameters changed, don't restore
+                    this.clearGameState();
+                    return false;
+                }
+                
+                // Restore game settings
+                this.selectedWordLength = gameState.selectedWordLength;
+                this.currentWord = gameState.currentWord;
+                this.currentRow = gameState.currentRow;
+                this.currentTile = gameState.currentTile;
+                this.gameStarted = gameState.gameStarted;
+                this.gameOver = gameState.gameOver;
+                
+                // Recreate the board with the correct word length, but don't recreate controls
+                // First, remove any existing word length selectors to avoid duplicates
+                const existingSelectors = document.querySelectorAll('.word-length-selector');
+                existingSelectors.forEach(selector => selector.remove());
+                
+                // Create the game board without recreating the word length selector
+                this.createGameBoard();
+                
+                // Restore the board state
+                for (let i = 0; i <= 5; i++) {
+                    for (let j = 0; j < this.selectedWordLength; j++) {
+                        const tile = document.getElementById(`tile-${i}-${j}`);
+                        if (tile && gameState.boardState[i]) {
+                            // Restore letter if exists
+                            if (gameState.boardState[i][j]) {
+                                tile.textContent = gameState.boardState[i][j];
+                                tile.classList.add('filled');
+                            }
+                            
+                            // Restore tile status classes
+                            if (gameState.boardClasses[i] && gameState.boardClasses[i][j]) {
+                                const className = gameState.boardClasses[i][j];
+                                
+                                // First remove ALL existing classes to start with a clean slate
+                                tile.classList.remove('correct', 'present', 'absent', 'filled');
+                                
+                                // Then apply the correct class based on saved state
+                                if (className && className !== '') {
+                                    tile.classList.add(className);
+                                    
+                                    // Debug logging to verify correct class application
+                                    // console.log(`Restoring tile ${i}-${j}: "${tile.textContent}" with class "${className}"`);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Restore keyboard state
+                if (gameState.keyboardState) {
+                    const keys = document.querySelectorAll('.key');
+                    keys.forEach(key => {
+                        const letter = key.textContent === '⌫' ? 'BACKSPACE' : 
+                                      key.textContent === this.languages[this.currentLanguage].messages.enter ? 'ENTER' : 
+                                      key.textContent;
+                        
+                        // Remove any existing status classes first
+                        key.classList.remove('correct', 'present', 'absent');
+                        
+                        // Then apply the saved class
+                        const keyState = gameState.keyboardState[letter];
+                        if (keyState) {
+                            key.classList.add(keyState);
+                            
+                            if (this.debugMode) {
+                                console.log(`Restoring key "${letter}" with class "${keyState}"`);
+                            }
+                        }
+                    });
+                }
+                
+                // Update word length info display - just update text, don't recreate the selector
+                this.updateWordLengthInfo();
+                
+                // Restore timer if in lightning mode
+                if (this.lightningMode && gameState.timeRemaining) {
+                    this.timeRemaining = gameState.timeRemaining;
+                    
+                    // Update timer display
+                    const timerDisplay = document.getElementById('timer-display');
+                    if (timerDisplay) {
+                        const minutes = Math.floor(this.timeRemaining / 60);
+                        const seconds = this.timeRemaining % 60;
+                        const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        timerDisplay.textContent = formattedTime;
+                        
+                        if (this.timeRemaining <= 10) {
+                            timerDisplay.style.color = '#3a7af5'; // Blue for low time
+                        }
+                    }
+                    
+                    // Make timer visible
+                    const timerContainer = document.getElementById('timer-container');
+                    if (timerContainer) {
+                        timerContainer.style.visibility = 'visible';
+                    }
+                    
+                    // Restart timer if game is in progress
+                    if (this.gameStarted && !this.gameOver) {
+                        this.startTimer();
+                    }
+                }
+                
+                // Update UI based on game state
+                if (this.gameStarted) {
+                    this.hideLanguageToggle();
+                    this.updateButtonText();
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error loading game state:', error);
+                this.clearGameState();
+                return false;
+            }
+        }
+        
+        // Clear saved game state
+        clearGameState() {
+            localStorage.removeItem('wordleGameState');
+        }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new WordleGame();
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
         new WordleGame();
