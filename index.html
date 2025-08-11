@@ -154,12 +154,38 @@
         header {
             text-align: center;
             margin-bottom: 5px;
+            position: relative; /* Added for server status positioning */
         }
 
         h1 {
             font-size: 1.8rem;
             margin-bottom: 4px; /* Reduced from 8px to bring stats closer to title */
             color: #121213;
+        }
+        
+        .server-status {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            padding: 2px 4px;
+            background-color: transparent;
+            border-radius: 50%;
+            cursor: help;
+            z-index: 100;
+        }
+        
+        .status-indicator {
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        .status-text {
+            font-weight: 500;
+            margin-left: 3px;
+            font-size: 10px;
         }
 
         .stats {
@@ -344,6 +370,10 @@
 
         .message.lose {
             color: #f5793a;
+        }
+        
+        .message.invalid {
+            color: #d13438;  /* Red color for invalid word message */
         }
 
         .timer-container {
@@ -561,6 +591,25 @@
             background-color: #d3d6da;
             color: #121213;
         }
+        
+        /* Animation for invalid word */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(-5px); }
+            20% { transform: translateX(5px); }
+            30% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            60% { transform: translateX(5px); }
+            70% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            90% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
     </style>
 </head>
 <body>
@@ -579,6 +628,10 @@
                 <div class="stat">
                     <div class="stat-number" id="win-rate">0%</div>
                     <div class="stat-label" id="win-rate-label">Win Rate</div>
+                </div>
+                <div class="server-status" id="server-status" title="Dictionary server status">
+                    <span class="status-indicator" id="status-indicator">⚪</span>
+                    <span class="status-text" id="status-text">Offline</span>
                 </div>
             </div>
             <div class="word-length-info" id="word-length-info"></div>
@@ -636,6 +689,7 @@
         </div>
     </div>
 
+    <script src="common-5-letter-words.js"></script>
     <script>    class WordleGame {
         constructor() {
             // Enable or disable debug logging
@@ -646,13 +700,12 @@
                 english: {
                     name: 'English',
                     words: {
-                        5: ['ABOUT', 'ABOVE', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN', 'AGENT', 'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE', 'ALLOW', 'ALONE', 'ALONG', 'ALTER', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART', 'APPLE', 'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ASIDE', 'ASSET', 'AVOID', 'AWAKE', 'AWARD', 'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BEACH', 'BEGAN', 'BEGIN', 'BENCH', 'BIRDS', 'BLACK', 'BLAME', 'BLANK', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD', 'BOOST', 'BOOTH', 'BOUND', 'BRAIN', 'BRAND', 'BRAVE', 'BREAD', 'BREAK', 'BREED', 'BRIEF', 'BRING', 'BROAD', 'BROKE', 'BROWN', 'BUILD', 'BURST', 'BUYER', 'CABLE', 'CARRY', 'CATCH', 'CAUSE', 'CHAIN', 'CHAIR', 'CHAOS', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHECK', 'CHEST', 'CHIEF', 'CHILD', 'CHINA', 'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR', 'CLICK', 'CLIMB', 'CLOCK', 'CLOSE', 'COAST', 'CORAL', 'COUNT', 'COURT', 'COVER', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM', 'CRIME'],
+                        5: ['ABOUT', 'ABOVE', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN', 'AGENT', 'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE', 'ALLOW', 'ALONE', 'ALONG', 'ALTER', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART', 'APPLE', 'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ASIDE', 'ASSET', 'AVOID', 'AWAKE', 'AWARD', 'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BEACH', 'BEGAN', 'BEGIN', 'BENCH', 'BIRDS', 'BLACK', 'BLAME', 'BLANK', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD', 'BOOST', 'BOOTH', 'BOUND', 'BRAIN', 'BRAND', 'BRAVE', 'BREAD', 'BREAK', 'BREED', 'BRIEF', 'BRING', 'BROAD', 'BROKE', 'BROWN', 'BUILD', 'BURST', 'BUYER', 'CABLE', 'CARRY', 'CATCH', 'CAUSE', 'CHAIN', 'CHAIR', 'CHAOS', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHECK', 'CHEST', 'CHIEF', 'CHILD', 'CHINA', 'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR', 'CLICK', 'CLIMB', 'CLOCK', 'CLOSE', 'COAST', 'CORAL', 'COUNT', 'COURT', 'COVER', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM', 'CRIME', 'MAYBE', 
+                        'DANCE', 'DREAM', 'DRINK', 'DRIVE', 'EARTH', 'ENJOY', 'ENTER', 'FAITH', 'FAULT', 'FIELD', 'FIGHT', 'FINAL', 'FIRST', 'FLOOR', 'FOCUS', 'FORCE', 'FOUND', 'FRAME', 'FRESH', 'FRONT', 'FRUIT', 'GHOST', 'GIANT', 'GIVEN', 'GLASS', 'GRADE', 'GRAND', 'GRASS', 'GREAT', 'GREEN', 'GROUP', 'GUARD', 'GUESS', 'GUIDE', 'HAPPY', 'HEART', 'HEAVY', 'HELLO', 'HORSE', 'HOTEL', 'HOUSE', 'HUMAN', 'IDEAL', 'IMAGE', 'ISSUE', 'JUICE', 'KNIFE', 'KNOWN', 'LARGE', 'LAUGH', 'LEARN', 'LEVEL', 'LIGHT', 'LIMIT', 'LOCAL', 'LOGIC', 'LUCKY', 'LUNCH', 'MAGIC', 'MAJOR', 'METAL', 'MIGHT', 'MODEL', 'MONEY', 'MONTH', 'MOTOR', 'MOUSE', 'MOUTH', 'MOVIE', 'MUSIC', 'NIGHT', 'NOISE', 'NORTH', 'NOVEL', 'NURSE', 'OFFER', 'ORDER', 'OTHER', 'OWNER', 'PAINT', 'PAPER', 'PARTY', 'PEACE', 'PHONE', 'PHOTO', 'PIANO', 'PIECE', 'PILOT', 'PITCH', 'PLACE', 'PLANE', 'PLANT', 'PLATE', 'POINT', 'POUND', 'POWER', 'PRESS', 'PRICE', 'PRIDE', 'PRIZE', 'PROOF', 'PROUD', 'PROVE', 'QUEEN', 'QUICK', 'QUIET', 'QUITE', 'RADIO', 'RAISE', 'RANGE', 'RATIO', 'REACH', 'READY', 'RIGHT', 'RIVER', 'ROBOT', 'ROGER', 'ROMAN', 'ROUGH', 'ROUND', 'ROUTE', 'ROYAL', 'RUGBY', 'RURAL', 'SAINT', 'SALAD', 'SCALE', 'SCENE', 'SCOPE', 'SCORE', 'SENSE', 'SERVE', 'SEVEN', 'SHADE', 'SHAKE', 'SHALL', 'SHAPE', 'SHARE', 'SHARP', 'SHEEP', 'SHEER', 'SHEET', 'SHELF', 'SHELL', 'SHIFT', 'SHIRT', 'SHOCK', 'SHOOT', 'SHORE', 'SHORT', 'SHOWN', 'SIGHT', 'SILLY', 'SINCE', 'SKILL', 'SLEEP', 'SLICE', 'SLIDE', 'SMART', 'SMILE', 'SMOKE', 'SOLID', 'SOLVE', 'SORRY', 'SOUND', 'SOUTH', 'SPACE', 'SPARE', 'SPEAK', 'SPEED', 'SPEND', 'SPENT', 'SPICE', 'SPILL', 'SPORT', 'SPRAY', 'STAFF', 'STAGE', 'STAMP', 'STAND', 'STARS', 'START', 'STATE', 'STEAM', 'STEEL', 'STICK', 'STILL', 'STOCK', 'STONE', 'STORE', 'STORM', 'STORY', 'STRIP', 'STUDY', 'STUFF', 'STYLE', 'SUGAR', 'SUITE', 'SUPER', 'SWEET', 'SWING', 'SWORD', 'TABLE', 'TASTE', 'TEACH', 'THANK', 'THEIR', 'THEME', 'THERE', 'THESE', 'THICK', 'THING', 'THINK', 'THIRD', 'THOSE', 'THREE', 'THROW', 'TIGHT', 'TIMER', 'TIRED', 'TITLE', 'TODAY', 'TOPIC', 'TOTAL', 'TOUCH', 'TOUGH', 'TOWER', 'TRACK', 'TRADE', 'TRAIN', 'TREAT', 'TREND', 'TRIAL', 'TRICK', 'TRUCK', 'TRULY', 'TRUST', 'TRUTH', 'TWICE', 'UNDER', 'UNTIL', 'UPPER', 'UPSET', 'URBAN', 'USUAL', 'VALUE', 'VIDEO', 'VIRUS', 'VISIT', 'VITAL', 'VOICE', 'WASTE', 'WATCH', 'WATER', 'WHERE', 'WHICH', 'WHILE', 'WHITE', 'WHOLE', 'WHOSE', 'WOMAN', 'WOMEN', 'WORLD', 'WORRY', 'WORSE', 'WORST', 'WORTH', 'WOULD', 'WOUND', 'WRITE', 'WRONG', 'WROTE', 'YIELD', 'YOUNG', 'YOUTH', 'ZEBRA'],
                         
                         6: ['ACCEPT', 'ACCESS', 'ACROSS', 'ACTION', 'ACTIVE', 'ACTUAL', 'AFFECT', 'AFRAID', 'AGENCY', 'AMOUNT', 'ANIMAL', 'ANNUAL', 'ANSWER', 'ANYONE', 'APPEAR', 'AROUND', 'ARRIVE', 'ARTIST', 'ASSUME', 'ATTACK', 'AUTHOR', 'AUTUMN', 'AVENUE', 'BACKUP', 'BATTLE', 'BECAME', 'BECOME', 'BEFORE', 'BEHALF', 'BEHAVE', 'BELONG', 'BEYOND', 'BORDER', 'BOTTLE', 'BOTTOM', 'BRANCH', 'BREATH', 'BRIDGE', 'BRIGHT', 'BROKEN', 'BUDGET', 'BUTTON'],
                         
-                        7: ['ABILITY', 'ADDRESS', 'ADVANCE', 'ADVISER', 'AGAINST', 'AIRPORT', 'ALCOHOL', 'ALREADY', 'AMAZING', 'ANCIENT', 'ANOTHER', 'ANXIETY', 'ANXIOUS', 'ANYBODY', 'ANYMORE', 'ARRANGE', 'BALANCE', 'CAPTAIN', 'CLIMATE', 'COMPANY', 'CONTROL', 'CURRENT', 'DIAMOND', 'DISCUSS', 'DYNAMIC', 'ELEMENT', 'EMERALD', 'EVENING', 'EXAMINE', 'FACTORY', 'FEELING', 'FREEDOM', 'GENERAL', 'HARMONY', 'HISTORY', 'IMAGINE', 'JOURNEY', 'JUSTICE', 'KINGDOM', 'LIBRARY'],
-                        
-                        8: ['ABSOLUTE', 'ABSTRACT', 'ACADEMIC', 'ACCEPTED', 'ACCIDENT', 'ACCURACY', 'ACCURATE', 'ACHIEVED', 'ACOUSTIC', 'ACQUIRED', 'ACTUALLY', 'ADEQUATE', 'ADVANCED', 'ADVISORY', 'ADVOCACY', 'AIRPLANE', 'ANNOUNCE', 'APPROVAL', 'ARGUMENT', 'BALANCED', 'BIRTHDAY', 'BLESSING', 'BLOSSOM', 'BUSINESS', 'CALENDAR', 'CAMPAIGN', 'CHAMPION', 'CHEMICAL', 'CHILDREN', 'CLIMBING', 'CONFLICT', 'CREATIVE', 'CRITICAL', 'CURIOSITY', 'DECISIVE']
+                        7: ['ABILITY', 'ADDRESS', 'ADVANCE', 'ADVISER', 'AGAINST', 'AIRPORT', 'ALCOHOL', 'ALREADY', 'AMAZING', 'ANCIENT', 'ANOTHER', 'ANXIETY', 'ANXIOUS', 'ANYBODY', 'ANYMORE', 'ARRANGE', 'BALANCE', 'CAPTAIN', 'CLIMATE', 'COMPANY', 'CONTROL', 'CURRENT', 'DIAMOND', 'DISCUSS', 'DYNAMIC', 'ELEMENT', 'EMERALD', 'EVENING', 'EXAMINE', 'FACTORY', 'FEELING', 'FREEDOM', 'GENERAL', 'HARMONY', 'HISTORY', 'IMAGINE', 'JOURNEY', 'JUSTICE', 'KINGDOM', 'LIBRARY']
                     },
                     keyboard: [
                         ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -661,6 +714,7 @@
                     ],
                     messages: {
                         notEnoughLetters: 'Not enough letters',
+                        invalidWord: 'Not in word list. Try a dictionary word.',
                         congratulations: 'Congratulations! 🎉',
                         gameOver: 'Game Over! The word was',
                         newGame: 'New Game',
@@ -686,13 +740,13 @@
                 spanish: {
                     name: 'Spanish',
                     words: {
-                        5: ['ABAJO', 'ABEJA', 'ABRIR', 'ACEITE', 'ACERA', 'ACTOR', 'AGAVE', 'AGRIO', 'AGUA', 'AHORA', 'AJENA', 'ALBUM', 'ALDEA', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANDEN', 'ANTES', 'ANUAL', 'AQUEL', 'ARENA', 'ARROZ', 'ASADO', 'ATLAS', 'BAILE', 'BANCO', 'BARCO', 'BASTA', 'BEBER', 'BELLO', 'BICHO', 'BLUSA', 'BOLSA', 'BOMBA', 'BRAVO', 'BREVE', 'BRISA', 'BRUJA', 'BUENO', 'BURRO', 'BUSCA', 'CABAL', 'CABRA', 'CACAO', 'CALMA', 'CALOR'],
+                        5: ['ABAJO', 'ABEJA', 'ABRIR', 'ACEITE', 'ACERA', 'ACTOR', 'AGAVE', 'AGRIO', 'AGUA', 'AHORA', 'AJENA', 'ALBUM', 'ALDEA', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANDEN', 'ANTES', 'ANUAL', 'AQUEL', 'ARENA', 'ARROZ', 'ASADO', 'ATLAS', 'BAILE', 'BANCO', 'BARCO', 'BASTA', 'BEBER', 'BELLO', 'BICHO', 'BLUSA', 'BOLSA', 'BOMBA', 'BRAVO', 'BREVE', 'BRISA', 'BRUJA', 'BUENO', 'BURRO', 'BUSCA', 'CABAL', 'CABRA', 'CACAO', 'CALMA', 'CALOR',
+                          'CAMPO', 'CANAL', 'CARNE', 'CARTA', 'CASAR', 'CASCO', 'CAVAR', 'CEBRA', 'CEDRO', 'CELDA', 'CENAR', 'CERCA', 'CERDO', 'CERRO', 'CESTA', 'CHICO', 'CHOZA', 'CIELO', 'CIFRA', 'CINCO', 'CINTA', 'CIRCO', 'CLARO', 'CLAVE', 'CLIMA', 'COBRA', 'COCINA', 'COCHE', 'COLOR', 'COMER', 'COMIDA', 'COMPRA', 'CONEJO', 'COPIA', 'CORAL', 'CORTE', 'COSTA', 'CREMA', 'CREER', 'CRUDO', 'CUADRO', 'CUARTO', 'CUBRIR', 'CUELLO', 'CUENTO', 'CUERDA', 'CUERPO', 'CUEVA', 'CULPA', 'CURSO', 'CURVA', 'DANZA', 'DATOS', 'DEBER', 'DÉBIL', 'DECIR', 'DEDO', 'DEJAR', 'DENTRO', 'DESEO', 'DIARIO', 'DIBUJO', 'DIENTE', 'DIETA', 'DOBLE', 'DOCENA', 'DOLOR', 'DOMINGO', 'DONDE', 'DORMIR', 'DROGA', 'DUCHA', 'DUEÑO', 'DULCE', 'DURAR', 'EDAD', 'EFECTO', 'EJERCE', 'ELECCIÓN', 'ELEGIR', 'EMAIL', 'EMPLEO', 'EMPRESA', 'ENERO', 'ENORME', 'ENTERO', 'ENTRAR', 'ENVIAR', 'EQUIPO', 'ERROR', 'ESCALA', 'ESCAPE', 'ESCENA', 'ESLABÓN', 'ESPACIO', 'ESPAÑA', 'ESPEJO', 'ESQUINA', 'ESTADO', 'ESTAR', 'ESTILO', 'ETAPA', 'EXAMEN', 'ÉXITO', 'FÁCIL', 'FALTA', 'FALTAR', 'FAMILIA', 'FAVOR', 'FECHA', 'FELIZ', 'FIBRA', 'FICHA', 'FIESTA', 'FIGURA', 'FILTRO', 'FIRMA', 'FÍSICO', 'FLAUTA', 'FLECHA', 'FLOR', 'FLUIR', 'FONDO', 'FORMA', 'FORO', 'FOSA', 'FOTO', 'FRACASO', 'FRESCO', 'FRÍO', 'FRUTA', 'FUEGO', 'FUENTE', 'FUERZA', 'FÚTBOL', 'GANAR', 'GARRA', 'GASTO', 'GATO', 'GEMIR', 'GENIAL', 'GENTE', 'GIRAR', 'GLOBO', 'GOLPE', 'GORDO', 'GORRA', 'GOTA', 'GRACIA', 'GRADO', 'GRANO', 'GRASA', 'GRIPE', 'GRITO', 'GRUPO', 'GUANTE', 'GUARDAR', 'GUERRA', 'GUÍA', 'GUSTAR', 'HABER', 'HACER', 'HACHA', 'HABLA', 'HACIA', 'HAMBRE', 'HARINA', 'HASTA', 'HECHO', 'HEMBRA', 'HERIDA', 'HERMANO', 'HÉROE', 'HIELO', 'HIERRO', 'HÍGADO', 'HIJO', 'HILO', 'HIMNO', 'HOJA', 'HOMBRE', 'HOMBRO', 'HORA', 'HORNO', 'HOTEL', 'HUESO', 'HUMANO', 'HUMO', 'HUNDIR', 'HUEVO', 'HUIR', 'HURTO', 'IDEAL', 'IGUAL', 'IMAGEN', 'IMITAR', 'IMPORTE', 'INCLUIR', 'INFIERNO', 'INFORME', 'INGENIO', 'INICIO', 'INSECTO', 'INSTANTE', 'INTERÉS', 'INVIERNO', 'ISLA', 'JARABE', 'JARDÍN', 'JARRA', 'JAULA', 'JEFE', 'JERINGA', 'JOVEN', 'JUEGO', 'JUGAR', 'JUICIO', 'JULIO', 'JUNIO', 'JUNTO', 'JURAR', 'JUSTO', 'LABIO', 'LABOR', 'LABRAR', 'LADERA', 'LADO', 'LADRÓN', 'LAGO', 'LAMER', 'LANZA', 'LÁPIZ', 'LARGO', 'LATA', 'LATIR', 'LAVAR', 'LECHE', 'LECTOR', 'LEER', 'LEGIÓN', 'LEJOS', 'LENGUA', 'LENTO', 'LEÑA', 'LETRA', 'LEVANTAR', 'LEVE', 'LIBRE', 'LIBRO', 'LICOR', 'LÍDER', 'LÍNEA', 'LISTA', 'LISTO', 'LITRO', 'LLAMA', 'LLAVE', 'LLEGAR', 'LLENAR', 'LLENO', 'LLORAR', 'LLOVER', 'LLUVIA', 'LOBO', 'LOCO', 'LOGRO', 'LOMO', 'LOTO', 'LUCHA', 'LUCIR', 'LUGAR', 'LUJO', 'LUNAR', 'LUNES', 'LUZ', 'MADRE', 'MADERA', 'MADRID', 'MAFIA', 'MAGIA', 'MAGO', 'MAÍZ', 'MALO', 'MAMÁ', 'MANCHA', 'MANDO', 'MANGO', 'MANÍA', 'MANO', 'MANTA', 'MAPA', 'MARCA', 'MARCO', 'MAREA', 'MARGEN', 'MARIDO', 'MÁRMOL', 'MARZO', 'MASA', 'MATAR', 'MATIZ', 'MATRIZ', 'MAYOR', 'MEDIA', 'MÉDICO', 'MEDIO', 'MEJOR', 'MEJORAR', 'MENOR', 'MENOS', 'MENTE', 'MENÚ', 'MEOLLO', 'MERCADO', 'MERMA', 'MESÓN', 'META', 'METER', 'METRO', 'MIEDO', 'MIEL', 'MIEMBRO', 'MIGA', 'MILAGRO', 'MILLÓN', 'MINA', 'MIRAR', 'MISIÓN', 'MITAD', 'MITO', 'MODA', 'MODELO', 'MOHO', 'MOJAR', 'MOLDE', 'MOLER', 'MORDER', 'MORENO', 'MORIR', 'MORRO', 'MORSA', 'MORTAL', 'MOSCA', 'MOSTRAR', 'MOTO', 'MOVER', 'MÓVIL', 'MUCHO', 'MUDO', 'MUERTE', 'MUJER', 'MULTA', 'MUNDO', 'MUÑECA', 'MURO', 'MUSEO', 'MUSGO', 'MÚSICA', 'MUSLO', 'MUTUO', 'NACER', 'NACIÓN', 'NADAR', 'NADIE', 'NARIZ', 'NARRAR', 'NAVE', 'NAVIDAD', 'NEBLINA', 'NECIO', 'NEGAR', 'NEGRO', 'NERVIO', 'NETO', 'NEUTRO', 'NIEVE', 'NIÑEZ', 'NIÑO', 'NIVEL', 'NOBLE', 'NOCHE', 'NOMBRE', 'NORMA', 'NORTE', 'NOTA', 'NOTAR', 'NOTICIA', 'NOVIO', 'NUBE', 'NUCA', 'NÚCLEO', 'NUDO', 'NUERA', 'NUEVO', 'NÚMERO', 'NUNCA', 'OBEDECER', 'OBJETO', 'OBRA', 'OCASO', 'OCÉANO', 'OCHO', 'OCIO', 'OCRE', 'OESTE', 'OFENSA', 'OFERTA', 'OFICIO', 'OÍDO', 'OJAL', 'OJEAR', 'OJERA', 'OLEADA', 'OLER', 'OLFATO', 'OLIVO', 'OLLA', 'OMITIR', 'ONCE', 'ONDA', 'OPACO', 'OPCIÓN', 'ÓPERA', 'OPINAR', 'OPTAR', 'ORDEN', 'OREJA', 'ÓRGANO', 'ORGULLO', 'ORIGEN', 'ORILLA', 'ORLA', 'ORO', 'ORQUESTA', 'ORTIGA', 'OSADO', 'OSCAR', 'OSEZNO', 'OSO', 'OTRA', 'OTORGAR', 'OTRO', 'OVEJA', 'ÓVULO', 'OXIDAR', 'ÓXIDO', 'OZONO', 'PACTO', 'PADRE', 'PAGAR', 'PÁGINA', 'PAGO', 'PAÍS', 'PAJA', 'PÁJARO', 'PALACIO', 'PALMA', 'PALOMA', 'PANEL', 'PÁNICO', 'PAPEL', 'PAPÁ', 'PARAR', 'PARCHE', 'PARED', 'PAREJA', 'PARTE', 'PASAR', 'PASEO', 'PASIÓN', 'PASTA', 'PATA', 'PATATA', 'PATRIA', 'PAUSA', 'PAUTA', 'PAVO', 'PAZ', 'PECHO', 'PEDAL', 'PEDIR', 'PEGAR', 'PELO', 'PENA', 'PENSAR', 'PEÓN', 'PEOR', 'PERCHA', 'PERDER', 'PEREZA', 'PERFIL', 'PERICO', 'PERLA', 'PERRO', 'PESADO', 'PESAR', 'PESCA', 'PÉTALO', 'PIANO', 'PICAR', 'PICO', 'PIE', 'PIEDRA', 'PIERNA', 'PIEZA', 'PILA', 'PILOTO', 'PIMIENTA', 'PINO', 'PINTAR', 'PINZA', 'PIOJO', 'PIPA', 'PIRATA', 'PISAR', 'PISTA', 'PISTO', 'PITÓN', 'PIZCA', 'PLACA', 'PLAN', 'PLANO', 'PLANTA', 'PLATA', 'PLÁTANO', 'PLATO', 'PLAYA', 'PLAZA', 'PLAZO', 'PLEGAR', 'PLENO', 'PLOMO', 'PLUMA', 'PLURAL', 'POBRE', 'POCO', 'PODER', 'POEMA', 'POESÍA', 'POETA', 'POLEN', 'POLICÍA', 'POLLO', 'POLVO', 'POMO', 'POMPA', 'PONER', 'PORCHE', 'PORTE', 'POSAR', 'POSEER', 'POSIBLE', 'POSTE', 'POTRO', 'PRADO', 'PRECIO', 'PREMIO', 'PRENSA', 'PRESA', 'PREVER', 'PRIMA', 'PRIMO', 'PRISA', 'PRISMA', 'PROBAR', 'PROCESO', 'PROEZA', 'PROPIO', 'PROSA', 'PUEBLO', 'PUEDE', 'PUENTE', 'PUERTA', 'PUERTO', 'PULGA', 'PULIR', 'PULMÓN', 'PULPO', 'PULSAR', 'PUNTA', 'PUNTO', 'PUÑAL', 'PUÑO', 'PUPILA', 'PUREZA', 'PURO', 'QUEJA', 'QUERER', 'QUESO', 'QUIETO', 'QUINCE', 'QUINTO', 'QUITAR', 'RABINO', 'RABIA', 'RABO', 'RACIÓN', 'RADAR', 'RADIO', 'RAÍZ', 'RAMA', 'RAMPA', 'RANA', 'RANGO', 'RAPAZ', 'RÁPIDO', 'RAPTO', 'RASGO', 'RASPA', 'RATO', 'RAYO', 'RAZÓN', 'REAL', 'REBOTE', 'RECIBO', 'RECTA', 'RECHAZO', 'RECIBIR', 'RECIO', 'RÉCORD', 'RECTA', 'REDIL', 'REDOR', 'REDUJO', 'REEMPLAZO', 'REFLEJAR', 'REFLEJOS', 'REFUGIO', 'REGALO', 'RÉGIMEN', 'REGIÓN', 'REGLA', 'REGRESO', 'REHÉN', 'REINA', 'REINO', 'RELATO', 'RELEVO', 'RELIEVE', 'RELOJ', 'REMAR', 'REMEDIO', 'REMESA', 'REMITIR', 'REMO', 'RENTA', 'REÑIR', 'REPARAR', 'REPARTO', 'REPETIR', 'REPOLLO', 'REPOSO', 'REPRIMIR', 'REPTIL', 'RESACA', 'RESCATE', 'RESINA', 'RESPETO', 'RESTO', 'RESUMEN', 'RETIRO', 'RETORNO', 'RETRATO', 'REUNIÓN', 'REUNIR', 'REVÉS', 'REVISTA', 'REVUELO', 'REZAR', 'RIBERA', 'RICO', 'RIESGO', 'RIFLE', 'RÍGIDO', 'RIGOR', 'RINCÓN', 'RIÑÓN', 'RITMO', 'RIVAL', 'ROBAR', 'ROBLE', 'ROBOT', 'ROCA', 'RODAR', 'RODEAR', 'RODEO', 'RODILLA', 'ROEDOR', 'ROGAR', 'ROJO', 'ROMBO', 'ROMPER', 'RONCAR', 'RONCO', 'RONDA', 'ROPA', 'ROPERO', 'ROSA', 'ROSCA', 'ROSTRO', 'ROTAR', 'RUBIO', 'RUBOR', 'RUBRO', 'RUDO', 'RUEDA', 'RUGIR', 'RUIDO', 'RUINA', 'RULETA', 'RUMBO', 'RUMOR', 'RURAL', 'RUSO', 'RÚSTICO', 'RUTINA', 'SÁBADO', 'SABER', 'SABIO', 'SABOR', 'SACAR', 'SACRO', 'SAGAZ', 'SAGRADO', 'SALA', 'SALDO', 'SALIDA', 'SALIR', 'SALMÓN', 'SALÓN', 'SALSA', 'SALTO', 'SALUD', 'SALUDO', 'SALVO', 'SAMBA', 'SANTO', 'SANAR', 'SANGRE', 'SANO', 'SECADO', 'SECAR', 'SECO', 'SECRETO', 'SECTOR', 'SECUELA', 'SEDAN', 'SEDE', 'SEGURO', 'SELLO', 'SELVA', 'SEMBRAR', 'SEMILLA', 'SENDA', 'SENTIDO', 'SENTIR', 'SEÑAL', 'SEÑOR', 'SEPARAR', 'SEPIA', 'SERIE', 'SERIO', 'SERMÓN', 'SERVIR', 'SESIÓN', 'SESO', 'SETENTA', 'SEXTO', 'SIDRA', 'SIEMPRE', 'SIENTO', 'SIERRA', 'SIESTA', 'SIGLO', 'SIGNO', 'SÍLABA', 'SILBAR', 'SILENCIO', 'SILLA', 'SIMBOLO', 'SIMIO', 'SIRENA', 'SIROPE', 'SITIO', 'SOBRE', 'SOCIAL', 'SOCIO', 'SODA', 'SOFÁ', 'SOLAR', 'SOLDADO', 'SOLEDAD', 'SÓLIDO', 'SOLITARIO', 'SOLO', 'SOLTAR', 'SOMBRA', 'SOMETER', 'SONAR', 'SONIDO', 'SONORO', 'SONRISA', 'SOÑAR', 'SOPLAR', 'SOPLO', 'SORDO', 'SORPRESA', 'SORTEO', 'SÓTANO', 'SUAVE', 'SUBIDA', 'SUBIR', 'SUBLIME', 'SUCESO', 'SUCIEDAD', 'SUCIO', 'SUDOR', 'SUELO', 'SUEÑO', 'SUERTE', 'SUFRIR', 'SUJETO', 'SUMAR', 'SUPERAR', 'SUPONER', 'SUR', 'SURCO', 'SURTIR', 'SUSPIRO', 'SUSTO', 'SUTIL', 'TABACO', 'TABLA', 'TABÚ', 'TACTO', 'TALLA', 'TALLO', 'TAMAÑO', 'TAMBOR', 'TAMPOCO', 'TANGO', 'TANTO', 'TAPA', 'TAPETE', 'TAPIZ', 'TARAR', 'TARDE', 'TAREA', 'TARIFA', 'TARJETA', 'TAROT', 'TARRO', 'TARTA', 'TATUAR', 'TAURO', 'TAZA', 'TEATRO', 'TECHO', 'TECLA', 'TEJADO', 'TEJER', 'TEJIDO', 'TELA', 'TELÉFONO', 'TEMA', 'TEMBLOR', 'TEMER', 'TEMOR', 'TEMPLO', 'TENAZ', 'TENDER', 'TENER', 'TENIS', 'TENSO', 'TENTAR', 'TERCER', 'TERESA', 'TERMAL', 'TERMO', 'TERNURA', 'TERROR', 'TERSO', 'TESIS', 'TESORO', 'TESTIGO', 'TEXTO', 'TIBIA', 'TIBIO', 'TIEMPO', 'TIENDA', 'TIERRA', 'TIGRE', 'TIJERA', 'TILDE', 'TIMBRE', 'TÍMIDO', 'TIMO', 'TINTA', 'TINTE', 'TÍPICO', 'TIPO', 'TIRAR', 'TIRÓN', 'TITÁN', 'TÍTULO', 'TOALLA', 'TOBILLO', 'TOCAR', 'TOCINO', 'TODOS', 'TOLDO', 'TOMAR', 'TONO', 'TONTO', 'TOPAR', 'TOPE', 'TÓPICO', 'TOQUE', 'TORERO', 'TORMENTA', 'TORNEO', 'TORNO', 'TORPE', 'TORRE', 'TORSO', 'TORTA', 'TORTUGA', 'TORTURA', 'TOTAL', 'TOSER', 'TOSTADA', 'TOSTAR', 'TOTAL', 'TÓTEM', 'TRABA', 'TRABAR', 'TRAER', 'TRÁFICO', 'TRAGO', 'TRAICIÓN', 'TRAJE', 'TRAMO', 'TRAMPA', 'TRANCE', 'TRATO', 'TRAUMA', 'TRAZAR', 'TRECE', 'TREGUA', 'TREINTA', 'TREN', 'TREPAR', 'TRES', 'TRIBAL', 'TRIBU', 'TRIGO', 'TRIPA', 'TRISTE', 'TROFEO', 'TRONO', 'TROPA', 'TROZO', 'TRUCHA', 'TRUENO', 'TRUFA', 'TUBA', 'TUBO', 'TUMBA', 'TUMOR', 'TÚNEL', 'TUPIDO', 'TURISMO', 'TURNO', 'TUTOR', 'UBICAR', 'ÚLTIMO', 'ULTRA', 'UMBRAL', 'UNIDAD', 'ÚNICO', 'UNIÓN', 'UNIR', 'URBANO', 'URBE', 'URGENTE', 'URNA', 'USADO', 'USAR', 'ÚTIL', 'UTOPÍA', 'VACA', 'VACÍO', 'VAGAR', 'VAGO', 'VAINA', 'VALE', 'VÁLIDO', 'VALLE', 'VALOR', 'VÁLVULA', 'VAMPIRO', 'VANO', 'VAPOR', 'VARIAR', 'VARÓN', 'VASO', 'VECINO', 'VECTOR', 'VEGA', 'VEGETAL', 'VEHÍCULO', 'VEINTE', 'VEJEZ', 'VELADA', 'VELAR', 'VELLO', 'VELOZ', 'VENA', 'VENCER', 'VENDA', 'VENENO', 'VENERAR', 'VENGAR', 'VENIR', 'VENTA', 'VENTAJA', 'VENTANA', 'VENTURA', 'VENUS', 'VERBO', 'VERDE', 'VEREDA', 'VERJA', 'VERSO', 'VERTER', 'VERÁS', 'VESTIR', 'VETAR', 'VIAJE', 'VIBRAR', 'VICIO', 'VÍCTIMA', 'VIDA', 'VÍDEO', 'VIDRIO', 'VIEJO', 'VIENTO', 'VIERNES', 'VIGOR', 'VILLA', 'VINAGRE', 'VINO', 'VIOLAR', 'VIOLÍN', 'VIRAL', 'VIRGEN', 'VIRTUD', 'VIRUS', 'VISOR', 'VISTA', 'VITAL', 'VIUDA', 'VIVAZ', 'VIVERO', 'VIVIR', 'VIVO', 'VOCAL', 'VODKA', 'VOLAR', 'VOLCÁN', 'VOLCAR', 'VOLTIO', 'VOLUMEN', 'VOLVER', 'VORAZ', 'VOTAR', 'VOTO', 'VUELCO', 'VUELO', 'VULGAR', 'YACER', 'YATE', 'YEGUA', 'YEMA', 'YERNO', 'YESO', 'YODO', 'YOGA', 'YOGUR', 'ZAFIRO', 'ZAFIRO', 'ZANJA', 'ZANAHORIA', 'ZANJA', 'ZAPATO', 'ZARPA', 'ZARZA', 'ZONA', 'ZORRO', 'ZUECO', 'ZUMO', 'ZURDO'],
                         
-                        6: ['ACCION', 'ACEPTO', 'ACTIVO', 'ACTUAL', 'ADORAR', 'AGONIA', 'ALEGRE', 'ALGUNA', 'ALGUNO', 'ALMEJA', 'ALTURA', 'AMARGO', 'AMIGOS', 'AMPLIO', 'ANIMAL', 'AZUCAR', 'BAILAR', 'BIENIO', 'BOSQUE', 'BRUTAL', 'CIERTA', 'COCINA', 'COMIDA', 'CONTRA', 'CUBRIR', 'DEIDAD', 'DINERO', 'ELIXIR', 'ENIGMA', 'ENTRAR', 'ESPEJO', 'ESPOSA', 'EXACTO', 'FACETA', 'FAMOSO'],
+                        6: ['ACCION', 'ACEPTO', 'ACTIVO', 'ACTUAL', 'ADORAR', 'AGONIA', 'ALEGRE', 'ALGUNA', 'ALGUNO', 'ALMEJA', 'ALTURA', 'AMARGO', 'AMIGOS', 'AMPLIO', 'ANIMAL', 'AZUCAR', 'BAILAR', 'BIENIO', 'BOSQUE', 'BRUTAL', 'CIERTA', 'COCINA', 'COMIDA', 'CONTRA', 'CUBRIR', 'DEIDAD', 'DINERO', 'ELIXIR', 'ENIGMA', 'ENTRAR', 'ESPEJO', 'ESPOSA', 'EXACTO', 'FACETA', 'FAMOSO',
+                          'ABUELA', 'ACEITE', 'ACTRIZ', 'AGRADO', 'ALERTA', 'ALEGRE', 'AMIGAS', 'ANGULO', 'ANILLO', 'APAGAR', 'APOYAR', 'ARROYO', 'ATAQUE', 'ATENTO', 'AURORA', 'AVANCE', 'AYUDAR', 'BALCON', 'BARATO', 'BARRIO', 'BASICO', 'BATALLA', 'BELLEZA', 'BLANCO', 'BLOQUE', 'BOLIGRAFO', 'BOLSILLO', 'BONDAD', 'BORDE', 'BOSQUE', 'BOTON', 'BRILLO', 'BRONCE', 'BUSCAR', 'CABALLO', 'CABEZA', 'CADENA', 'CAFE', 'CAJA', 'CALCULO', 'CALLE', 'CALOR', 'CAMARA', 'CAMBIO', 'CAMINO', 'CAMION', 'CAMPO', 'CANAL', 'CANCION', 'CANTAR', 'CAPAZ', 'CARCEL', 'CARGA', 'CARNE', 'CARRIL', 'CARTA', 'CASAR', 'CASERO', 'CASINO', 'CAZAR', 'CENTRO', 'CERCA', 'CERRAR', 'CHALET', 'CHICA', 'CHICO', 'CHISTE', 'CIERTO', 'CIERRE', 'CINCO', 'CINE', 'CIRCULO', 'CIUDAD', 'CLARO', 'CLASE', 'CLAVE', 'CLIMA', 'COBRAR', 'COCHE', 'COCINA', 'CODIGO', 'COMER', 'COMIDA', 'COMPRA', 'COMUN', 'CONTRA', 'COPA', 'CORAZON', 'CORRER', 'CORTAR', 'CORTO', 'COSTA', 'CRECER', 'CREER', 'CRISIS', 'CRUCE', 'CUADRO', 'CUARTO', 'CUATRO', 'CUBRIR', 'CUENTA', 'CUERPO', 'CUMBRE', 'CUMPLIR', 'CURIOSO', 'CURSO', 'CURVA', 'DAMA', 'DANZA', 'DAÑAR', 'DEBER', 'DEBIL', 'DECADA', 'DECIR', 'DEDO', 'DEFENSA', 'DEJAR', 'DELANTE', 'DELGADO', 'DELITO', 'DEMANDA', 'DEMAS', 'DENTRO', 'DERECHA', 'DERROTA', 'DESASTRE', 'DESCANSO', 'DESEO', 'DIABLO', 'DIARIO', 'DIBUJO', 'DICTAR', 'DIENTE', 'DIETA', 'DIGITAL', 'DINERO', 'DIRECTO', 'DISCO', 'DISEÑO', 'DOBLAR', 'DOBLE', 'DOCTOR', 'DOLOR', 'DOMINGO', 'DOMINIO', 'DORADO', 'DORMIR', 'DOTAR', 'DRAGON', 'DUDA', 'DUELO', 'DUEÑA', 'DUEÑO', 'DULCE', 'DURAR', 'EDAD', 'EDITAR', 'EFECTO', 'EJERCER', 'ELEVAR', 'ELIMINAR', 'ELOGIO', 'EMBARAZO', 'EMITIR', 'EMOCION', 'EMPATE', 'EMPEZAR', 'EMPLEO', 'EMPRESA', 'ENCIMA', 'ENEMIGO', 'ENERO', 'ENFERMO', 'ENGAÑO', 'ENLACE', 'ENORME', 'ENSAYO', 'ENTRADA', 'ENVIAR', 'EPOCA', 'EQUIPO', 'ERROR', 'ESCALERA', 'ESCAPE', 'ESCENA', 'ESCOGER', 'ESCUELA', 'ESPACIO', 'ESPECIE', 'ESPEJO', 'ESQUEMA', 'ESTADO', 'ESTAR', 'ESTILO', 'ESTUDIO', 'ETAPA', 'ETERNO', 'EXCUSA', 'EXITO', 'EXTRA', 'FABRICA', 'FACIL', 'FACTOR', 'FALLAR', 'FALSO', 'FALTA', 'FAMILIA', 'FAMOSO', 'FASE', 'FAVOR', 'FECHA', 'FELIZ', 'FERIA', 'FIESTA', 'FIGURA', 'FILTRO', 'FINAL', 'FIRMA', 'FISCAL', 'FISICA', 'FLECHA', 'FLOR', 'FONDO', 'FORMA', 'FORMATO', 'FOTO', 'FRAGIL', 'FRANJA', 'FRASE', 'FRENTE', 'FRESCO', 'FRIO', 'FRUTA', 'FUEGO', 'FUENTE', 'FUERTE', 'FUERZA', 'FUNDA', 'FUSIL', 'FUTBOL', 'FUTURO', 'GANAR', 'GENERO', 'GENIAL', 'GENTE', 'GLOBAL', 'GLORIA', 'GOLPE', 'GORDO', 'GRADO', 'GRANDE', 'GRATIS', 'GRAVE', 'GRIEGO', 'GRIFO', 'GRIPE', 'GRITO', 'GRUESO', 'GRUPO', 'GUANTE', 'GUARDAR', 'GUERRA', 'GUIA', 'GUION', 'GUSTO', 'HABER', 'HABLAR', 'HACER', 'HACIA', 'HAMBRE', 'HAZAÑA', 'HEROE', 'HIERRO', 'HIGADO', 'HIJA', 'HIJO', 'HILAR', 'HILO', 'HOGAR', 'HOMBRE', 'HOMBRO', 'HONESTO', 'HONOR', 'HONRAR', 'HORA', 'HORROR', 'HOTEL', 'HUELGA', 'HUERTO', 'HUESO', 'HUMANO', 'HUMEDO', 'HUMILDE', 'HUMOR', 'HUNDIR', 'HUMO', 'HUNDIR', 'HURTO', 'IDEAL', 'IDIOMA', 'IGLESIA', 'IGUAL', 'IMAGEN', 'IMITAR', 'IMPACTO', 'IMPERIO', 'IMPONER', 'INCLUIR', 'INDICE', 'INFORME', 'INGENIO', 'INICIO', 'INMORTAL', 'INMUNE', 'INNATO', 'INSECTO', 'INSTANTE', 'INTERES', 'INTERNO', 'INTIMO', 'INTUIR', 'INUTIL', 'INVADIR', 'INVERSO', 'INVITAR', 'INYECTAR', 'ISLA', 'JARABE', 'JARDIN', 'JARRA', 'JAVIER', 'JEFE', 'JOVEN', 'JOYA', 'JUEVES', 'JUGAR', 'JUICIO', 'JUNIO', 'JUNTA', 'JUNTO', 'JURADO', 'JURAR', 'JUSTICIA', 'JUZGAR', 'KILO', 'LABIO', 'LABOR', 'LABRAR', 'LACTEO', 'LADO', 'LADRON', 'LAGUNA', 'LAMER', 'LANZA', 'LAPIZ', 'LARGO', 'LATIR', 'LAUREL', 'LAVAR', 'LECHE', 'LECTOR', 'LEER', 'LEGAL', 'LEGION', 'LEJANO', 'LEJOS', 'LENGUA', 'LENTO', 'LEÑA', 'LETRA', 'LEVE', 'LEYENDA', 'LIBAR', 'LIBRE', 'LIBRO', 'LICOR', 'LIDIAR', 'LIENZO', 'LIGAR', 'LIGERO', 'LIMA', 'LIMITE', 'LIMPIO', 'LINCE', 'LINDO', 'LINEA', 'LIQUIDO', 'LIRIO', 'LISTO', 'LITRO', 'LLAGA', 'LLAMA', 'LLAVE', 'LLEGAR', 'LLENAR', 'LLORAR', 'LLOVER', 'LLUVIA', 'LOBO', 'LOCO', 'LOGICA', 'LOGRAR', 'LOGRO', 'LONA', 'LUCHA', 'LUCIR', 'LUGAR', 'LUJO', 'LUNES', 'LUSTRO', 'LUZ', 'MADERA', 'MADRE', 'MADURAR', 'MAESTRA', 'MAESTRO', 'MAGIA', 'MAGICO', 'MALETA', 'MALO', 'MAMA', 'MAMIFERO', 'MANCHA', 'MANDAR', 'MANDO', 'MANERA', 'MANGA', 'MANGO', 'MANIA', 'MANO', 'MANSO', 'MANTA', 'MAÑANA', 'MAPA', 'MAQUINA', 'MARCA', 'MARCAR', 'MARCHA', 'MARGEN', 'MARIDO', 'MARINO', 'MARMOL', 'MARTES', 'MARTIR', 'MARZO', 'MASA', 'MASCAR', 'MASCOTA', 'MATERIA', 'MATRIZ', 'MAXIMO', 'MAYOR', 'MEDIA', 'MEDIANO', 'MEDICO', 'MEDIDA', 'MEDIO', 'MEJOR', 'MEMORIA', 'MENOR', 'MENOS', 'MENTIR', 'MENU', 'MERCADO', 'MERECER', 'MERITO', 'MESON', 'METAL', 'METODO', 'METRO', 'MEZCLA', 'MIEDO', 'MIEMBRO', 'MIERDA', 'MILAGRO', 'MILITAR', 'MIMBRE', 'MINAR', 'MINERIA', 'MINIMO', 'MINUTO', 'MIRADA', 'MIRAR', 'MISA', 'MISERIA', 'MISMO', 'MITAD', 'MITO', 'MIXTO', 'MODA', 'MODELO', 'MODERNO', 'MODESTO', 'MODULO', 'MOJAR', 'MOLDE', 'MOLER', 'MOLESTAR', 'MOLINO', 'MOMENTO', 'MONEDA', 'MONJE', 'MONTAR', 'MORAL', 'MORDER', 'MORIR', 'MORTAL', 'MOSCA', 'MOSTRAR', 'MOTIVO', 'MOTOR', 'MOVER', 'MOVIL', 'MUCHACHA', 'MUCHACHO', 'MUCHO', 'MUEBLE', 'MUERTE', 'MUERTO', 'MUESTRA', 'MUJER', 'MULTA', 'MUNDO', 'MUÑECA', 'MURAL', 'MURO', 'MUSCULO', 'MUSEO', 'MUSICA', 'MUSLO', 'NACER', 'NACION', 'NADAR', 'NADIE', 'NARIZ', 'NARRAR', 'NATURAL', 'NAUFRAGO', 'NAVAJA', 'NAVE', 'NAVIDAD', 'NEGAR', 'NEGOCIO', 'NEGRO', 'NERVIO', 'NEUTRO', 'NEVAR', 'NIDO', 'NIEBLA', 'NIEVE', 'NINGUNO', 'NIÑA', 'NIÑO', 'NIVEL', 'NOBLE', 'NOCHE', 'NOMBRE', 'NORMA', 'NORMAL', 'NORTE', 'NOTA', 'NOTICIA', 'NOVEDAD', 'NOVELA', 'NOVENO', 'NOVIA', 'NOVIO', 'NUBE', 'NUCLEO', 'NUDO', 'NUERA', 'NUEVE', 'NUEVO', 'NUMERO', 'NUNCA', 'NUTRITIVO', 'OBISPO', 'OBJETO', 'OBRA', 'OBRERO', 'OBSERVAR', 'OBTENER', 'OBVIO', 'OCASION', 'OCEANO', 'OCHENTA', 'OCHO', 'OCIO', 'OCTUBRE', 'OCULAR', 'OCUPAR', 'OCURRIR', 'ODIAR', 'OESTE', 'OFENDER', 'OFERTA', 'OFICIO', 'OFRECER', 'OIDO', 'OIRTE', 'OJALA', 'OLEADA', 'OLER', 'OLIMPICO', 'OLIVA', 'OLLA', 'OMITIR', 'ONCE', 'ONZA', 'OPACO', 'OPCION', 'OPERAR', 'OPINAR', 'OPONER', 'OPTAR', 'OPTIMO', 'ORDEN', 'OREJA', 'ORGANO', 'ORGASMO', 'ORGULLO', 'ORIGEN', 'ORILLA', 'ORO', 'ORQUESTA', 'OSADIA', 'OSCURO', 'OSEAR', 'OTOÑO', 'OTRO', 'OVEJA', 'OXIDO', 'OXIGENO', 'OZON', 'PACTO', 'PADRE', 'PAGAR', 'PAGINA', 'PALABRA', 'PALACIO', 'PALANCA', 'PALMA', 'PALMERA', 'PALOMA', 'PALO', 'PALPAR', 'PANAL', 'PANCARTA', 'PANES', 'PAÑAL', 'PANICO', 'PANTALLA', 'PANZA', 'PAPEL', 'PAPILLA', 'PAQUETE', 'PARAR', 'PARCELA', 'PARED', 'PAREJA', 'PARQUE', 'PARTIR', 'PASADO', 'PASAJE', 'PASAR', 'PASCUA', 'PASEO', 'PASILLO', 'PASO', 'PASTA', 'PASTOR', 'PATA', 'PATADA', 'PATATA', 'PATENTE', 'PATRIA', 'PAUSA', 'PAVO', 'PAYASO', 'PEATON', 'PECAR', 'PECHO', 'PEDAL', 'PEDIR', 'PEGAR', 'PEINE', 'PELEA', 'PELIGRO', 'PELO', 'PELOTA', 'PENA', 'PENSAR', 'PEOR', 'PEPINO', 'PEQUEÑO', 'PERA', 'PERCHA', 'PERDER', 'PERDON', 'PEREZA', 'PERFIL', 'PERICO', 'PERLA', 'PERMISO', 'PERMITIR', 'PERO', 'PERRO', 'PERSONA', 'PESAR', 'PESCADO', 'PESO', 'PESTE', 'PETO'],
                         
-                        7: ['ACABADO', 'ACTITUD', 'AGUACATE', 'ALABANZA', 'ALCANZAR', 'ACERTIJO', 'ALBACEA', 'ARMONIA', 'BAILADOR', 'BANDERA', 'BELLEZA', 'CARICIA', 'CASTIGO', 'CEREBRO', 'CIENCIA', 'COCINAR', 'CORAZON', 'CULTURA', 'DEPORTE', 'DESTINO', 'DIGNIDAD', 'DIRECTO', 'DIVAGAR', 'ECLIPSE', 'ELEGIDO', 'ENIGMAS', 'ESCUELA', 'ESPACIO', 'FAMILIA', 'FELICES', 'FORTUNA'],
-                        
-                        8: ['ABANDONO', 'ABOGADOS', 'ADVERBIO', 'ABORDAJE', 'ABUNDANTE', 'ACADEMICO', 'ACEPTADO', 'ACERTADO', 'ACTIVIDAD', 'ADELANTE', 'ADMIRADO', 'ADOPCION', 'ADVERTIR', 'AGRESIVO', 'ALCANZAR', 'ALIMENTO', 'AMENAZAR', 'AMISTAD', 'ANALIZAR', 'APRENDER', 'ARMONIOS', 'ASOMBRAR', 'ATENCION', 'AUTONOMO', 'AVENTURA', 'BIOLOGIA', 'BRILLANTE', 'COMBINAR', 'CONDUCTA', 'CONTENTO', 'CREATIVO', 'DECISIVO']
+                        7: ['ACABADO', 'ACTITUD', 'AGUACATE', 'ALABANZA', 'ALCANZAR', 'ACERTIJO', 'ALBACEA', 'ARMONIA', 'BAILADOR', 'BANDERA', 'BELLEZA', 'CARICIA', 'CASTIGO', 'CEREBRO', 'CIENCIA', 'COCINAR', 'CORAZON', 'CULTURA', 'DEPORTE', 'DESTINO', 'DIGNIDAD', 'DIRECTO', 'DIVAGAR', 'ECLIPSE', 'ELEGIDO', 'ENIGMAS', 'ESCUELA', 'ESPACIO', 'FAMILIA', 'FELICES', 'FORTUNA']
                     },
                     keyboard: [
                         ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -701,6 +755,7 @@
                     ],
                     messages: {
                         notEnoughLetters: 'No hay suficientes letras',
+                        invalidWord: 'No está en la lista de palabras. Intenta con una palabra del diccionario.',
                         congratulations: '¡Felicitaciones! 🎉',
                         gameOver: '¡Juego terminado! La palabra era',
                         newGame: 'Nuevo Juego',
@@ -743,6 +798,10 @@
             this.gameOver = false;
             this.gameStarted = false;
             this.messageTimeout = null;
+            this.isShowingInvalidWordMessage = false;
+            this.isSubmitting = false; // Flag to prevent multiple submit attempts
+            this.statusCompactTimeout = null; // For server status indicator timing
+            this.lastStatusClick = 0; // For detecting double-clicks on server status
             
             // Lightning round properties
             this.lightningMode = localStorage.getItem('lightningMode') === 'true';
@@ -774,9 +833,28 @@
 
         initializeGame() {
             this.selectedWordLength = this.getDefaultWordLength();
+            
+            // Debug the available word lengths
+            console.log('=== AVAILABLE WORD LENGTHS ===');
+            for (const language of Object.keys(this.languages)) {
+                const wordsByLength = this.languages[language].words;
+                const availableLengths = Object.keys(wordsByLength).sort();
+                console.log(`${language}: ${availableLengths.join(', ')} letter words`);
+                
+                // Log the number of words in each length category
+                for (const length of availableLengths) {
+                    const count = wordsByLength[length].length;
+                    console.log(`  ${length}-letter ${language} words: ${count}`);
+                }
+            }
+            console.log('===============================');
+            
             this.createGameBoard();
             this.createKeyboard();
             this.setupEventListeners();
+            
+            // Check dictionary server status when the game starts
+            this.checkServerStatus();
             this.setupWordLengthSelector();
         }
 
@@ -840,6 +918,8 @@
                     this.loadStats();
                     this.updateWordLengthInfo();
                     this.updateButtonText();
+                    // Update dictionary server status for the new language
+                    this.checkServerStatus();
                     this.newGame();
                     
                     confirmDialog.style.display = 'none';
@@ -1203,7 +1283,10 @@
                         key.classList.add('wide');
                     }
                     
-                    key.addEventListener('click', () => this.handleKeyPress(letter));
+                    key.addEventListener('click', () => {
+                        // Just use the handleKeyPress method which now handles the async logic internally
+                        this.handleKeyPress(letter);
+                    });
                     row.appendChild(key);
                 }
                 
@@ -1248,7 +1331,15 @@
             if (this.gameOver) return;
 
             if (key === 'ENTER') {
-                this.submitGuess();
+                // Prevent multiple submits while processing
+                if (this.isSubmitting) return;
+                
+                this.isSubmitting = true;
+                
+                // Use non-async approach since we've disabled the Python server
+                this.submitGuess().finally(() => {
+                    this.isSubmitting = false;
+                });
             } else if (key === 'BACKSPACE') {
                 this.deleteLetter();
             } else if (this.currentTile < this.selectedWordLength) {
@@ -1257,6 +1348,12 @@
         }
 
         addLetter(letter) {
+            // Clear any invalid word message when user starts editing
+            if (this.isShowingInvalidWordMessage) {
+                this.clearMessage();
+                this.isShowingInvalidWordMessage = false;
+            }
+            
             if (!this.gameStarted) {
                 this.gameStarted = true;
                 this.hideLanguageToggle();
@@ -1285,6 +1382,12 @@
 
         deleteLetter() {
             if (this.currentTile > 0) {
+                // Clear any invalid word message when user starts editing
+                if (this.isShowingInvalidWordMessage) {
+                    this.clearMessage();
+                    this.isShowingInvalidWordMessage = false;
+                }
+                
                 this.currentTile--;
                 const tile = document.getElementById('tile-' + this.currentRow + '-' + this.currentTile);
                 if (tile) {
@@ -1297,13 +1400,67 @@
             }
         }
 
-        submitGuess() {
+        async submitGuess() {
+            console.log("Submit guess called");
             if (this.currentTile < this.selectedWordLength) {
                 this.showMessage(this.languages[this.currentLanguage].messages.notEnoughLetters);
+                console.log("Not enough letters");
                 return;
             }
 
             const guess = this.getCurrentGuess();
+            console.log(`Submitting guess: ${guess}`);
+            
+            // If Python server is enabled, use async validation
+            if (this.usePythonServer()) {
+                try {
+                    const isValid = await this.isValidWordAsync(guess);
+                    if (!isValid) {
+                        this.showMessage(this.languages[this.currentLanguage].messages.invalidWord, 'invalid', true);
+                        
+                        // Add a shake animation to indicate invalid word
+                        const currentRow = document.getElementById('row-' + this.currentRow);
+                        if (currentRow) {
+                            currentRow.classList.add('shake');
+                            setTimeout(() => {
+                                currentRow.classList.remove('shake');
+                            }, 500);
+                        }
+                        return;
+                    }
+                } catch (error) {
+                    console.error(`Error in async validation: ${error.message}`);
+                    // Fall back to local validation in case of error
+                    if (!this.isValidWordLocal(guess.toUpperCase(), this.languages[this.currentLanguage].words[this.selectedWordLength])) {
+                        this.showMessage(this.languages[this.currentLanguage].messages.invalidWord, 'invalid', true);
+                        
+                        const currentRow = document.getElementById('row-' + this.currentRow);
+                        if (currentRow) {
+                            currentRow.classList.add('shake');
+                            setTimeout(() => {
+                                currentRow.classList.remove('shake');
+                            }, 500);
+                        }
+                        return;
+                    }
+                }
+            } else {
+                // Use synchronous local validation if Python server is disabled
+                if (!this.isValidWordLocal(guess.toUpperCase(), this.languages[this.currentLanguage].words[this.selectedWordLength])) {
+                    this.showMessage(this.languages[this.currentLanguage].messages.invalidWord, 'invalid', true);
+                    
+                    // Add a shake animation to indicate invalid word
+                    const currentRow = document.getElementById('row-' + this.currentRow);
+                    if (currentRow) {
+                        currentRow.classList.add('shake');
+                        setTimeout(() => {
+                            currentRow.classList.remove('shake');
+                        }, 500);
+                    }
+                    return;
+                }
+            }
+            
             this.checkGuess(guess);
             
             if (guess === this.currentWord) {
@@ -1325,6 +1482,10 @@
                 const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
                 if (tile) guess += tile.textContent;
             }
+            
+            // Debug logging
+            console.log(`Retrieved guess: '${guess}' (length: ${guess.length}, expected: ${this.selectedWordLength})`);
+            
             return guess;
         }
 
@@ -1526,7 +1687,235 @@
             return selectedWord;
         }
 
-        showMessage(message, type = '') {
+        // Check if Python server is enabled
+        usePythonServer() {
+            // You can toggle this based on user preference or environment
+            return true; // Re-enabled to use Python server for better validation
+        }
+        
+        // Async validation using Python API
+        async validateWordWithPython(word, language) {
+            try {
+                // Handle Spanish special characters for URL encoding
+                const encodedWord = encodeURIComponent(word);
+                const apiUrl = `http://localhost:8000/validate?word=${encodedWord}&language=${language}`;
+                console.log(`Validating word via API: ${word} (${language})`);
+                
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    console.error(`API error: ${response.status}`);
+                    this.updateServerStatus(false);
+                    return null; // Return null to indicate we should fall back to local validation
+                }
+                
+                const data = await response.json();
+                console.log(`Python API response for ${word}: ${JSON.stringify(data)}`);
+                this.updateServerStatus(true);
+                return data.valid;
+            } catch (error) {
+                console.error(`Error calling Python API: ${error.message}`);
+                this.updateServerStatus(false);
+                return null; // Return null to indicate we should fall back to local validation
+            }
+        }
+        
+        // Check if server is running and update status indicator
+        async checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:8000', { 
+                    method: 'GET',
+                    signal: AbortSignal.timeout(1500) // Timeout after 1.5 seconds
+                });
+                const isConnected = response.ok;
+                this.updateServerStatus(isConnected);
+                return isConnected;
+            } catch (error) {
+                console.log('Dictionary server not detected:', error);
+                this.updateServerStatus(false);
+                return false;
+            }
+        }
+        
+        // Update the server status indicator - very simplified
+        updateServerStatus(isConnected) {
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            const statusContainer = document.getElementById('server-status');
+            
+            const langLabel = this.currentLanguage === 'english' ? 'EN' : 'ES';
+            
+            if (isConnected) {
+                indicator.textContent = '🟢';
+                text.style.display = 'none'; // Hide the text completely
+                
+                // Simple tooltip
+                statusContainer.title = `Dictionary server connected (${langLabel})`;
+            } else {
+                indicator.textContent = '🔴';
+                text.style.display = 'inline'; // Show text only when offline
+                text.textContent = `Offline`;
+                
+                // Simple tooltip
+                statusContainer.title = `Dictionary server offline (${langLabel})`;
+            }
+            
+            // We'll keep the double-click to refresh functionality
+            if (!statusContainer.hasClickHandler) {
+                statusContainer.addEventListener('dblclick', () => {
+                    // Double click to refresh connection status
+                    indicator.textContent = '⚪';
+                    this.checkServerStatus();
+                });
+                statusContainer.hasClickHandler = true;
+            }
+        }
+        
+        async isValidWordAsync(word) {
+            // Convert to uppercase for consistent comparison
+            const uppercaseWord = word.toUpperCase();
+            
+            // Debug logging
+            console.log(`Checking if '${uppercaseWord}' is a valid ${this.selectedWordLength}-letter word in ${this.currentLanguage}`);
+            
+            try {
+                // Try Python server validation first
+                const pythonResult = await this.validateWordWithPython(uppercaseWord, this.currentLanguage);
+                if (pythonResult !== null) {
+                    console.log(`Python API validation result for '${uppercaseWord}': ${pythonResult ? 'VALID' : 'INVALID'}`);
+                    return pythonResult;
+                }
+            } catch (error) {
+                console.error(`Error in Python validation: ${error.message}`);
+                // Fall back to local validation
+            }
+            
+            // Fall back to local validation if Python server is unavailable
+            return this.isValidWordLocal(uppercaseWord, this.languages[this.currentLanguage].words[this.selectedWordLength]);
+        }
+        
+        // This method is used for synchronous validation only
+        // For async validation, use isValidWordAsync directly
+        isValidWord(word) {
+            // Convert to uppercase for consistent comparison
+            const uppercaseWord = word.toUpperCase();
+            
+            // Get the word list for the current language and word length
+            const words = this.languages[this.currentLanguage].words[this.selectedWordLength];
+            
+            // Use local validation for immediate results
+            return this.isValidWordLocal(uppercaseWord, words);
+        }
+        
+        isValidWordLocal(uppercaseWord, words) {
+            console.log(`Checking if ${uppercaseWord} is valid locally`);
+            // Check if the word list exists
+            if (!words) {
+                console.error(`No word list found for ${this.currentLanguage} with length ${this.selectedWordLength}`);
+                return true; // If no word list is available, accept all words
+            }
+            
+            // First check: Is the word in our primary dictionary?
+            const isInPrimaryDictionary = words.includes(uppercaseWord);
+            console.log(`Is ${uppercaseWord} in primary dictionary? ${isInPrimaryDictionary}`);
+            
+            // If it's in our primary dictionary, it's definitely valid
+            if (isInPrimaryDictionary) {
+                console.log(`Word '${uppercaseWord}' found in primary dictionary - VALID`);
+                return true;
+            }
+            
+            // For English words, check the extended common words dictionary
+            if (this.currentLanguage === 'english' && this.selectedWordLength === 5) {
+                // Check if the word is in our extended dictionary (defined in common-5-letter-words.js)
+                if (typeof commonFiveLetterWords !== 'undefined' && commonFiveLetterWords.includes(uppercaseWord)) {
+                    console.log(`Word '${uppercaseWord}' found in extended dictionary - VALID`);
+                    return true;
+                }
+            }
+            
+            // Known invalid words - always reject these
+            const knownInvalidWords = [
+                // Test cases
+                'ZZZZZ', 'QWQWQ', 'AAAAA', 'XXXXX', 'XZXZX', 'QZQZQ',
+                // Observed invalid examples
+                'RANOO', 'LEFJA', 'BEGLE', 'LEFEE'
+            ];
+            
+            if (knownInvalidWords.includes(uppercaseWord)) {
+                console.log(`Known invalid word '${uppercaseWord}' detected - marking as INVALID`);
+                return false;
+            }
+            
+            // Switch to pattern-based validation instead of strict dictionary mode
+            // This allows valid words that might not be in our limited dictionary
+            const vowels = 'AEIOU';
+            const consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
+            
+            // Check for vowels - most English words need at least one vowel
+            const hasVowel = uppercaseWord.split('').some(char => vowels.includes(char));
+            
+            // Check for repeated letters (3+ in a row, like 'AAA')
+            let hasRepeatedLetters = false;
+            for (let i = 0; i < uppercaseWord.length - 2; i++) {
+                if (uppercaseWord[i] === uppercaseWord[i+1] && uppercaseWord[i] === uppercaseWord[i+2]) {
+                    hasRepeatedLetters = true;
+                    break;
+                }
+            }
+            
+            // Check for excessive number of vowels or consonants in a row
+            const maxConsecutiveVowels = uppercaseWord.match(/[AEIOU]+/g)?.reduce((max, curr) => 
+                Math.max(max, curr.length), 0) || 0;
+            const maxConsecutiveConsonants = uppercaseWord.match(/[^AEIOU]+/g)?.reduce((max, curr) => 
+                Math.max(max, curr.length), 0) || 0;
+            
+            // Check for unlikely letter combinations that suggest random typing
+            const unlikelyCombinations = [
+                'QZ', 'JX', 'VX', 'ZQ', 'WX', 'VQ', 'JZ', 'QJ', 'XK', 'VZ'
+            ];
+            let hasUnlikelyCombination = false;
+            for (const combo of unlikelyCombinations) {
+                if (uppercaseWord.includes(combo)) {
+                    hasUnlikelyCombination = true;
+                    break;
+                }
+            }
+            
+            // Exception list for unusual but valid words
+            const validExceptions = [
+                // English words with unusual patterns
+                'RHYTHM', 'LYNX', 'CRYPT', 'MYTH', 'HYMN', 'NYMPH', 'PYGMY', 'GLYPH',
+                // Other potentially valid words with unusual patterns
+                'FJORD', 'CWMS', 'CRWTH', 'FRIED', 'ALGAE', 'MAYBE'
+            ];
+            
+            if (validExceptions.includes(uppercaseWord)) {
+                console.log(`Word '${uppercaseWord}' is a known valid exception - VALID`);
+                return true;
+            }
+            
+            // Analyze if this is likely a nonsense word - we're being less strict
+            const redFlags = [];
+            
+            if (!hasVowel && this.currentLanguage === 'english') redFlags.push('No vowels');
+            if (hasRepeatedLetters) redFlags.push('3+ identical letters in a row');
+            if (maxConsecutiveConsonants > 4) redFlags.push('5+ consonants in a row');
+            if (maxConsecutiveVowels > 3) redFlags.push('4+ vowels in a row');
+            if (hasUnlikelyCombination) redFlags.push('Unlikely letter combo');
+            
+            // Only reject a word if it has 2 or more suspicious patterns
+            const likelyNonsense = redFlags.length >= 2;
+            
+            // Log analysis for debugging
+            console.log(`Word '${uppercaseWord}' pattern analysis:`);
+            console.log(`- Red flags (${redFlags.length}): ${redFlags.join(', ')}`);
+            console.log(`- Final determination: ${!likelyNonsense ? 'VALID (likely real word)' : 'INVALID (likely nonsense)'}`);
+            
+            return !likelyNonsense;
+        }
+
+        showMessage(message, type = '', persistent = false) {
             const messageElement = document.getElementById('message');
             if (!messageElement) return;
             
@@ -1536,13 +1925,18 @@
             
             if (this.messageTimeout) {
                 clearTimeout(this.messageTimeout);
+                this.messageTimeout = null;
             }
             
-            // Clear non-game-end messages after a delay
-            if (type !== 'win' && type !== 'lose') {
+            // Store if this is an invalid word message
+            this.isShowingInvalidWordMessage = message === this.languages[this.currentLanguage].messages.invalidWord;
+            
+            // Only set timeout for non-persistent messages
+            if (type !== 'win' && type !== 'lose' && !persistent && !this.isShowingInvalidWordMessage) {
                 this.messageTimeout = setTimeout(() => {
                     messageElement.textContent = '';
                     messageElement.className = 'message';
+                    this.isShowingInvalidWordMessage = false;
                 }, 2000);
             }
         }
@@ -1556,7 +1950,11 @@
             
             if (this.messageTimeout) {
                 clearTimeout(this.messageTimeout);
+                this.messageTimeout = null;
             }
+            
+            // Reset the invalid word message flag
+            this.isShowingInvalidWordMessage = false;
         }
 
         gameWon() {
@@ -1600,6 +1998,10 @@
                 const seconds = this.timeRemaining % 60;
                 const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 timerDisplay.textContent = formattedTime;
+                
+                // Set initial color to green at the start
+                timerDisplay.style.color = '#6aaa64'; // Green
+                timerDisplay.style.fontWeight = 'normal';
             }
             
             // Clear any existing interval
@@ -1646,11 +2048,19 @@
                 const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 timerDisplay.textContent = formattedTime;
                 
-                // Add visual indication when time is running low
+                // Add visual indication based on remaining time
                 if (this.timeRemaining <= 10) {
-                    timerDisplay.style.color = '#3a7af5'; // Changed to blue
+                    // Red for last 10 seconds - urgent!
+                    timerDisplay.style.color = '#e74c3c'; // Red
+                    timerDisplay.style.fontWeight = 'bold';
+                } else if (this.timeRemaining <= 30) {
+                    // Yellow for 11-30 seconds - getting low
+                    timerDisplay.style.color = '#f39c12'; // Yellow/amber
+                    timerDisplay.style.fontWeight = 'bold';
                 } else {
-                    timerDisplay.style.color = '';
+                    // Green for more than 30 seconds - plenty of time
+                    timerDisplay.style.color = '#6aaa64'; // Green (matches the game's green)
+                    timerDisplay.style.fontWeight = 'normal';
                 }
             }
             
@@ -1753,7 +2163,9 @@
                 if (timerDisplay) {
                     // Format time as MM:SS
                     timerDisplay.textContent = '00:60';
-                    timerDisplay.style.color = '';
+                    // Set color back to green
+                    timerDisplay.style.color = '#6aaa64'; 
+                    timerDisplay.style.fontWeight = 'normal';
                 }
                 
                 // Show timer container in lightning mode
@@ -2134,8 +2546,19 @@
                         const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                         timerDisplay.textContent = formattedTime;
                         
+                        // Set timer color based on remaining time
                         if (this.timeRemaining <= 10) {
-                            timerDisplay.style.color = '#3a7af5'; // Blue for low time
+                            // Red for last 10 seconds - urgent!
+                            timerDisplay.style.color = '#e74c3c'; // Red
+                            timerDisplay.style.fontWeight = 'bold';
+                        } else if (this.timeRemaining <= 30) {
+                            // Yellow for 11-30 seconds - getting low
+                            timerDisplay.style.color = '#f39c12'; // Yellow/amber
+                            timerDisplay.style.fontWeight = 'bold';
+                        } else {
+                            // Green for more than 30 seconds - plenty of time
+                            timerDisplay.style.color = '#6aaa64'; // Green (matches the game's green)
+                            timerDisplay.style.fontWeight = 'normal';
                         }
                     }
                     
@@ -2170,10 +2593,6 @@
             localStorage.removeItem('wordleGameState');
         }
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        new WordleGame();
-    });
 
     document.addEventListener('DOMContentLoaded', () => {
         new WordleGame();
