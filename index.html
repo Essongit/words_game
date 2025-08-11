@@ -33,19 +33,29 @@
             padding: 0 5px;
         }
 
-        .language-toggle {
+        /* Toggles container */
+        .toggles-container {
             display: flex;
+            flex-direction: row;
             justify-content: center;
             align-items: center;
             margin-bottom: 15px;
-            gap: 10px;
+            gap: 35px;
+        }
+
+        .language-toggle, .lightning-toggle {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
         }
 
         .toggle-container {
             position: relative;
             display: inline-block;
-            width: 80px;
-            height: 34px;
+            width: 60px;
+            height: 30px;
         }
 
         .toggle-input {
@@ -61,16 +71,21 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #6aaa64;
+            background-color: #787c7e; /* Grey by default */
             transition: .4s;
             border-radius: 34px;
+        }
+        
+        /* Different color for lightning toggle */
+        .lightning-slider {
+            background-color: #787c7e; /* Grey when inactive */
         }
 
         .toggle-slider:before {
             position: absolute;
             content: "";
-            height: 26px;
-            width: 26px;
+            height: 22px;
+            width: 22px;
             left: 4px;
             bottom: 4px;
             background-color: white;
@@ -78,22 +93,61 @@
             border-radius: 50%;
         }
 
-        .toggle-input:checked + .toggle-slider {
-            background-color: #c9b458;
+        /* Language toggle slider colors */
+        #language-toggle:checked + .toggle-slider {
+            background-color: #c9b458; /* Yellow for language toggle when active (Spanish) */
+        }
+        
+        #language-toggle:not(:checked) + .toggle-slider {
+            background-color: #6aaa64; /* Green for language toggle when inactive (English) */
+        }
+        
+        /* Lightning toggle slider colors */
+        #lightning-toggle:checked + .lightning-slider {
+            background-color: #6aaa64; /* Green when active */
+        }
+        
+        #lightning-toggle:not(:checked) + .lightning-slider {
+            background-color: #787c7e; /* Grey when inactive */
         }
 
         .toggle-input:checked + .toggle-slider:before {
-            transform: translateX(46px);
+            transform: translateX(30px);
         }
 
-        .language-label {
+        .language-label, .lightning-label {
             font-size: 14px;
             font-weight: bold;
-            color: #121213;
+            color: #787c7e; /* Default to grey */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 30px;
+            text-align: center;
+            padding: 0 5px;
         }
 
         .language-label.active {
-            color: #6aaa64;
+            color: #6aaa64; /* Green for active language */
+        }
+        
+        .lightning-label.active {
+            color: #6aaa64; /* Changed to green to match language toggle */
+        }
+        
+        /* Specific styling for language toggle labels */
+        #english-label, #spanish-label {
+            min-width: 25px;
+            margin: 0 2px;
+        }
+        
+        /* Specific colors for language labels */
+        #english-label.active {
+            color: #6aaa64; /* Green for active English */
+        }
+        
+        #spanish-label.active {
+            color: #c9b458; /* Yellow for active Spanish */
         }
 
         header {
@@ -284,6 +338,72 @@
             color: #f5793a;
         }
 
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            visibility: hidden;
+        }
+
+        .timer-icon {
+            margin-right: 5px;
+            color: #6aaa64; /* Green to match other elements */
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Lightning toggle styling is now merged with language-toggle above */
+
+        /* Additional lightning-specific styles */
+        .lightning-label.active {
+            color: #6aaa64; /* Green like the language toggle */
+        }
+        
+        #normal-mode-label.active {
+            color: #121213; /* Black color for the active normal label */
+        }
+        
+        /* Lightning-specific styling */
+        #normal-mode-label {
+            width: 55px;
+            text-align: right;
+            display: inline-block;
+            padding-right: 10px; /* Add more space after "Normal" */
+            margin-right: 5px;
+            color: #787c7e; /* Default grey */
+        }
+        
+        #normal-mode-label.active {
+            color: #6aaa64; /* Green when active */
+        }
+        
+        #lightning-mode-label {
+            width: 30px; /* Wider to accommodate "60s" */
+            text-align: left;
+            display: inline-block;
+            padding-left: 2px;
+            font-size: 14px; /* Slightly smaller font for "60s" */
+            margin-left: 2px;
+        }
+
+        /* Styling for the lightning text "60s" */
+        .lightning-icon {
+            color: #787c7e; /* Default grey */
+            display: inline-block;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        #lightning-mode-label.active .lightning-icon {
+            color: #6aaa64; /* Green when active */
+            font-weight: bold;
+        }
+        
+        /* Specific styles moved to labels section above */
+
         .new-game-btn {
             display: block;
             margin: 15px auto;
@@ -308,6 +428,52 @@
             transform: scale(0.95);
         }
 
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #121213;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            top: 100%; /* Position directly below */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+            margin-top: 8px; /* Add some margin from the toggle */
+            pointer-events: none; /* Prevents the tooltip from interfering with layout */
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #121213 transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
         /* Mobile responsiveness */
         @media (max-width: 480px) {
             .row.length-5 .tile { width: 48px; height: 48px; font-size: 1.4rem; }
@@ -316,6 +482,12 @@
             .row.length-8 .tile { width: 32px; height: 32px; font-size: 1.1rem; }
             .row.length-9 .tile { width: 28px; height: 28px; font-size: 1.0rem; }
             .row.length-10 .tile { width: 25px; height: 25px; font-size: 0.9rem; }
+            
+            /* Adjust toggle layout for smaller screens */
+            .toggles-container {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
 
         .confirm-dialog {
@@ -369,14 +541,34 @@
 </head>
 <body>
     <div class="container">
-        <!-- Language Toggle -->
-        <div class="language-toggle">
-            <span class="language-label" id="english-label">EN</span>
-            <label class="toggle-container">
-                <input type="checkbox" class="toggle-input" id="language-toggle">
-                <span class="toggle-slider"></span>
-            </label>
-            <span class="language-label" id="spanish-label">ES</span>
+        <!-- Toggles Container -->
+        <div class="toggles-container">
+            <!-- Language Toggle -->
+            <div class="language-toggle">
+                <span class="language-label" id="english-label">EN</span>
+                <label class="toggle-container">
+                    <input type="checkbox" class="toggle-input" id="language-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="language-label" id="spanish-label">ES</span>
+            </div>
+
+            <!-- Lightning Round Toggle with Tooltip -->
+            <div class="lightning-toggle tooltip">
+                <span class="lightning-label" id="normal-mode-label">Normal</span>
+                <label class="toggle-container">
+                    <input type="checkbox" class="toggle-input" id="lightning-toggle">
+                    <span class="toggle-slider lightning-slider"></span>
+                </label>
+                <span class="lightning-label" id="lightning-mode-label"><span class="lightning-icon">60s</span></span>
+                <span class="tooltip-text">Lightning Round: You have 60 seconds to solve the word!</span>
+            </div>
+        </div>
+
+        <!-- Timer Display -->
+        <div class="timer-container" id="timer-container">
+            <span class="timer-icon">Time:</span>
+            <span id="timer-display">00:60</span>
         </div>
 
         <header>
@@ -448,13 +640,21 @@
                         newGame: 'New Game',
                         enter: 'Enter',
                         finishGame: 'Finish your current game first!',
-                        startGame: 'Select your first word to begin the game.'
+                        startGame: 'Select your first word to begin the game.',
+                        timeUp: 'Time\'s up! The word was',
+                        switchLightningMode: 'Switch to Lightning Mode?',
+                        switchNormalMode: 'Switch to Normal Mode?',
+                        yes: 'Yes',
+                        no: 'No'
                     },
                     labels: {
                         title: 'My Wordle',
                         streak: 'Streak',
                         played: 'Played',
-                        winRate: 'Win Rate'
+                        winRate: 'Win Rate',
+                        normal: 'Normal',
+                        lightning: 'Lightning',
+                        time: 'Time:'
                     }
                 },
                 spanish: {
@@ -480,13 +680,21 @@
                         newGame: 'Nuevo Juego',
                         enter: 'Enviar',
                         finishGame: '¡Termina tu juego actual primero!',
-                        startGame: 'Selecciona tu primera palabra para comenzar el juego.'
+                        startGame: 'Selecciona tu primera palabra para comenzar el juego.',
+                        timeUp: '¡Se acabó el tiempo! La palabra era',
+                        switchLightningMode: '¿Cambiar al modo Relámpago?',
+                        switchNormalMode: '¿Cambiar al modo Normal?',
+                        yes: 'Sí',
+                        no: 'No'
                     },
                     labels: {
                         title: 'Mi Wordle',
                         streak: 'Racha',
                         played: 'Jugados',
-                        winRate: '% Ganados'
+                        winRate: '% Ganados',
+                        normal: 'Normal',
+                        lightning: 'Relámpago',
+                        time: 'Tiempo:'
                     }
                 }
             };
@@ -510,10 +718,18 @@
             this.gameStarted = false;
             this.messageTimeout = null;
             
+            // Lightning round properties
+            this.lightningMode = localStorage.getItem('lightningMode') === 'true';
+            this.timeRemaining = 60; // 60 seconds for lightning round
+            this.timerInterval = null;
+            
             this.initializeGame();
             this.loadStats();
             this.setupLanguageToggle();
-            this.updateButtonText(); // Add this line to set button text at initialization
+            this.setupLightningToggle(); // Setup lightning round toggle
+            this.updateLanguageLabels(); // Ensure labels are set up with correct active state
+            // No need to call updateLightningLabels explicitly as it's called within setupLightningToggle
+            this.updateButtonText(); // Set button text at initialization
         }
 
         loadUsedWords() {
@@ -543,13 +759,14 @@
             const toggle = document.getElementById('language-toggle');
             if (!toggle) return;
             
-            // Set initial toggle state based on current language (THIS LINE WAS MISSING)
+            // Set initial toggle state based on current language
             toggle.checked = this.currentLanguage === 'spanish';
             
+            // Make sure we apply the correct styling on initialization
+            this.updateLanguageLabels();
+            
             toggle.addEventListener('change', (e) => {
-                // Prevent the default toggle behavior immediately
-                e.preventDefault();
-                
+                // Get the desired language based on the toggle state
                 const newLanguage = toggle.checked ? 'spanish' : 'english';
                 const currentLanguage = this.currentLanguage;
                 
@@ -584,6 +801,7 @@
                     
                     this.clearMessage();
                     this.updateLanguageLabels();
+                    this.updateLightningTooltip(); // Update tooltip text when language changes
                     this.createKeyboard();
                     this.loadStats();
                     this.updateWordLengthInfo();
@@ -610,6 +828,139 @@
             this.updateLanguageLabels();
         }
 
+        setupLightningToggle() {
+            const toggle = document.getElementById('lightning-toggle');
+            if (!toggle) return;
+            
+            // Set initial toggle state
+            toggle.checked = this.lightningMode;
+            
+            // Initialize the timer container visibility based on lightning mode
+            const timerContainer = document.getElementById('timer-container');
+            if (timerContainer) {
+                timerContainer.style.visibility = this.lightningMode ? 'visible' : 'hidden';
+            }
+            
+            // Update label states
+            this.updateLightningLabels();
+            
+            // Update tooltip text based on language
+            this.updateLightningTooltip();
+            
+            toggle.addEventListener('change', (e) => {
+                // Prevent switching if game is in progress
+                if (this.gameStarted && !this.gameOver) {
+                    toggle.checked = this.lightningMode;
+                    this.showMessage(this.languages[this.currentLanguage].messages.finishGame, 'lose');
+                    return;
+                }
+                
+                const newLightningMode = toggle.checked;
+                const currentLightningMode = this.lightningMode;
+                
+                // Show custom confirmation dialog
+                const confirmDialog = document.getElementById('confirm-dialog');
+                const confirmMessage = document.getElementById('confirm-message');
+                const confirmYes = document.getElementById('confirm-yes');
+                const confirmNo = document.getElementById('confirm-no');
+                
+                // Set the confirmation message based on the new mode
+                const messages = this.languages[this.currentLanguage].messages;
+                confirmMessage.textContent = newLightningMode ? messages.switchLightningMode : messages.switchNormalMode;
+                
+                // Set button text in correct language
+                confirmYes.textContent = messages.yes;
+                confirmNo.textContent = messages.no;
+                
+                // Show the dialog
+                confirmDialog.style.display = 'flex';
+                
+                // Handle confirmation
+                const handleYes = () => {
+                    toggle.checked = newLightningMode;
+                    this.lightningMode = newLightningMode;
+                    this.updateLightningLabels();
+                    
+                    // Save lightning mode preference
+                    localStorage.setItem('lightningMode', this.lightningMode);
+                    
+                    // Reset timer display visibility
+                    const timerContainer = document.getElementById('timer-container');
+                    if (timerContainer) {
+                        timerContainer.style.visibility = this.lightningMode ? 'visible' : 'hidden';
+                    }
+                    
+                    // Reset timer display
+                    const timerDisplay = document.getElementById('timer-display');
+                    if (timerDisplay) {
+                        timerDisplay.textContent = '00:60';
+                    }
+                    
+                    // Reset the game when toggling lightning mode
+                    this.newGame();
+                    
+                    confirmDialog.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                };
+                
+                // Handle cancellation
+                const handleNo = () => {
+                    toggle.checked = currentLightningMode;
+                    confirmDialog.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                };
+                
+                confirmYes.addEventListener('click', handleYes);
+                confirmNo.addEventListener('click', handleNo);
+            });
+        }
+        
+        updateLightningLabels() {
+            const normalLabel = document.getElementById('normal-mode-label');
+            const lightningLabel = document.getElementById('lightning-mode-label');
+            const lightningIcon = lightningLabel ? lightningLabel.querySelector('.lightning-icon') : null;
+            
+            if (normalLabel && lightningLabel) {
+                if (this.lightningMode) {
+                    // Lightning mode is active
+                    normalLabel.classList.remove('active');
+                    lightningLabel.classList.add('active');
+                    // Explicitly set the colors for clarity
+                    normalLabel.style.color = '#787c7e'; // Grey
+                    
+                    // Apply style directly to the lightning icon
+                    if (lightningIcon) {
+                        lightningIcon.style.color = '#6aaa64'; // Green
+                    }
+                } else {
+                    // Normal mode is active
+                    normalLabel.classList.add('active');
+                    lightningLabel.classList.remove('active');
+                    // Explicitly set the colors for clarity
+                    normalLabel.style.color = '#6aaa64'; // Green
+                    
+                    // Apply style directly to the lightning icon
+                    if (lightningIcon) {
+                        lightningIcon.style.color = '#787c7e'; // Grey
+                    }
+                }
+            }
+        }
+        
+        updateLightningTooltip() {
+            const tooltipText = document.querySelector('.lightning-toggle .tooltip-text');
+            if (tooltipText) {
+                const labels = this.languages[this.currentLanguage].labels;
+                if (this.currentLanguage === 'english') {
+                    tooltipText.textContent = `${labels.lightning} Round: You have 60 seconds to solve the word!`;
+                } else {
+                    tooltipText.textContent = `¡Ronda ${labels.lightning}: Tienes 60 segundos para resolver la palabra!`;
+                }
+            }
+        }
+
         updateLanguageLabels() {
             const englishLabel = document.getElementById('english-label');
             const spanishLabel = document.getElementById('spanish-label');
@@ -617,25 +968,53 @@
             const streakLabel = document.getElementById('streak-label');
             const playedLabel = document.getElementById('played-label');
             const winRateLabel = document.getElementById('win-rate-label');
-            
-            if (this.currentLanguage === 'english') {
-                if (englishLabel) englishLabel.classList.add('active');
-                if (spanishLabel) spanishLabel.classList.remove('active');
-            } else {
-                if (englishLabel) englishLabel.classList.remove('active');
-                if (spanishLabel) spanishLabel.classList.add('active');
-            }
+            const normalModeLabel = document.getElementById('normal-mode-label');
             
             const labels = this.languages[this.currentLanguage].labels;
+            
+            if (this.currentLanguage === 'english') {
+                if (englishLabel) {
+                    englishLabel.classList.add('active');
+                    englishLabel.style.color = '#6aaa64'; // Green for active English
+                }
+                if (spanishLabel) {
+                    spanishLabel.classList.remove('active');
+                    spanishLabel.style.color = '#787c7e'; // Grey for inactive Spanish
+                }
+            } else {
+                if (englishLabel) {
+                    englishLabel.classList.remove('active');
+                    englishLabel.style.color = '#787c7e'; // Grey for inactive English
+                }
+                if (spanishLabel) {
+                    spanishLabel.classList.add('active');
+                    spanishLabel.style.color = '#c9b458'; // Yellow for active Spanish
+                }
+            }
+            
+            // Update lightning toggle labels based on language
+            if (normalModeLabel) normalModeLabel.textContent = labels.normal;
             if (gameTitle) gameTitle.textContent = labels.title;
             if (streakLabel) streakLabel.textContent = labels.streak;
             if (playedLabel) playedLabel.textContent = labels.played;
             if (winRateLabel) winRateLabel.textContent = labels.winRate;
             
-            // Remove this line that was overriding the button text:
-            // if (newGameBtn) newGameBtn.textContent = this.languages[this.currentLanguage].messages.newGame;
+            // Update lightning label
+            const lightningLabel = document.getElementById('lightning-mode-label');
+            if (lightningLabel) {
+                lightningLabel.innerHTML = '<span class="lightning-icon">60s</span>';
+            }
             
-            // Instead, call updateButtonText which will set the appropriate text based on game state
+            // Update lightning tooltip text based on language
+            this.updateLightningTooltip();
+            
+            // Update the timer icon text based on language
+            const timerIcon = document.querySelector('.timer-icon');
+            if (timerIcon) {
+                timerIcon.textContent = labels.time;
+            }
+            
+            // Call updateButtonText which will set the appropriate text based on game state
             this.updateButtonText();
         }
 
@@ -847,6 +1226,11 @@
                 
                 if (this.currentWord === '') {
                     this.currentWord = this.getRandomWord();
+                }
+                
+                // Start timer if in lightning mode
+                if (this.lightningMode) {
+                    this.startTimer();
                 }
             }
 
@@ -1077,6 +1461,7 @@
             this.showMessage(this.languages[this.currentLanguage].messages.congratulations, 'win');
             this.updateStats(true);
             this.showLanguageToggle();
+            this.stopTimer();
             this.updateButtonText(); // Add this line
         }
 
@@ -1085,7 +1470,77 @@
             this.showMessage(this.languages[this.currentLanguage].messages.gameOver + ' ' + this.currentWord, 'lose');
             this.updateStats(false);
             this.showLanguageToggle();
+            this.stopTimer();
             this.updateButtonText(); // Add this line
+        }
+        
+        startTimer() {
+            // Make timer visible
+            const timerContainer = document.getElementById('timer-container');
+            if (timerContainer) {
+                timerContainer.style.visibility = 'visible';
+            }
+            
+            // Reset time remaining
+            this.timeRemaining = 60;
+            
+            // Update timer display with formatted time
+            const timerDisplay = document.getElementById('timer-display');
+            if (timerDisplay) {
+                const minutes = Math.floor(this.timeRemaining / 60);
+                const seconds = this.timeRemaining % 60;
+                const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timerDisplay.textContent = formattedTime;
+            }
+            
+            // Clear any existing interval
+            this.stopTimer();
+            
+            // Start new interval
+            this.timerInterval = setInterval(() => {
+                this.updateTimer();
+            }, 1000);
+        }
+        
+        stopTimer() {
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+            }
+        }
+        
+        updateTimer() {
+            if (this.timeRemaining <= 0) {
+                // Time's up
+                this.stopTimer();
+                
+                // Show time's up message
+                this.gameOver = true;
+                this.showMessage(this.languages[this.currentLanguage].messages.timeUp + ' ' + this.currentWord, 'lose');
+                this.updateStats(false);
+                this.showLanguageToggle();
+                this.updateButtonText();
+                return;
+            }
+            
+            this.timeRemaining--;
+            
+            // Update timer display
+            const timerDisplay = document.getElementById('timer-display');
+            if (timerDisplay) {
+                // Format time as MM:SS
+                const minutes = Math.floor(this.timeRemaining / 60);
+                const seconds = this.timeRemaining % 60;
+                const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timerDisplay.textContent = formattedTime;
+                
+                // Add visual indication when time is running low
+                if (this.timeRemaining <= 10) {
+                    timerDisplay.style.color = '#3a7af5'; // Changed to blue
+                } else {
+                    timerDisplay.style.color = '';
+                }
+            }
         }
 
         loadStats() {
@@ -1133,8 +1588,9 @@
         }
 
         hideLanguageToggle() {
-            const toggle = document.querySelector('.language-toggle');
-            if (toggle) toggle.style.visibility = 'hidden';
+            // Hide the entire toggles container when game starts
+            const togglesContainer = document.querySelector('.toggles-container');
+            if (togglesContainer) togglesContainer.style.visibility = 'hidden';
             
             // Also hide word length selector when game starts
             const lengthSelector = document.querySelector('.word-length-selector');
@@ -1142,8 +1598,9 @@
         }
 
         showLanguageToggle() {
-            const toggle = document.querySelector('.language-toggle');
-            if (toggle) toggle.style.visibility = 'visible';
+            // Show the entire toggles container when game ends
+            const togglesContainer = document.querySelector('.toggles-container');
+            if (togglesContainer) togglesContainer.style.visibility = 'visible';
             
             // Also show word length selector when game ends
             const lengthSelector = document.querySelector('.word-length-selector');
@@ -1169,6 +1626,31 @@
             this.currentTile = 0;
             this.gameOver = false;
             this.gameStarted = false;
+            
+            // Stop any running timer
+            this.stopTimer();
+            
+            // Reset timer display
+            if (this.lightningMode) {
+                const timerDisplay = document.getElementById('timer-display');
+                if (timerDisplay) {
+                    // Format time as MM:SS
+                    timerDisplay.textContent = '00:60';
+                    timerDisplay.style.color = '';
+                }
+                
+                // Show timer container in lightning mode
+                const timerContainer = document.getElementById('timer-container');
+                if (timerContainer) {
+                    timerContainer.style.visibility = 'visible';
+                }
+            } else {
+                // Hide timer container in normal mode
+                const timerContainer = document.getElementById('timer-container');
+                if (timerContainer) {
+                    timerContainer.style.visibility = 'hidden';
+                }
+            }
             
             const tiles = document.querySelectorAll('.tile');
             for (let i = 0; i < tiles.length; i++) {
