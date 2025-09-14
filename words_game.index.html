@@ -3,1037 +3,2621 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Space Invaders</title>
+    <title>My Wordle Game</title>
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e);
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #121213;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 5px;
+            -webkit-user-select: none;
+            user-select: none;
             overflow-x: hidden;
         }
 
-        .game-container {
-            text-align: center;
-            max-width: 100vw;
-            padding: 10px;
-        }
-
-        .game-header {
-            margin-bottom: 20px;
-        }
-
-        .game-header h1 {
-            font-size: 2.5em;
-            text-shadow: 0 0 20px #00ff00;
-            margin-bottom: 15px;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 20px #00ff00; }
-            to { text-shadow: 0 0 30px #00ff00, 0 0 40px #00ff00; }
-        }
-
-        .score-board {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(0, 255, 0, 0.1);
-            padding: 10px;
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            margin: 0 auto;
-            max-width: 400px;
-        }
-
-        .score-board span {
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-
-        #gameCanvas {
-            display: block;
-            margin: 20px auto;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
-            max-width: 100%;
-            height: auto;
-        }
-
-        .game-controls {
-            margin-top: 20px;
-        }
-
-        .instructions {
-            background: rgba(0, 255, 0, 0.1);
-            padding: 15px;
-            border: 1px solid #00ff00;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        .container {
             max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
+            width: 100%;
+            padding: 0 5px;
         }
 
-        .instructions p {
-            margin: 5px 0;
-            font-size: 0.9em;
-        }
-
-        .mobile-controls {
-            display: none;
+        /* Toggles container */
+        .toggles-container {
+            display: flex;
+            flex-direction: row;
             justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
+            align-items: center;
+            margin: 8px 0 15px 0;
+            gap: 35px;
             flex-wrap: wrap;
         }
 
-        .control-btn {
-            background: linear-gradient(45deg, #00ff00, #00cc00);
-            border: none;
-            color: #000;
-            font-size: 2em;
-            font-weight: bold;
-            width: 80px;
-            height: 80px;
+        .language-toggle, .lightning-toggle {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .toggle-container {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #787c7e; /* Grey by default */
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        /* Different color for lightning toggle */
+        .lightning-slider {
+            background-color: #787c7e; /* Grey when inactive */
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
             border-radius: 50%;
-            cursor: pointer;
-            user-select: none;
-            touch-action: manipulation;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
         }
 
-        .control-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 10px rgba(0, 255, 0, 0.5);
+        /* Language toggle slider colors */
+        #language-toggle:checked + .toggle-slider {
+            background-color: #c9b458; /* Yellow for language toggle when active (Spanish) */
+        }
+        
+        #language-toggle:not(:checked) + .toggle-slider {
+            background-color: #6aaa64; /* Green for language toggle when inactive (English) */
+        }
+        
+        /* Lightning toggle slider colors */
+        #lightning-toggle:checked + .lightning-slider {
+            background-color: #6aaa64; /* Green when active */
+        }
+        
+        #lightning-toggle:not(:checked) + .lightning-slider {
+            background-color: #787c7e; /* Grey when inactive */
         }
 
-        .shoot-btn {
-            background: linear-gradient(45deg, #ff4444, #cc0000);
-            color: #fff;
-            width: 100px;
-            height: 100px;
-            font-size: 2.5em;
+        .toggle-input:checked + .toggle-slider:before {
+            transform: translateX(30px);
         }
 
-        .start-btn, .pause-btn {
-            background: linear-gradient(45deg, #00ff00, #00cc00);
-            border: 2px solid #00ff00;
-            color: #000;
-            font-size: 1.2em;
+        .language-label, .lightning-label {
+            font-size: 14px;
             font-weight: bold;
-            padding: 15px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .start-btn:hover, .pause-btn:hover {
-            background: linear-gradient(45deg, #00cc00, #009900);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .game-over {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            border: 3px solid #ff0000;
-            border-radius: 20px;
-            padding: 40px;
+            color: #787c7e; /* Default to grey */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 30px;
             text-align: center;
-            z-index: 1000;
-            color: #ff0000;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.3);
+            padding: 0 5px;
         }
 
-        .game-over h2 {
-            font-size: 2.5em;
+        .language-label.active {
+            color: #6aaa64; /* Green for active language */
+        }
+        
+        .lightning-label.active {
+            color: #6aaa64; /* Changed to green to match language toggle */
+        }
+        
+        /* Specific styling for language toggle labels */
+        #english-label, #spanish-label {
+            min-width: 25px;
+            margin: 0 2px;
+        }
+        
+        /* Specific colors for language labels */
+        #english-label.active {
+            color: #6aaa64; /* Green for active English */
+        }
+        
+        #spanish-label.active {
+            color: #c9b458; /* Yellow for active Spanish */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 5px;
+            position: relative; /* Added for server status positioning */
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 4px; /* Reduced from 8px to bring stats closer to title */
+            color: #121213;
+        }
+        
+        .server-status {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            padding: 2px 4px;
+            background-color: transparent;
+            border-radius: 50%;
+            cursor: help;
+            z-index: 100;
+        }
+        
+        .status-indicator {
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        .status-text {
+            font-weight: 500;
+            margin-left: 3px;
+            font-size: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px; /* Increased from 5px to add more space below the stats */
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #121213;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #787c7e;
+        }
+
+        .word-length-info {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #787c7e;
+            margin-bottom: 8px; /* Increased from 5px to provide more space */
+            margin-top: 2px; /* Added small top margin for better spacing */
+        }
+
+        .word-length-value {
+            color: #6aaa64; /* Green color to match active elements */
+            font-weight: bold;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 4px;
             margin-bottom: 20px;
-            text-shadow: 0 0 20px #ff0000;
-            animation: pulse 1s ease-in-out infinite;
+            padding: 5px;
+            justify-content: center;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .row {
+            display: grid;
+            gap: 4px;
+            justify-content: center;
         }
 
-        .game-over p {
-            font-size: 1.5em;
-            margin: 15px 0;
+        .tile {
+            width: 58px;
+            height: 58px;
+            border: 2px solid #d3d6da;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            color: #121213;
         }
 
-        .hidden {
-            display: none !important;
+        .tile.filled {
+            border-color: #878a8c;
         }
 
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            .game-header {
-                margin-bottom: 10px;
-            }
-            
-            .game-header h1 {
-                font-size: 2em;
-                margin-bottom: 10px;
-            }
-            
-            .score-board {
-                flex-direction: column;
-                gap: 5px;
-                max-width: 250px;
-                padding: 8px;
-            }
-            
-            .instructions {
-                font-size: 0.8em;
-                padding: 8px;
-                margin-bottom: 10px;
-            }
-            
-            .mobile-controls {
-                display: flex !important;
-                margin: 10px 0;
-            }
-            
-            .control-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5em;
-            }
-            
-            .shoot-btn {
-                width: 80px;
-                height: 80px;
-                font-size: 2em;
-            }
-            
-            .game-over {
-                width: 90%;
-                max-width: 400px;
-                padding: 20px;
-            }
-            
-            .game-over h2 {
-                font-size: 2em;
-            }
-            
-            .game-over p {
-                font-size: 1.2em;
-            }
-            
-            .game-controls {
-                margin-top: 10px;
-            }
-            
-            #gameCanvas {
-                margin: 10px auto;
-            }
+        .tile.correct {
+            background-color: #6aaa64;
+            border-color: #6aaa64;
+            color: #ffffff;
         }
 
+        .tile.present {
+            background-color: #c9b458;
+            border-color: #c9b458;
+            color: #ffffff;
+        }
+
+        .tile.absent {
+            background-color: #787c7e;
+            border-color: #787c7e;
+            color: #ffffff;
+        }
+
+        /* Dynamic tile sizing based on word length */
+        .row.length-5 { grid-template-columns: repeat(5, 1fr); }
+        .row.length-6 { grid-template-columns: repeat(6, 1fr); }
+        .row.length-7 { grid-template-columns: repeat(7, 1fr); }
+        .row.length-8 { grid-template-columns: repeat(8, 1fr); }
+        .row.length-9 { grid-template-columns: repeat(9, 1fr); }
+        .row.length-10 { grid-template-columns: repeat(10, 1fr); }
+
+        .row.length-6 .tile { width: 48px; height: 48px; font-size: 1.6rem; }
+        .row.length-7 .tile { width: 42px; height: 42px; font-size: 1.4rem; }
+        .row.length-8 .tile { width: 38px; height: 38px; font-size: 1.3rem; }
+        .row.length-9 .tile { width: 34px; height: 34px; font-size: 1.2rem; }
+        .row.length-10 .tile { width: 30px; height: 30px; font-size: 1.1rem; }
+                .keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 6px; /* Consistent gap for all rows */
+            margin-bottom: 0px; /* Removed bottom margin to bring the Enter button closer */
+            padding: 0 5px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 3px; /* Consistent horizontal gap between keys */
+            width: 100%;
+            margin-top: 0; /* Ensure no extra margin between rows */
+        }
+
+        .key {
+            padding: 12px 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: #d3d6da;
+            color: #121213;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+            flex: 1;
+            max-width: 40px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .key:hover {
+            background-color: #878a8c;
+            color: #ffffff;
+        }
+
+        .key:active {
+            background-color: #878a8c;
+            color: #ffffff;
+            transform: scale(0.95);
+        }
+
+        .key.wide {
+            flex: 1.5;
+            max-width: 65px;
+            font-size: 13px;
+        }
+
+        .key.correct {
+            background-color: #6aaa64;
+            color: #ffffff;
+        }
+
+        .key.present {
+            background-color: #c9b458;
+            color: #ffffff;
+        }
+
+        .key.absent {
+            background-color: #787c7e;
+            color: #ffffff;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+            min-height: 20px;
+            margin-top: 4px; /* Reduced from 8px to bring everything closer */
+            color: #121213;
+        }
+
+        .message.win {
+            color: #6aaa64;
+        }
+
+        .message.lose {
+            color: #f5793a;
+        }
+        
+        .message.invalid {
+            color: #d13438;  /* Red color for invalid word message */
+        }
+
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            visibility: hidden;
+        }
+
+        .timer-icon {
+            margin-right: 5px;
+            color: #121213; /* Black color for the "Time:" text */
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        #timer-display {
+            color: #6aaa64; /* Green color for the timer numbers */
+        }
+
+        /* Lightning toggle styling is now merged with language-toggle above */
+
+        /* Additional lightning-specific styles */
+        .lightning-label.active {
+            color: #6aaa64; /* Green like the language toggle */
+        }
+        
+        #normal-mode-label.active {
+            color: #121213; /* Black color for the active normal label */
+        }
+        
+        /* Lightning-specific styling */
+        #normal-mode-label {
+            width: 55px;
+            text-align: right;
+            display: inline-block;
+            padding-right: 10px; /* Add more space after "Normal" */
+            margin-right: 5px;
+            color: #787c7e; /* Default grey */
+        }
+        
+        #normal-mode-label.active {
+            color: #6aaa64; /* Green when active */
+        }
+        
+        #lightning-mode-label {
+            width: 30px; /* Wider to accommodate "60s" */
+            text-align: left;
+            display: inline-block;
+            padding-left: 2px;
+            font-size: 14px; /* Slightly smaller font for "60s" */
+            margin-left: 2px;
+        }
+
+        /* Styling for the lightning text "60s" */
+        .lightning-icon {
+            color: #787c7e; /* Default grey */
+            display: inline-block;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        #lightning-mode-label.active .lightning-icon {
+            color: #6aaa64; /* Green when active */
+            font-weight: bold;
+        }
+        
+        /* Specific styles moved to labels section above */
+
+        .new-game-btn {
+            display: block;
+            margin: 4px auto; /* Reduced from 8px to bring everything closer */
+            padding: 12px 18px;
+            background-color: #6aaa64;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+            touch-action: manipulation;
+        }
+
+        .new-game-btn:hover {
+            background-color: #5a9a54;
+        }
+
+        .new-game-btn:active {
+            background-color: #5a9a54;
+            transform: scale(0.95);
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #121213;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            top: 100%; /* Position directly below */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+            margin-top: 8px; /* Add some margin from the toggle */
+            pointer-events: none; /* Prevents the tooltip from interfering with layout */
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #121213 transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Mobile responsiveness */
         @media (max-width: 480px) {
-            .game-header h1 {
-                font-size: 1.5em;
-            }
+            .row.length-5 .tile { width: 48px; height: 48px; font-size: 1.4rem; }
+            .row.length-6 .tile { width: 40px; height: 40px; font-size: 1.3rem; }
+            .row.length-7 .tile { width: 35px; height: 35px; font-size: 1.2rem; }
+            .row.length-8 .tile { width: 32px; height: 32px; font-size: 1.1rem; }
+            .row.length-9 .tile { width: 28px; height: 28px; font-size: 1.0rem; }
+            .row.length-10 .tile { width: 25px; height: 25px; font-size: 0.9rem; }
             
-            .score-board span {
-                font-size: 0.9em;
-            }
-            
-            .control-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2em;
-            }
-            
-            .shoot-btn {
-                width: 70px;
-                height: 70px;
-                font-size: 1.8em;
-            }
-            
-            .start-btn, .pause-btn {
-                font-size: 1em;
-                padding: 12px 24px;
-            }
-        }
-
-        /* Landscape orientation on mobile */
-        @media (orientation: landscape) and (max-height: 500px) {
-            body {
-                align-items: flex-start;
-                padding-top: 10px;
-            }
-            
-            .game-container {
-                padding: 5px;
-            }
-            
-            .game-header {
-                margin-bottom: 5px;
-            }
-            
-            .game-header h1 {
-                font-size: 1.5em;
-                margin-bottom: 5px;
-            }
-            
-            .instructions {
-                padding: 5px;
-                margin-bottom: 5px;
-                font-size: 0.7em;
-            }
-            
-            .score-board {
+            /* Keep toggles side by side but adjust spacing for smaller screens */
+            .toggles-container {
                 flex-direction: row;
-                padding: 5px;
-                gap: 10px;
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
             }
             
-            .mobile-controls {
-                margin: 5px 0;
-            }
-            
-            .control-btn {
+            /* Make toggle labels more compact on mobile */
+            #normal-mode-label {
                 width: 45px;
-                height: 45px;
-                font-size: 1.2em;
+                padding-right: 5px;
             }
             
-            .shoot-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5em;
-            }
-            
-            #gameCanvas {
-                margin: 5px auto;
-            }
-            
-            .game-controls {
-                margin-top: 5px;
+            .language-label, .lightning-label {
+                font-size: 13px;
             }
         }
 
-        /* Touch device optimizations */
-        @media (hover: none) and (pointer: coarse) {
-            .start-btn:hover, .pause-btn:hover {
-                background: linear-gradient(45deg, #00ff00, #00cc00);
-                box-shadow: none;
-                transform: none;
-            }
-            
-            .start-btn:active, .pause-btn:active {
-                background: linear-gradient(45deg, #00cc00, #009900);
-                transform: scale(0.95);
-            }
+        .confirm-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+        .confirm-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .confirm-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #confirm-yes {
+            background-color: #6aaa64;
+            color: white;
+        }
+
+        #confirm-no {
+            background-color: #d3d6da;
+            color: #121213;
+        }
+        
+        /* Animation for invalid word */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(-5px); }
+            20% { transform: translateX(5px); }
+            30% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            60% { transform: translateX(5px); }
+            70% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            90% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="game-header">
-            <h1>Space Invaders</h1>
-            <div class="score-board">
-                <span id="score">Score: 0</span>
-                <span id="lives">Lives: 3</span>
-                <span id="level">Level: 1</span>
+    <div class="container">
+        <header>
+            <h1 id="game-title">My Wordle</h1>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="streak">0</div>
+                    <div class="stat-label" id="streak-label">Streak</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="played">0</div>
+                    <div class="stat-label" id="played-label">Played</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="win-rate">0%</div>
+                    <div class="stat-label" id="win-rate-label">Win Rate</div>
+                </div>
+                <div class="server-status" id="server-status" title="Dictionary server status">
+                    <span class="status-indicator" id="status-indicator">⚪</span>
+                    <span class="status-text" id="status-text">Offline</span>
+                </div>
             </div>
+            <div class="word-length-info" id="word-length-info"></div>
+        </header>
+
+        <!-- Timer Display -->
+        <div class="timer-container" id="timer-container">
+            <span class="timer-icon">Time:</span>
+            <span id="timer-display">00:60</span>
         </div>
         
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-        
-        <div class="game-controls">
-            <div class="instructions">
-                <p><strong>Desktop:</strong> Use arrow keys to move, spacebar to shoot</p>
-                <p><strong>Mobile:</strong> Touch left/right side to move, tap center to shoot</p>
+        <!-- Toggles Container -->
+        <div class="toggles-container">
+            <!-- Language Toggle -->
+            <div class="language-toggle">
+                <span class="language-label" id="english-label">EN</span>
+                <label class="toggle-container">
+                    <input type="checkbox" class="toggle-input" id="language-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="language-label" id="spanish-label">ES</span>
             </div>
-            
-            <div class="mobile-controls" id="mobileControls">
-                <button id="leftBtn" class="control-btn">◀</button>
-                <button id="shootBtn" class="control-btn shoot-btn">🚀</button>
-                <button id="rightBtn" class="control-btn">▶</button>
+
+            <!-- Lightning Round Toggle -->
+            <div class="lightning-toggle">
+                <span class="lightning-label" id="normal-mode-label">Normal</span>
+                <label class="toggle-container">
+                    <input type="checkbox" class="toggle-input" id="lightning-toggle">
+                    <span class="toggle-slider lightning-slider"></span>
+                </label>
+                <span class="lightning-label" id="lightning-mode-label"><span class="lightning-icon">60s</span></span>
             </div>
-            
-            <button id="startBtn" class="start-btn">Start Game</button>
-            <button id="pauseBtn" class="pause-btn" style="display: none;">Pause</button>
         </div>
+
+        <div class="game-board" id="game-board">
+            <!-- Game grid will be generated by JavaScript -->
+        </div>
+
+        <div class="keyboard" id="keyboard">
+            <!-- Keyboard will be generated by JavaScript -->
+        </div>
+
+        <div class="message" id="message"></div>
         
-        <div id="gameOver" class="game-over hidden">
-            <h2>Game Over!</h2>
-            <p>Final Score: <span id="finalScore">0</span></p>
-            <button id="restartBtn" class="start-btn">Play Again</button>
+        <button class="new-game-btn" id="new-game-btn">New Game</button>
+
+        <div id="confirm-dialog" class="confirm-dialog">
+            <div class="confirm-content">
+                <p id="confirm-message"></p>
+                <div class="confirm-buttons">
+                    <button id="confirm-yes">Yes</button>
+                    <button id="confirm-no">No</button>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <script>
-        // Sound Manager for Space Invaders
-        class SoundManager {
-            constructor() {
-                this.sounds = {};
-                this.audioContext = null;
-                this.enabled = true;
-                this.init();
-            }
+
+    <script src="common-5-letter-words.js"></script>
+    <script>    class WordleGame {
+        constructor() {
+            // Enable or disable debug logging
+            this.debugMode = false;
             
-            init() {
-                // Initialize Web Audio API
-                try {
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                } catch (e) {
-                    console.log('Web Audio API not supported');
-                    this.enabled = false;
+            // Set up languages object
+            this.languages = {
+                english: {
+                    name: 'English',
+                    words: {
+                        5: ['ABOUT', 'ABOVE', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN', 'AGENT', 'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE', 'ALLOW', 'ALONE', 'ALONG', 'ALTER', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART', 'APPLE', 'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ASIDE', 'ASSET', 'AVOID', 'AWAKE', 'AWARD', 'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BEACH', 'BEGAN', 'BEGIN', 'BENCH', 'BIRDS', 'BLACK', 'BLAME', 'BLANK', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD', 'BOOST', 'BOOTH', 'BOUND', 'BRAIN', 'BRAND', 'BRAVE', 'BREAD', 'BREAK', 'BREED', 'BRIEF', 'BRING', 'BROAD', 'BROKE', 'BROWN', 'BUILD', 'BURST', 'BUYER', 'CABLE', 'CARRY', 'CATCH', 'CAUSE', 'CHAIN', 'CHAIR', 'CHAOS', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHECK', 'CHEST', 'CHIEF', 'CHILD', 'CHINA', 'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR', 'CLICK', 'CLIMB', 'CLOCK', 'CLOSE', 'COAST', 'CORAL', 'COUNT', 'COURT', 'COVER', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM', 'CRIME', 'MAYBE', 
+                        'DANCE', 'DREAM', 'DRINK', 'DRIVE', 'EARTH', 'ENJOY', 'ENTER', 'FAITH', 'FAULT', 'FIELD', 'FIGHT', 'FINAL', 'FIRST', 'FLOOR', 'FOCUS', 'FORCE', 'FOUND', 'FRAME', 'FRESH', 'FRONT', 'FRUIT', 'GHOST', 'GIANT', 'GIVEN', 'GLASS', 'GRADE', 'GRAND', 'GRASS', 'GREAT', 'GREEN', 'GROUP', 'GUARD', 'GUESS', 'GUIDE', 'HAPPY', 'HEART', 'HEAVY', 'HELLO', 'HORSE', 'HOTEL', 'HOUSE', 'HUMAN', 'IDEAL', 'IMAGE', 'ISSUE', 'JUICE', 'KNIFE', 'KNOWN', 'LARGE', 'LAUGH', 'LEARN', 'LEVEL', 'LIGHT', 'LIMIT', 'LOCAL', 'LOGIC', 'LUCKY', 'LUNCH', 'MAGIC', 'MAJOR', 'METAL', 'MIGHT', 'MODEL', 'MONEY', 'MONTH', 'MOTOR', 'MOUSE', 'MOUTH', 'MOVIE', 'MUSIC', 'NIGHT', 'NOISE', 'NORTH', 'NOVEL', 'NURSE', 'OFFER', 'ORDER', 'OTHER', 'OWNER', 'PAINT', 'PAPER', 'PARTY', 'PEACE', 'PHONE', 'PHOTO', 'PIANO', 'PIECE', 'PILOT', 'PITCH', 'PLACE', 'PLANE', 'PLANT', 'PLATE', 'POINT', 'POUND', 'POWER', 'PRESS', 'PRICE', 'PRIDE', 'PRIZE', 'PROOF', 'PROUD', 'PROVE', 'QUEEN', 'QUICK', 'QUIET', 'QUITE', 'RADIO', 'RAISE', 'RANGE', 'RATIO', 'REACH', 'READY', 'RIGHT', 'RIVER', 'ROBOT', 'ROGER', 'ROMAN', 'ROUGH', 'ROUND', 'ROUTE', 'ROYAL', 'RUGBY', 'RURAL', 'SAINT', 'SALAD', 'SCALE', 'SCENE', 'SCOPE', 'SCORE', 'SENSE', 'SERVE', 'SEVEN', 'SHADE', 'SHAKE', 'SHALL', 'SHAPE', 'SHARE', 'SHARP', 'SHEEP', 'SHEER', 'SHEET', 'SHELF', 'SHELL', 'SHIFT', 'SHIRT', 'SHOCK', 'SHOOT', 'SHORE', 'SHORT', 'SHOWN', 'SIGHT', 'SILLY', 'SINCE', 'SKILL', 'SLEEP', 'SLICE', 'SLIDE', 'SMART', 'SMILE', 'SMOKE', 'SOLID', 'SOLVE', 'SORRY', 'SOUND', 'SOUTH', 'SPACE', 'SPARE', 'SPEAK', 'SPEED', 'SPEND', 'SPENT', 'SPICE', 'SPILL', 'SPORT', 'SPRAY', 'STAFF', 'STAGE', 'STAMP', 'STAND', 'STARS', 'START', 'STATE', 'STEAM', 'STEEL', 'STICK', 'STILL', 'STOCK', 'STONE', 'STORE', 'STORM', 'STORY', 'STRIP', 'STUDY', 'STUFF', 'STYLE', 'SUGAR', 'SUITE', 'SUPER', 'SWEET', 'SWING', 'SWORD', 'TABLE', 'TASTE', 'TEACH', 'THANK', 'THEIR', 'THEME', 'THERE', 'THESE', 'THICK', 'THING', 'THINK', 'THIRD', 'THOSE', 'THREE', 'THROW', 'TIGHT', 'TIMER', 'TIRED', 'TITLE', 'TODAY', 'TOPIC', 'TOTAL', 'TOUCH', 'TOUGH', 'TOWER', 'TRACK', 'TRADE', 'TRAIN', 'TREAT', 'TREND', 'TRIAL', 'TRICK', 'TRUCK', 'TRULY', 'TRUST', 'TRUTH', 'TWICE', 'UNDER', 'UNTIL', 'UPPER', 'UPSET', 'URBAN', 'USUAL', 'VALUE', 'VIDEO', 'VIRUS', 'VISIT', 'VITAL', 'VOICE', 'WASTE', 'WATCH', 'WATER', 'WHERE', 'WHICH', 'WHILE', 'WHITE', 'WHOLE', 'WHOSE', 'WOMAN', 'WOMEN', 'WORLD', 'WORRY', 'WORSE', 'WORST', 'WORTH', 'WOULD', 'WOUND', 'WRITE', 'WRONG', 'WROTE', 'YIELD', 'YOUNG', 'YOUTH', 'ZEBRA'],
+                        
+                        6: ['ACCEPT', 'ACCESS', 'ACROSS', 'ACTION', 'ACTIVE', 'ACTUAL', 'AFFECT', 'AFRAID', 'AGENCY', 'AMOUNT', 'ANIMAL', 'ANNUAL', 'ANSWER', 'ANYONE', 'APPEAR', 'AROUND', 'ARRIVE', 'ARTIST', 'ASSUME', 'ATTACK', 'AUTHOR', 'AUTUMN', 'AVENUE', 'BACKUP', 'BATTLE', 'BECAME', 'BECOME', 'BEFORE', 'BEHALF', 'BEHAVE', 'BELONG', 'BEYOND', 'BORDER', 'BOTTLE', 'BOTTOM', 'BRANCH', 'BREATH', 'BRIDGE', 'BRIGHT', 'BROKEN', 'BUDGET', 'BUTTON'],
+                        
+                        7: ['ABILITY', 'ADDRESS', 'ADVANCE', 'ADVISER', 'AGAINST', 'AIRPORT', 'ALCOHOL', 'ALREADY', 'AMAZING', 'ANCIENT', 'ANOTHER', 'ANXIETY', 'ANXIOUS', 'ANYBODY', 'ANYMORE', 'ARRANGE', 'BALANCE', 'CAPTAIN', 'CLIMATE', 'COMPANY', 'CONTROL', 'CURRENT', 'DIAMOND', 'DISCUSS', 'DYNAMIC', 'ELEMENT', 'EMERALD', 'EVENING', 'EXAMINE', 'FACTORY', 'FEELING', 'FREEDOM', 'GENERAL', 'HARMONY', 'HISTORY', 'IMAGINE', 'JOURNEY', 'JUSTICE', 'KINGDOM', 'LIBRARY']
+                    },
+                    keyboard: [
+                        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+                        ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+                    ],
+                    messages: {
+                        notEnoughLetters: 'Not enough letters',
+                        invalidWord: 'Not in word list. Try a dictionary word.',
+                        congratulations: 'Congratulations! 🎉',
+                        gameOver: 'Game Over! The word was',
+                        newGame: 'New Game',
+                        enter: 'Enter',
+                        finishGame: 'Finish your current game first!',
+                        startGame: 'Select your first word to begin the game.',
+                        timeUp: 'Time\'s up! The word was',
+                        switchLightningMode: 'Activate fast mode? You\'ll have 60 seconds to solve the word!',
+                        switchNormalMode: 'Switch to Normal Mode?',
+                        yes: 'Yes',
+                        no: 'No'
+                    },
+                    labels: {
+                        title: 'My Wordle',
+                        streak: 'Streak',
+                        played: 'Played',
+                        winRate: 'Win Rate',
+                        normal: 'Normal',
+                        lightning: 'Lightning',
+                        time: 'Time:'
+                    }
+                },
+                spanish: {
+                    name: 'Spanish',
+                    words: {
+                        5: ['ABAJO', 'ABEJA', 'ABRIR', 'ACEITE', 'ACERA', 'ACTOR', 'AGAVE', 'AGRIO', 'AGUA', 'AHORA', 'AJENA', 'ALBUM', 'ALDEA', 'ALMAS', 'ALTAR', 'AMADO', 'AMIGO', 'ANDEN', 'ANTES', 'ANUAL', 'AQUEL', 'ARENA', 'ARROZ', 'ASADO', 'ATLAS', 'BAILE', 'BANCO', 'BARCO', 'BASTA', 'BEBER', 'BELLO', 'BICHO', 'BLUSA', 'BOLSA', 'BOMBA', 'BRAVO', 'BREVE', 'BRISA', 'BRUJA', 'BUENO', 'BURRO', 'BUSCA', 'CABAL', 'CABRA', 'CACAO', 'CALMA', 'CALOR',
+                          'CAMPO', 'CANAL', 'CARNE', 'CARTA', 'CASAR', 'CASCO', 'CAVAR', 'CEBRA', 'CEDRO', 'CELDA', 'CENAR', 'CERCA', 'CERDO', 'CERRO', 'CESTA', 'CHICO', 'CHOZA', 'CIELO', 'CIFRA', 'CINCO', 'CINTA', 'CIRCO', 'CLARO', 'CLAVE', 'CLIMA', 'COBRA', 'COCINA', 'COCHE', 'COLOR', 'COMER', 'COMIDA', 'COMPRA', 'CONEJO', 'COPIA', 'CORAL', 'CORTE', 'COSTA', 'CREMA', 'CREER', 'CRUDO', 'CUADRO', 'CUARTO', 'CUBRIR', 'CUELLO', 'CUENTO', 'CUERDA', 'CUERPO', 'CUEVA', 'CULPA', 'CURSO', 'CURVA', 'DANZA', 'DATOS', 'DEBER', 'DÉBIL', 'DECIR', 'DEDO', 'DEJAR', 'DENTRO', 'DESEO', 'DIARIO', 'DIBUJO', 'DIENTE', 'DIETA', 'DOBLE', 'DOCENA', 'DOLOR', 'DOMINGO', 'DONDE', 'DORMIR', 'DROGA', 'DUCHA', 'DUEÑO', 'DULCE', 'DURAR', 'EDAD', 'EFECTO', 'EJERCE', 'ELECCIÓN', 'ELEGIR', 'EMAIL', 'EMPLEO', 'EMPRESA', 'ENERO', 'ENORME', 'ENTERO', 'ENTRAR', 'ENVIAR', 'EQUIPO', 'ERROR', 'ESCALA', 'ESCAPE', 'ESCENA', 'ESLABÓN', 'ESPACIO', 'ESPAÑA', 'ESPEJO', 'ESQUINA', 'ESTADO', 'ESTAR', 'ESTILO', 'ETAPA', 'EXAMEN', 'ÉXITO', 'FÁCIL', 'FALTA', 'FALTAR', 'FAMILIA', 'FAVOR', 'FECHA', 'FELIZ', 'FIBRA', 'FICHA', 'FIESTA', 'FIGURA', 'FILTRO', 'FIRMA', 'FÍSICO', 'FLAUTA', 'FLECHA', 'FLOR', 'FLUIR', 'FONDO', 'FORMA', 'FORO', 'FOSA', 'FOTO', 'FRACASO', 'FRESCO', 'FRÍO', 'FRUTA', 'FUEGO', 'FUENTE', 'FUERZA', 'FÚTBOL', 'GANAR', 'GARRA', 'GASTO', 'GATO', 'GEMIR', 'GENIAL', 'GENTE', 'GIRAR', 'GLOBO', 'GOLPE', 'GORDO', 'GORRA', 'GOTA', 'GRACIA', 'GRADO', 'GRANO', 'GRASA', 'GRIPE', 'GRITO', 'GRUPO', 'GUANTE', 'GUARDAR', 'GUERRA', 'GUÍA', 'GUSTAR', 'HABER', 'HACER', 'HACHA', 'HABLA', 'HACIA', 'HAMBRE', 'HARINA', 'HASTA', 'HECHO', 'HEMBRA', 'HERIDA', 'HERMANO', 'HÉROE', 'HIELO', 'HIERRO', 'HÍGADO', 'HIJO', 'HILO', 'HIMNO', 'HOJA', 'HOMBRE', 'HOMBRO', 'HORA', 'HORNO', 'HOTEL', 'HUESO', 'HUMANO', 'HUMO', 'HUNDIR', 'HUEVO', 'HUIR', 'HURTO', 'IDEAL', 'IGUAL', 'IMAGEN', 'IMITAR', 'IMPORTE', 'INCLUIR', 'INFIERNO', 'INFORME', 'INGENIO', 'INICIO', 'INSECTO', 'INSTANTE', 'INTERÉS', 'INVIERNO', 'ISLA', 'JARABE', 'JARDÍN', 'JARRA', 'JAULA', 'JEFE', 'JERINGA', 'JOVEN', 'JUEGO', 'JUGAR', 'JUICIO', 'JULIO', 'JUNIO', 'JUNTO', 'JURAR', 'JUSTO', 'LABIO', 'LABOR', 'LABRAR', 'LADERA', 'LADO', 'LADRÓN', 'LAGO', 'LAMER', 'LANZA', 'LÁPIZ', 'LARGO', 'LATA', 'LATIR', 'LAVAR', 'LECHE', 'LECTOR', 'LEER', 'LEGIÓN', 'LEJOS', 'LENGUA', 'LENTO', 'LEÑA', 'LETRA', 'LEVANTAR', 'LEVE', 'LIBRE', 'LIBRO', 'LICOR', 'LÍDER', 'LÍNEA', 'LISTA', 'LISTO', 'LITRO', 'LLAMA', 'LLAVE', 'LLEGAR', 'LLENAR', 'LLENO', 'LLORAR', 'LLOVER', 'LLUVIA', 'LOBO', 'LOCO', 'LOGRO', 'LOMO', 'LOTO', 'LUCHA', 'LUCIR', 'LUGAR', 'LUJO', 'LUNAR', 'LUNES', 'LUZ', 'MADRE', 'MADERA', 'MADRID', 'MAFIA', 'MAGIA', 'MAGO', 'MAÍZ', 'MALO', 'MAMÁ', 'MANCHA', 'MANDO', 'MANGO', 'MANÍA', 'MANO', 'MANTA', 'MAPA', 'MARCA', 'MARCO', 'MAREA', 'MARGEN', 'MARIDO', 'MÁRMOL', 'MARZO', 'MASA', 'MATAR', 'MATIZ', 'MATRIZ', 'MAYOR', 'MEDIA', 'MÉDICO', 'MEDIO', 'MEJOR', 'MEJORAR', 'MENOR', 'MENOS', 'MENTE', 'MENÚ', 'MEOLLO', 'MERCADO', 'MERMA', 'MESÓN', 'META', 'METER', 'METRO', 'MIEDO', 'MIEL', 'MIEMBRO', 'MIGA', 'MILAGRO', 'MILLÓN', 'MINA', 'MIRAR', 'MISIÓN', 'MITAD', 'MITO', 'MODA', 'MODELO', 'MOHO', 'MOJAR', 'MOLDE', 'MOLER', 'MORDER', 'MORENO', 'MORIR', 'MORRO', 'MORSA', 'MORTAL', 'MOSCA', 'MOSTRAR', 'MOTO', 'MOVER', 'MÓVIL', 'MUCHO', 'MUDO', 'MUERTE', 'MUJER', 'MULTA', 'MUNDO', 'MUÑECA', 'MURO', 'MUSEO', 'MUSGO', 'MÚSICA', 'MUSLO', 'MUTUO', 'NACER', 'NACIÓN', 'NADAR', 'NADIE', 'NARIZ', 'NARRAR', 'NAVE', 'NAVIDAD', 'NEBLINA', 'NECIO', 'NEGAR', 'NEGRO', 'NERVIO', 'NETO', 'NEUTRO', 'NIEVE', 'NIÑEZ', 'NIÑO', 'NIVEL', 'NOBLE', 'NOCHE', 'NOMBRE', 'NORMA', 'NORTE', 'NOTA', 'NOTAR', 'NOTICIA', 'NOVIO', 'NUBE', 'NUCA', 'NÚCLEO', 'NUDO', 'NUERA', 'NUEVO', 'NÚMERO', 'NUNCA', 'OBEDECER', 'OBJETO', 'OBRA', 'OCASO', 'OCÉANO', 'OCHO', 'OCIO', 'OCRE', 'OESTE', 'OFENSA', 'OFERTA', 'OFICIO', 'OÍDO', 'OJAL', 'OJEAR', 'OJERA', 'OLEADA', 'OLER', 'OLFATO', 'OLIVO', 'OLLA', 'OMITIR', 'ONCE', 'ONDA', 'OPACO', 'OPCIÓN', 'ÓPERA', 'OPINAR', 'OPTAR', 'ORDEN', 'OREJA', 'ÓRGANO', 'ORGULLO', 'ORIGEN', 'ORILLA', 'ORLA', 'ORO', 'ORQUESTA', 'ORTIGA', 'OSADO', 'OSCAR', 'OSEZNO', 'OSO', 'OTRA', 'OTORGAR', 'OTRO', 'OVEJA', 'ÓVULO', 'OXIDAR', 'ÓXIDO', 'OZONO', 'PACTO', 'PADRE', 'PAGAR', 'PÁGINA', 'PAGO', 'PAÍS', 'PAJA', 'PÁJARO', 'PALACIO', 'PALMA', 'PALOMA', 'PANEL', 'PÁNICO', 'PAPEL', 'PAPÁ', 'PARAR', 'PARCHE', 'PARED', 'PAREJA', 'PARTE', 'PASAR', 'PASEO', 'PASIÓN', 'PASTA', 'PATA', 'PATATA', 'PATRIA', 'PAUSA', 'PAUTA', 'PAVO', 'PAZ', 'PECHO', 'PEDAL', 'PEDIR', 'PEGAR', 'PELO', 'PENA', 'PENSAR', 'PEÓN', 'PEOR', 'PERCHA', 'PERDER', 'PEREZA', 'PERFIL', 'PERICO', 'PERLA', 'PERRO', 'PESADO', 'PESAR', 'PESCA', 'PÉTALO', 'PIANO', 'PICAR', 'PICO', 'PIE', 'PIEDRA', 'PIERNA', 'PIEZA', 'PILA', 'PILOTO', 'PIMIENTA', 'PINO', 'PINTAR', 'PINZA', 'PIOJO', 'PIPA', 'PIRATA', 'PISAR', 'PISTA', 'PISTO', 'PITÓN', 'PIZCA', 'PLACA', 'PLAN', 'PLANO', 'PLANTA', 'PLATA', 'PLÁTANO', 'PLATO', 'PLAYA', 'PLAZA', 'PLAZO', 'PLEGAR', 'PLENO', 'PLOMO', 'PLUMA', 'PLURAL', 'POBRE', 'POCO', 'PODER', 'POEMA', 'POESÍA', 'POETA', 'POLEN', 'POLICÍA', 'POLLO', 'POLVO', 'POMO', 'POMPA', 'PONER', 'PORCHE', 'PORTE', 'POSAR', 'POSEER', 'POSIBLE', 'POSTE', 'POTRO', 'PRADO', 'PRECIO', 'PREMIO', 'PRENSA', 'PRESA', 'PREVER', 'PRIMA', 'PRIMO', 'PRISA', 'PRISMA', 'PROBAR', 'PROCESO', 'PROEZA', 'PROPIO', 'PROSA', 'PUEBLO', 'PUEDE', 'PUENTE', 'PUERTA', 'PUERTO', 'PULGA', 'PULIR', 'PULMÓN', 'PULPO', 'PULSAR', 'PUNTA', 'PUNTO', 'PUÑAL', 'PUÑO', 'PUPILA', 'PUREZA', 'PURO', 'QUEJA', 'QUERER', 'QUESO', 'QUIETO', 'QUINCE', 'QUINTO', 'QUITAR', 'RABINO', 'RABIA', 'RABO', 'RACIÓN', 'RADAR', 'RADIO', 'RAÍZ', 'RAMA', 'RAMPA', 'RANA', 'RANGO', 'RAPAZ', 'RÁPIDO', 'RAPTO', 'RASGO', 'RASPA', 'RATO', 'RAYO', 'RAZÓN', 'REAL', 'REBOTE', 'RECIBO', 'RECTA', 'RECHAZO', 'RECIBIR', 'RECIO', 'RÉCORD', 'RECTA', 'REDIL', 'REDOR', 'REDUJO', 'REEMPLAZO', 'REFLEJAR', 'REFLEJOS', 'REFUGIO', 'REGALO', 'RÉGIMEN', 'REGIÓN', 'REGLA', 'REGRESO', 'REHÉN', 'REINA', 'REINO', 'RELATO', 'RELEVO', 'RELIEVE', 'RELOJ', 'REMAR', 'REMEDIO', 'REMESA', 'REMITIR', 'REMO', 'RENTA', 'REÑIR', 'REPARAR', 'REPARTO', 'REPETIR', 'REPOLLO', 'REPOSO', 'REPRIMIR', 'REPTIL', 'RESACA', 'RESCATE', 'RESINA', 'RESPETO', 'RESTO', 'RESUMEN', 'RETIRO', 'RETORNO', 'RETRATO', 'REUNIÓN', 'REUNIR', 'REVÉS', 'REVISTA', 'REVUELO', 'REZAR', 'RIBERA', 'RICO', 'RIESGO', 'RIFLE', 'RÍGIDO', 'RIGOR', 'RINCÓN', 'RIÑÓN', 'RITMO', 'RIVAL', 'ROBAR', 'ROBLE', 'ROBOT', 'ROCA', 'RODAR', 'RODEAR', 'RODEO', 'RODILLA', 'ROEDOR', 'ROGAR', 'ROJO', 'ROMBO', 'ROMPER', 'RONCAR', 'RONCO', 'RONDA', 'ROPA', 'ROPERO', 'ROSA', 'ROSCA', 'ROSTRO', 'ROTAR', 'RUBIO', 'RUBOR', 'RUBRO', 'RUDO', 'RUEDA', 'RUGIR', 'RUIDO', 'RUINA', 'RULETA', 'RUMBO', 'RUMOR', 'RURAL', 'RUSO', 'RÚSTICO', 'RUTINA', 'SÁBADO', 'SABER', 'SABIO', 'SABOR', 'SACAR', 'SACRO', 'SAGAZ', 'SAGRADO', 'SALA', 'SALDO', 'SALIDA', 'SALIR', 'SALMÓN', 'SALÓN', 'SALSA', 'SALTO', 'SALUD', 'SALUDO', 'SALVO', 'SAMBA', 'SANTO', 'SANAR', 'SANGRE', 'SANO', 'SECADO', 'SECAR', 'SECO', 'SECRETO', 'SECTOR', 'SECUELA', 'SEDAN', 'SEDE', 'SEGURO', 'SELLO', 'SELVA', 'SEMBRAR', 'SEMILLA', 'SENDA', 'SENTIDO', 'SENTIR', 'SEÑAL', 'SEÑOR', 'SEPARAR', 'SEPIA', 'SERIE', 'SERIO', 'SERMÓN', 'SERVIR', 'SESIÓN', 'SESO', 'SETENTA', 'SEXTO', 'SIDRA', 'SIEMPRE', 'SIENTO', 'SIERRA', 'SIESTA', 'SIGLO', 'SIGNO', 'SÍLABA', 'SILBAR', 'SILENCIO', 'SILLA', 'SIMBOLO', 'SIMIO', 'SIRENA', 'SIROPE', 'SITIO', 'SOBRE', 'SOCIAL', 'SOCIO', 'SODA', 'SOFÁ', 'SOLAR', 'SOLDADO', 'SOLEDAD', 'SÓLIDO', 'SOLITARIO', 'SOLO', 'SOLTAR', 'SOMBRA', 'SOMETER', 'SONAR', 'SONIDO', 'SONORO', 'SONRISA', 'SOÑAR', 'SOPLAR', 'SOPLO', 'SORDO', 'SORPRESA', 'SORTEO', 'SÓTANO', 'SUAVE', 'SUBIDA', 'SUBIR', 'SUBLIME', 'SUCESO', 'SUCIEDAD', 'SUCIO', 'SUDOR', 'SUELO', 'SUEÑO', 'SUERTE', 'SUFRIR', 'SUJETO', 'SUMAR', 'SUPERAR', 'SUPONER', 'SUR', 'SURCO', 'SURTIR', 'SUSPIRO', 'SUSTO', 'SUTIL', 'TABACO', 'TABLA', 'TABÚ', 'TACTO', 'TALLA', 'TALLO', 'TAMAÑO', 'TAMBOR', 'TAMPOCO', 'TANGO', 'TANTO', 'TAPA', 'TAPETE', 'TAPIZ', 'TARAR', 'TARDE', 'TAREA', 'TARIFA', 'TARJETA', 'TAROT', 'TARRO', 'TARTA', 'TATUAR', 'TAURO', 'TAZA', 'TEATRO', 'TECHO', 'TECLA', 'TEJADO', 'TEJER', 'TEJIDO', 'TELA', 'TELÉFONO', 'TEMA', 'TEMBLOR', 'TEMER', 'TEMOR', 'TEMPLO', 'TENAZ', 'TENDER', 'TENER', 'TENIS', 'TENSO', 'TENTAR', 'TERCER', 'TERESA', 'TERMAL', 'TERMO', 'TERNURA', 'TERROR', 'TERSO', 'TESIS', 'TESORO', 'TESTIGO', 'TEXTO', 'TIBIA', 'TIBIO', 'TIEMPO', 'TIENDA', 'TIERRA', 'TIGRE', 'TIJERA', 'TILDE', 'TIMBRE', 'TÍMIDO', 'TIMO', 'TINTA', 'TINTE', 'TÍPICO', 'TIPO', 'TIRAR', 'TIRÓN', 'TITÁN', 'TÍTULO', 'TOALLA', 'TOBILLO', 'TOCAR', 'TOCINO', 'TODOS', 'TOLDO', 'TOMAR', 'TONO', 'TONTO', 'TOPAR', 'TOPE', 'TÓPICO', 'TOQUE', 'TORERO', 'TORMENTA', 'TORNEO', 'TORNO', 'TORPE', 'TORRE', 'TORSO', 'TORTA', 'TORTUGA', 'TORTURA', 'TOTAL', 'TOSER', 'TOSTADA', 'TOSTAR', 'TOTAL', 'TÓTEM', 'TRABA', 'TRABAR', 'TRAER', 'TRÁFICO', 'TRAGO', 'TRAICIÓN', 'TRAJE', 'TRAMO', 'TRAMPA', 'TRANCE', 'TRATO', 'TRAUMA', 'TRAZAR', 'TRECE', 'TREGUA', 'TREINTA', 'TREN', 'TREPAR', 'TRES', 'TRIBAL', 'TRIBU', 'TRIGO', 'TRIPA', 'TRISTE', 'TROFEO', 'TRONO', 'TROPA', 'TROZO', 'TRUCHA', 'TRUENO', 'TRUFA', 'TUBA', 'TUBO', 'TUMBA', 'TUMOR', 'TÚNEL', 'TUPIDO', 'TURISMO', 'TURNO', 'TUTOR', 'UBICAR', 'ÚLTIMO', 'ULTRA', 'UMBRAL', 'UNIDAD', 'ÚNICO', 'UNIÓN', 'UNIR', 'URBANO', 'URBE', 'URGENTE', 'URNA', 'USADO', 'USAR', 'ÚTIL', 'UTOPÍA', 'VACA', 'VACÍO', 'VAGAR', 'VAGO', 'VAINA', 'VALE', 'VÁLIDO', 'VALLE', 'VALOR', 'VÁLVULA', 'VAMPIRO', 'VANO', 'VAPOR', 'VARIAR', 'VARÓN', 'VASO', 'VECINO', 'VECTOR', 'VEGA', 'VEGETAL', 'VEHÍCULO', 'VEINTE', 'VEJEZ', 'VELADA', 'VELAR', 'VELLO', 'VELOZ', 'VENA', 'VENCER', 'VENDA', 'VENENO', 'VENERAR', 'VENGAR', 'VENIR', 'VENTA', 'VENTAJA', 'VENTANA', 'VENTURA', 'VENUS', 'VERBO', 'VERDE', 'VEREDA', 'VERJA', 'VERSO', 'VERTER', 'VERÁS', 'VESTIR', 'VETAR', 'VIAJE', 'VIBRAR', 'VICIO', 'VÍCTIMA', 'VIDA', 'VÍDEO', 'VIDRIO', 'VIEJO', 'VIENTO', 'VIERNES', 'VIGOR', 'VILLA', 'VINAGRE', 'VINO', 'VIOLAR', 'VIOLÍN', 'VIRAL', 'VIRGEN', 'VIRTUD', 'VIRUS', 'VISOR', 'VISTA', 'VITAL', 'VIUDA', 'VIVAZ', 'VIVERO', 'VIVIR', 'VIVO', 'VOCAL', 'VODKA', 'VOLAR', 'VOLCÁN', 'VOLCAR', 'VOLTIO', 'VOLUMEN', 'VOLVER', 'VORAZ', 'VOTAR', 'VOTO', 'VUELCO', 'VUELO', 'VULGAR', 'YACER', 'YATE', 'YEGUA', 'YEMA', 'YERNO', 'YESO', 'YODO', 'YOGA', 'YOGUR', 'ZAFIRO', 'ZAFIRO', 'ZANJA', 'ZANAHORIA', 'ZANJA', 'ZAPATO', 'ZARPA', 'ZARZA', 'ZONA', 'ZORRO', 'ZUECO', 'ZUMO', 'ZURDO'],
+                        
+                        6: ['ACCION', 'ACEPTO', 'ACTIVO', 'ACTUAL', 'ADORAR', 'AGONIA', 'ALEGRE', 'ALGUNA', 'ALGUNO', 'ALMEJA', 'ALTURA', 'AMARGO', 'AMIGOS', 'AMPLIO', 'ANIMAL', 'AZUCAR', 'BAILAR', 'BIENIO', 'BOSQUE', 'BRUTAL', 'CIERTA', 'COCINA', 'COMIDA', 'CONTRA', 'CUBRIR', 'DEIDAD', 'DINERO', 'ELIXIR', 'ENIGMA', 'ENTRAR', 'ESPEJO', 'ESPOSA', 'EXACTO', 'FACETA', 'FAMOSO',
+                          'ABUELA', 'ACEITE', 'ACTRIZ', 'AGRADO', 'ALERTA', 'ALEGRE', 'AMIGAS', 'ANGULO', 'ANILLO', 'APAGAR', 'APOYAR', 'ARROYO', 'ATAQUE', 'ATENTO', 'AURORA', 'AVANCE', 'AYUDAR', 'BALCON', 'BARATO', 'BARRIO', 'BASICO', 'BATALLA', 'BELLEZA', 'BLANCO', 'BLOQUE', 'BOLIGRAFO', 'BOLSILLO', 'BONDAD', 'BORDE', 'BOSQUE', 'BOTON', 'BRILLO', 'BRONCE', 'BUSCAR', 'CABALLO', 'CABEZA', 'CADENA', 'CAFE', 'CAJA', 'CALCULO', 'CALLE', 'CALOR', 'CAMARA', 'CAMBIO', 'CAMINO', 'CAMION', 'CAMPO', 'CANAL', 'CANCION', 'CANTAR', 'CAPAZ', 'CARCEL', 'CARGA', 'CARNE', 'CARRIL', 'CARTA', 'CASAR', 'CASERO', 'CASINO', 'CAZAR', 'CENTRO', 'CERCA', 'CERRAR', 'CHALET', 'CHICA', 'CHICO', 'CHISTE', 'CIERTO', 'CIERRE', 'CINCO', 'CINE', 'CIRCULO', 'CIUDAD', 'CLARO', 'CLASE', 'CLAVE', 'CLIMA', 'COBRAR', 'COCHE', 'COCINA', 'CODIGO', 'COMER', 'COMIDA', 'COMPRA', 'COMUN', 'CONTRA', 'COPA', 'CORAZON', 'CORRER', 'CORTAR', 'CORTO', 'COSTA', 'CRECER', 'CREER', 'CRISIS', 'CRUCE', 'CUADRO', 'CUARTO', 'CUATRO', 'CUBRIR', 'CUENTA', 'CUERPO', 'CUMBRE', 'CUMPLIR', 'CURIOSO', 'CURSO', 'CURVA', 'DAMA', 'DANZA', 'DAÑAR', 'DEBER', 'DEBIL', 'DECADA', 'DECIR', 'DEDO', 'DEFENSA', 'DEJAR', 'DELANTE', 'DELGADO', 'DELITO', 'DEMANDA', 'DEMAS', 'DENTRO', 'DERECHA', 'DERROTA', 'DESASTRE', 'DESCANSO', 'DESEO', 'DIABLO', 'DIARIO', 'DIBUJO', 'DICTAR', 'DIENTE', 'DIETA', 'DIGITAL', 'DINERO', 'DIRECTO', 'DISCO', 'DISEÑO', 'DOBLAR', 'DOBLE', 'DOCTOR', 'DOLOR', 'DOMINGO', 'DOMINIO', 'DORADO', 'DORMIR', 'DOTAR', 'DRAGON', 'DUDA', 'DUELO', 'DUEÑA', 'DUEÑO', 'DULCE', 'DURAR', 'EDAD', 'EDITAR', 'EFECTO', 'EJERCER', 'ELEVAR', 'ELIMINAR', 'ELOGIO', 'EMBARAZO', 'EMITIR', 'EMOCION', 'EMPATE', 'EMPEZAR', 'EMPLEO', 'EMPRESA', 'ENCIMA', 'ENEMIGO', 'ENERO', 'ENFERMO', 'ENGAÑO', 'ENLACE', 'ENORME', 'ENSAYO', 'ENTRADA', 'ENVIAR', 'EPOCA', 'EQUIPO', 'ERROR', 'ESCALERA', 'ESCAPE', 'ESCENA', 'ESCOGER', 'ESCUELA', 'ESPACIO', 'ESPECIE', 'ESPEJO', 'ESQUEMA', 'ESTADO', 'ESTAR', 'ESTILO', 'ESTUDIO', 'ETAPA', 'ETERNO', 'EXCUSA', 'EXITO', 'EXTRA', 'FABRICA', 'FACIL', 'FACTOR', 'FALLAR', 'FALSO', 'FALTA', 'FAMILIA', 'FAMOSO', 'FASE', 'FAVOR', 'FECHA', 'FELIZ', 'FERIA', 'FIESTA', 'FIGURA', 'FILTRO', 'FINAL', 'FIRMA', 'FISCAL', 'FISICA', 'FLECHA', 'FLOR', 'FONDO', 'FORMA', 'FORMATO', 'FOTO', 'FRAGIL', 'FRANJA', 'FRASE', 'FRENTE', 'FRESCO', 'FRIO', 'FRUTA', 'FUEGO', 'FUENTE', 'FUERTE', 'FUERZA', 'FUNDA', 'FUSIL', 'FUTBOL', 'FUTURO', 'GANAR', 'GENERO', 'GENIAL', 'GENTE', 'GLOBAL', 'GLORIA', 'GOLPE', 'GORDO', 'GRADO', 'GRANDE', 'GRATIS', 'GRAVE', 'GRIEGO', 'GRIFO', 'GRIPE', 'GRITO', 'GRUESO', 'GRUPO', 'GUANTE', 'GUARDAR', 'GUERRA', 'GUIA', 'GUION', 'GUSTO', 'HABER', 'HABLAR', 'HACER', 'HACIA', 'HAMBRE', 'HAZAÑA', 'HEROE', 'HIERRO', 'HIGADO', 'HIJA', 'HIJO', 'HILAR', 'HILO', 'HOGAR', 'HOMBRE', 'HOMBRO', 'HONESTO', 'HONOR', 'HONRAR', 'HORA', 'HORROR', 'HOTEL', 'HUELGA', 'HUERTO', 'HUESO', 'HUMANO', 'HUMEDO', 'HUMILDE', 'HUMOR', 'HUNDIR', 'HUMO', 'HUNDIR', 'HURTO', 'IDEAL', 'IDIOMA', 'IGLESIA', 'IGUAL', 'IMAGEN', 'IMITAR', 'IMPACTO', 'IMPERIO', 'IMPONER', 'INCLUIR', 'INDICE', 'INFORME', 'INGENIO', 'INICIO', 'INMORTAL', 'INMUNE', 'INNATO', 'INSECTO', 'INSTANTE', 'INTERES', 'INTERNO', 'INTIMO', 'INTUIR', 'INUTIL', 'INVADIR', 'INVERSO', 'INVITAR', 'INYECTAR', 'ISLA', 'JARABE', 'JARDIN', 'JARRA', 'JAVIER', 'JEFE', 'JOVEN', 'JOYA', 'JUEVES', 'JUGAR', 'JUICIO', 'JUNIO', 'JUNTA', 'JUNTO', 'JURADO', 'JURAR', 'JUSTICIA', 'JUZGAR', 'KILO', 'LABIO', 'LABOR', 'LABRAR', 'LACTEO', 'LADO', 'LADRON', 'LAGUNA', 'LAMER', 'LANZA', 'LAPIZ', 'LARGO', 'LATIR', 'LAUREL', 'LAVAR', 'LECHE', 'LECTOR', 'LEER', 'LEGAL', 'LEGION', 'LEJANO', 'LEJOS', 'LENGUA', 'LENTO', 'LEÑA', 'LETRA', 'LEVE', 'LEYENDA', 'LIBAR', 'LIBRE', 'LIBRO', 'LICOR', 'LIDIAR', 'LIENZO', 'LIGAR', 'LIGERO', 'LIMA', 'LIMITE', 'LIMPIO', 'LINCE', 'LINDO', 'LINEA', 'LIQUIDO', 'LIRIO', 'LISTO', 'LITRO', 'LLAGA', 'LLAMA', 'LLAVE', 'LLEGAR', 'LLENAR', 'LLORAR', 'LLOVER', 'LLUVIA', 'LOBO', 'LOCO', 'LOGICA', 'LOGRAR', 'LOGRO', 'LONA', 'LUCHA', 'LUCIR', 'LUGAR', 'LUJO', 'LUNES', 'LUSTRO', 'LUZ', 'MADERA', 'MADRE', 'MADURAR', 'MAESTRA', 'MAESTRO', 'MAGIA', 'MAGICO', 'MALETA', 'MALO', 'MAMA', 'MAMIFERO', 'MANCHA', 'MANDAR', 'MANDO', 'MANERA', 'MANGA', 'MANGO', 'MANIA', 'MANO', 'MANSO', 'MANTA', 'MAÑANA', 'MAPA', 'MAQUINA', 'MARCA', 'MARCAR', 'MARCHA', 'MARGEN', 'MARIDO', 'MARINO', 'MARMOL', 'MARTES', 'MARTIR', 'MARZO', 'MASA', 'MASCAR', 'MASCOTA', 'MATERIA', 'MATRIZ', 'MAXIMO', 'MAYOR', 'MEDIA', 'MEDIANO', 'MEDICO', 'MEDIDA', 'MEDIO', 'MEJOR', 'MEMORIA', 'MENOR', 'MENOS', 'MENTIR', 'MENU', 'MERCADO', 'MERECER', 'MERITO', 'MESON', 'METAL', 'METODO', 'METRO', 'MEZCLA', 'MIEDO', 'MIEMBRO', 'MIERDA', 'MILAGRO', 'MILITAR', 'MIMBRE', 'MINAR', 'MINERIA', 'MINIMO', 'MINUTO', 'MIRADA', 'MIRAR', 'MISA', 'MISERIA', 'MISMO', 'MITAD', 'MITO', 'MIXTO', 'MODA', 'MODELO', 'MODERNO', 'MODESTO', 'MODULO', 'MOJAR', 'MOLDE', 'MOLER', 'MOLESTAR', 'MOLINO', 'MOMENTO', 'MONEDA', 'MONJE', 'MONTAR', 'MORAL', 'MORDER', 'MORIR', 'MORTAL', 'MOSCA', 'MOSTRAR', 'MOTIVO', 'MOTOR', 'MOVER', 'MOVIL', 'MUCHACHA', 'MUCHACHO', 'MUCHO', 'MUEBLE', 'MUERTE', 'MUERTO', 'MUESTRA', 'MUJER', 'MULTA', 'MUNDO', 'MUÑECA', 'MURAL', 'MURO', 'MUSCULO', 'MUSEO', 'MUSICA', 'MUSLO', 'NACER', 'NACION', 'NADAR', 'NADIE', 'NARIZ', 'NARRAR', 'NATURAL', 'NAUFRAGO', 'NAVAJA', 'NAVE', 'NAVIDAD', 'NEGAR', 'NEGOCIO', 'NEGRO', 'NERVIO', 'NEUTRO', 'NEVAR', 'NIDO', 'NIEBLA', 'NIEVE', 'NINGUNO', 'NIÑA', 'NIÑO', 'NIVEL', 'NOBLE', 'NOCHE', 'NOMBRE', 'NORMA', 'NORMAL', 'NORTE', 'NOTA', 'NOTICIA', 'NOVEDAD', 'NOVELA', 'NOVENO', 'NOVIA', 'NOVIO', 'NUBE', 'NUCLEO', 'NUDO', 'NUERA', 'NUEVE', 'NUEVO', 'NUMERO', 'NUNCA', 'NUTRITIVO', 'OBISPO', 'OBJETO', 'OBRA', 'OBRERO', 'OBSERVAR', 'OBTENER', 'OBVIO', 'OCASION', 'OCEANO', 'OCHENTA', 'OCHO', 'OCIO', 'OCTUBRE', 'OCULAR', 'OCUPAR', 'OCURRIR', 'ODIAR', 'OESTE', 'OFENDER', 'OFERTA', 'OFICIO', 'OFRECER', 'OIDO', 'OIRTE', 'OJALA', 'OLEADA', 'OLER', 'OLIMPICO', 'OLIVA', 'OLLA', 'OMITIR', 'ONCE', 'ONZA', 'OPACO', 'OPCION', 'OPERAR', 'OPINAR', 'OPONER', 'OPTAR', 'OPTIMO', 'ORDEN', 'OREJA', 'ORGANO', 'ORGASMO', 'ORGULLO', 'ORIGEN', 'ORILLA', 'ORO', 'ORQUESTA', 'OSADIA', 'OSCURO', 'OSEAR', 'OTOÑO', 'OTRO', 'OVEJA', 'OXIDO', 'OXIGENO', 'OZON', 'PACTO', 'PADRE', 'PAGAR', 'PAGINA', 'PALABRA', 'PALACIO', 'PALANCA', 'PALMA', 'PALMERA', 'PALOMA', 'PALO', 'PALPAR', 'PANAL', 'PANCARTA', 'PANES', 'PAÑAL', 'PANICO', 'PANTALLA', 'PANZA', 'PAPEL', 'PAPILLA', 'PAQUETE', 'PARAR', 'PARCELA', 'PARED', 'PAREJA', 'PARQUE', 'PARTIR', 'PASADO', 'PASAJE', 'PASAR', 'PASCUA', 'PASEO', 'PASILLO', 'PASO', 'PASTA', 'PASTOR', 'PATA', 'PATADA', 'PATATA', 'PATENTE', 'PATRIA', 'PAUSA', 'PAVO', 'PAYASO', 'PEATON', 'PECAR', 'PECHO', 'PEDAL', 'PEDIR', 'PEGAR', 'PEINE', 'PELEA', 'PELIGRO', 'PELO', 'PELOTA', 'PENA', 'PENSAR', 'PEOR', 'PEPINO', 'PEQUEÑO', 'PERA', 'PERCHA', 'PERDER', 'PERDON', 'PEREZA', 'PERFIL', 'PERICO', 'PERLA', 'PERMISO', 'PERMITIR', 'PERO', 'PERRO', 'PERSONA', 'PESAR', 'PESCADO', 'PESO', 'PESTE', 'PETO'],
+                        
+                        7: ['ACABADO', 'ACTITUD', 'AGUACATE', 'ALABANZA', 'ALCANZAR', 'ACERTIJO', 'ALBACEA', 'ARMONIA', 'BAILADOR', 'BANDERA', 'BELLEZA', 'CARICIA', 'CASTIGO', 'CEREBRO', 'CIENCIA', 'COCINAR', 'CORAZON', 'CULTURA', 'DEPORTE', 'DESTINO', 'DIGNIDAD', 'DIRECTO', 'DIVAGAR', 'ECLIPSE', 'ELEGIDO', 'ENIGMAS', 'ESCUELA', 'ESPACIO', 'FAMILIA', 'FELICES', 'FORTUNA']
+                    },
+                    keyboard: [
+                        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
+                        ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+                    ],
+                    messages: {
+                        notEnoughLetters: 'No hay suficientes letras',
+                        invalidWord: 'No está en la lista de palabras. Intenta con una palabra del diccionario.',
+                        congratulations: '¡Felicitaciones! 🎉',
+                        gameOver: '¡Juego terminado! La palabra era',
+                        newGame: 'Nuevo Juego',
+                        enter: 'Enviar',
+                        finishGame: '¡Termina tu juego actual primero!',
+                        startGame: 'Selecciona tu primera palabra para comenzar el juego.',
+                        timeUp: '¡Se acabó el tiempo! La palabra era',
+                        switchLightningMode: '¿Activar modo rápido? ¡Tendrás 60 segundos para resolver la palabra!',
+                        switchNormalMode: '¿Cambiar al modo Normal?',
+                        yes: 'Sí',
+                        no: 'No'
+                    },
+                    labels: {
+                        title: 'Mi Wordle',
+                        streak: 'Racha',
+                        played: 'Jugados',
+                        winRate: '% Ganados',
+                        normal: 'Normal',
+                        lightning: 'Relámpago',
+                        time: 'Tiempo:'
+                    }
+                }
+            };
+
+            // Validate word lists
+            this.validateWordLists();
+            
+            // Add this line to verify word lengths at startup
+            this.verifyAllWordLengths();
+            
+            // Load previously selected language from local storage
+            this.currentLanguage = localStorage.getItem('selectedLanguage') || 'english';
+            
+            this.usedWords = this.loadUsedWords();
+            this.selectedWordLength = 5; // Default to 5 letter words
+            
+            this.currentWord = '';
+            this.currentRow = 0;
+            this.currentTile = 0;
+            this.gameOver = false;
+            this.gameStarted = false;
+            this.messageTimeout = null;
+            this.isShowingInvalidWordMessage = false;
+            this.isSubmitting = false; // Flag to prevent multiple submit attempts
+            this.statusCompactTimeout = null; // For server status indicator timing
+            this.lastStatusClick = 0; // For detecting double-clicks on server status
+            
+            // Lightning round properties
+            this.lightningMode = localStorage.getItem('lightningMode') === 'true';
+            this.timeRemaining = 60; // 60 seconds for lightning round
+            this.timerInterval = null;
+            
+            // Clean up any existing word length selectors (in case of previous instances)
+            const existingSelectors = document.querySelectorAll('.word-length-selector');
+            existingSelectors.forEach(selector => selector.remove());
+            
+            // Initialize game after checking for saved state
+            this.initializeGame();
+            this.loadStats();
+            this.setupLanguageToggle();
+            this.setupLightningToggle(); // Setup lightning round toggle
+            this.updateLanguageLabels(); // Ensure labels are set up with correct active state
+            // No need to call updateLightningLabels explicitly as it's called within setupLightningToggle
+            this.updateButtonText(); // Set button text at initialization
+            
+            // Try to load saved game state after everything else is initialized
+            this.loadGameState();
+        }
+
+        loadUsedWords() {
+            // This needs to return a map of word length -> used words arrays
+            const key = `usedWords_${this.currentLanguage}`;
+            return JSON.parse(localStorage.getItem(key)) || {};
+        }
+
+        initializeGame() {
+            this.selectedWordLength = this.getDefaultWordLength();
+            
+            // Debug the available word lengths
+            console.log('=== AVAILABLE WORD LENGTHS ===');
+            for (const language of Object.keys(this.languages)) {
+                const wordsByLength = this.languages[language].words;
+                const availableLengths = Object.keys(wordsByLength).sort();
+                console.log(`${language}: ${availableLengths.join(', ')} letter words`);
+                
+                // Log the number of words in each length category
+                for (const length of availableLengths) {
+                    const count = wordsByLength[length].length;
+                    console.log(`  ${length}-letter ${language} words: ${count}`);
+                }
+            }
+            console.log('===============================');
+            
+            this.createGameBoard();
+            this.createKeyboard();
+            this.setupEventListeners();
+            
+            // Check dictionary server status when the game starts
+            this.checkServerStatus();
+            this.setupWordLengthSelector();
+        }
+
+        getDefaultWordLength() {
+            // Default to 5 or the smallest available word
+            const availableLengths = Object.keys(this.languages[this.currentLanguage].words)
+                .map(Number)
+                .sort((a, b) => a - b);
+            
+            return availableLengths.includes(5) ? 5 : availableLengths[0] || 5;
+        }
+
+        setupLanguageToggle() {
+            const toggle = document.getElementById('language-toggle');
+            if (!toggle) return;
+            
+            // Set initial toggle state based on current language
+            toggle.checked = this.currentLanguage === 'spanish';
+            
+            // Make sure we apply the correct styling on initialization
+            this.updateLanguageLabels();
+            
+            toggle.addEventListener('change', (e) => {
+                // Get the desired language based on the toggle state
+                const newLanguage = toggle.checked ? 'spanish' : 'english';
+                const currentLanguage = this.currentLanguage;
+                
+                // Don't allow switching if game is in progress
+                if (this.gameStarted && !this.gameOver) {
+                    toggle.checked = this.currentLanguage === 'spanish';
+                    this.showMessage(this.languages[this.currentLanguage].messages.finishGame, 'lose');
                     return;
                 }
                 
-                // Create sound effects using oscillators
-                this.createSounds();
+                // Show custom confirmation dialog
+                const confirmDialog = document.getElementById('confirm-dialog');
+                const confirmMessage = document.getElementById('confirm-message');
+                const confirmYes = document.getElementById('confirm-yes');
+                const confirmNo = document.getElementById('confirm-no');
+                
+                // Set the confirmation message
+                confirmMessage.textContent = `Switch language to ${newLanguage === 'spanish' ? 'Spanish' : 'English'}?`;
+                
+                // Show the dialog
+                confirmDialog.style.display = 'flex';
+                
+                // Handle confirmation
+                const handleYes = () => {
+                    toggle.checked = newLanguage === 'spanish';
+                    this.currentLanguage = newLanguage;
+                    
+                    // Save language preference
+                    localStorage.setItem('selectedLanguage', newLanguage);
+                    
+                    this.usedWords = this.loadUsedWords();
+                    
+                    this.clearMessage();
+                    this.updateLanguageLabels();
+                    this.updateLightningTooltip(); // Update tooltip text when language changes
+                    this.createKeyboard();
+                    this.loadStats();
+                    this.updateWordLengthInfo();
+                    this.updateButtonText();
+                    // Update dictionary server status for the new language
+                    this.checkServerStatus();
+                    this.newGame();
+                    
+                    confirmDialog.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                };
+                
+                // Handle cancellation
+                const handleNo = () => {
+                    toggle.checked = currentLanguage === 'spanish';
+                    confirmDialog.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                };
+                
+                confirmYes.addEventListener('click', handleYes);
+                confirmNo.addEventListener('click', handleNo);
+            });
+            
+            this.updateLanguageLabels();
+        }
+
+        setupLightningToggle() {
+            const toggle = document.getElementById('lightning-toggle');
+            if (!toggle) return;
+            
+            // Set initial toggle state
+            toggle.checked = this.lightningMode;
+            
+            // Initialize the timer container visibility based on lightning mode
+            const timerContainer = document.getElementById('timer-container');
+            if (timerContainer) {
+                timerContainer.style.visibility = this.lightningMode ? 'visible' : 'hidden';
             }
             
-            createSounds() {
-                // Shoot sound
-                this.sounds.shoot = () => this.createTone(800, 0.1, 'square');
-                
-                // Explosion sound
-                this.sounds.explosion = () => this.createNoise(0.3);
-                
-                // Alien hit sound
-                this.sounds.alienHit = () => this.createTone(400, 0.2, 'sawtooth');
-                
-                // Game over sound
-                this.sounds.gameOver = () => this.createGameOverSound();
-                
-                // Level complete sound
-                this.sounds.levelComplete = () => this.createLevelCompleteSound();
-            }
+            // Update label states
+            this.updateLightningLabels();
             
-            createTone(frequency, duration, type = 'sine') {
-                if (!this.enabled || !this.audioContext) return;
-                
-                const oscillator = this.audioContext.createOscillator();
-                const gainNode = this.audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(this.audioContext.destination);
-                
-                oscillator.type = type;
-                oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-                
-                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
-                
-                oscillator.start(this.audioContext.currentTime);
-                oscillator.stop(this.audioContext.currentTime + duration);
-            }
+            // Update tooltip text based on language
+            this.updateLightningTooltip();
             
-            createNoise(duration) {
-                if (!this.enabled || !this.audioContext) return;
-                
-                const bufferSize = this.audioContext.sampleRate * duration;
-                const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-                const output = buffer.getChannelData(0);
-                
-                for (let i = 0; i < bufferSize; i++) {
-                    output[i] = Math.random() * 2 - 1;
+            toggle.addEventListener('change', (e) => {
+                // Prevent switching if game is in progress
+                if (this.gameStarted && !this.gameOver) {
+                    toggle.checked = this.lightningMode;
+                    this.showMessage(this.languages[this.currentLanguage].messages.finishGame, 'lose');
+                    return;
                 }
                 
-                const source = this.audioContext.createBufferSource();
-                const gainNode = this.audioContext.createGain();
+                const newLightningMode = toggle.checked;
+                const currentLightningMode = this.lightningMode;
                 
-                source.buffer = buffer;
-                source.connect(gainNode);
-                gainNode.connect(this.audioContext.destination);
+                // Show custom confirmation dialog
+                const confirmDialog = document.getElementById('confirm-dialog');
+                const confirmMessage = document.getElementById('confirm-message');
+                const confirmYes = document.getElementById('confirm-yes');
+                const confirmNo = document.getElementById('confirm-no');
                 
-                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                // Set the confirmation message based on the new mode
+                const messages = this.languages[this.currentLanguage].messages;
+                confirmMessage.textContent = newLightningMode ? messages.switchLightningMode : messages.switchNormalMode;
                 
-                source.start(this.audioContext.currentTime);
-            }
+                // Set button text in correct language
+                confirmYes.textContent = messages.yes;
+                confirmNo.textContent = messages.no;
+                
+                // Show the dialog
+                confirmDialog.style.display = 'flex';
+                
+                // Handle confirmation
+                const handleYes = () => {
+                    toggle.checked = newLightningMode;
+                    this.lightningMode = newLightningMode;
+                    this.updateLightningLabels();
+                    
+                    // Save lightning mode preference
+                    localStorage.setItem('lightningMode', this.lightningMode);
+                    
+                    // Reset timer display visibility
+                    const timerContainer = document.getElementById('timer-container');
+                    if (timerContainer) {
+                        timerContainer.style.visibility = this.lightningMode ? 'visible' : 'hidden';
+                    }
+                    
+                    // Reset timer display
+                    const timerDisplay = document.getElementById('timer-display');
+                    if (timerDisplay) {
+                        timerDisplay.textContent = '00:60';
+                    }
+                    
+                    // Reset the game when toggling lightning mode
+                    this.newGame();
+                    
+                    confirmDialog.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                };
+                
+                // Handle cancellation
+                const handleNo = () => {
+                    toggle.checked = currentLightningMode;
+                    confirmDialog.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                };
+                
+                confirmYes.addEventListener('click', handleYes);
+                confirmNo.addEventListener('click', handleNo);
+            });
+        }
+        
+        updateLightningLabels() {
+            const normalLabel = document.getElementById('normal-mode-label');
+            const lightningLabel = document.getElementById('lightning-mode-label');
+            const lightningIcon = lightningLabel ? lightningLabel.querySelector('.lightning-icon') : null;
             
-            createGameOverSound() {
-                if (!this.enabled || !this.audioContext) return;
-                
-                // Descending tone sequence
-                const frequencies = [400, 350, 300, 250, 200];
-                frequencies.forEach((freq, index) => {
-                    setTimeout(() => {
-                        this.createTone(freq, 0.5, 'sawtooth');
-                    }, index * 200);
-                });
+            if (normalLabel && lightningLabel) {
+                if (this.lightningMode) {
+                    // Lightning mode is active
+                    normalLabel.classList.remove('active');
+                    lightningLabel.classList.add('active');
+                    // Explicitly set the colors for clarity
+                    normalLabel.style.color = '#787c7e'; // Grey
+                    
+                    // Apply style directly to the lightning icon
+                    if (lightningIcon) {
+                        lightningIcon.style.color = '#6aaa64'; // Green
+                    }
+                } else {
+                    // Normal mode is active
+                    normalLabel.classList.add('active');
+                    lightningLabel.classList.remove('active');
+                    // Explicitly set the colors for clarity
+                    normalLabel.style.color = '#6aaa64'; // Green
+                    
+                    // Apply style directly to the lightning icon
+                    if (lightningIcon) {
+                        lightningIcon.style.color = '#787c7e'; // Grey
+                    }
+                }
             }
+        }
+        
+        updateLightningTooltip() {
+            // Function is kept but does nothing to avoid breaking references to it
+            // Tooltip has been removed from the UI
+        }
+
+        updateLanguageLabels() {
+            const englishLabel = document.getElementById('english-label');
+            const spanishLabel = document.getElementById('spanish-label');
+            const gameTitle = document.getElementById('game-title');
+            const streakLabel = document.getElementById('streak-label');
+            const playedLabel = document.getElementById('played-label');
+            const winRateLabel = document.getElementById('win-rate-label');
+            const normalModeLabel = document.getElementById('normal-mode-label');
             
-            createLevelCompleteSound() {
-                if (!this.enabled || !this.audioContext) return;
-                
-                // Ascending tone sequence
-                const frequencies = [400, 500, 600, 800];
-                frequencies.forEach((freq, index) => {
-                    setTimeout(() => {
-                        this.createTone(freq, 0.3, 'sine');
-                    }, index * 150);
-                });
-            }
+            const labels = this.languages[this.currentLanguage].labels;
             
-            play(soundName) {
-                if (this.sounds[soundName]) {
-                    this.sounds[soundName]();
+            if (this.currentLanguage === 'english') {
+                if (englishLabel) {
+                    englishLabel.classList.add('active');
+                    englishLabel.style.color = '#6aaa64'; // Green for active English
+                }
+                if (spanishLabel) {
+                    spanishLabel.classList.remove('active');
+                    spanishLabel.style.color = '#787c7e'; // Grey for inactive Spanish
+                }
+            } else {
+                if (englishLabel) {
+                    englishLabel.classList.remove('active');
+                    englishLabel.style.color = '#787c7e'; // Grey for inactive English
+                }
+                if (spanishLabel) {
+                    spanishLabel.classList.add('active');
+                    spanishLabel.style.color = '#c9b458'; // Yellow for active Spanish
                 }
             }
             
-            toggle() {
-                this.enabled = !this.enabled;
-                return this.enabled;
+            // Update lightning toggle labels based on language
+            if (normalModeLabel) normalModeLabel.textContent = labels.normal;
+            if (gameTitle) gameTitle.textContent = labels.title;
+            if (streakLabel) streakLabel.textContent = labels.streak;
+            if (playedLabel) playedLabel.textContent = labels.played;
+            if (winRateLabel) winRateLabel.textContent = labels.winRate;
+            
+            // Update lightning label
+            const lightningLabel = document.getElementById('lightning-mode-label');
+            if (lightningLabel) {
+                lightningLabel.innerHTML = '<span class="lightning-icon">60s</span>';
+            }
+            
+            // Update lightning tooltip text based on language
+            this.updateLightningTooltip();
+            
+            // Update the timer icon text based on language
+            const timerIcon = document.querySelector('.timer-icon');
+            if (timerIcon) {
+                timerIcon.textContent = labels.time;
+            }
+            
+            // Call updateButtonText which will set the appropriate text based on game state
+            this.updateButtonText();
+        }
+
+        setupWordLengthSelector() {
+            // Check if the selector already exists
+            const existingSelector = document.querySelector('.word-length-selector');
+            if (existingSelector) {
+                // Selector already exists, just update the info
+                this.updateWordLengthInfo();
+                return;
+            }
+            
+            // Create word length selector controls
+            const container = document.createElement('div');
+            container.className = 'word-length-selector';
+            container.id = 'word-length-selector'; // Add an ID for easier reference
+            
+            const decreaseBtn = document.createElement('button');
+            decreaseBtn.className = 'length-btn decrease';
+            decreaseBtn.textContent = '−';
+            decreaseBtn.setAttribute('aria-label', 'Decrease word length');
+            
+            const increaseBtn = document.createElement('button');
+            increaseBtn.className = 'length-btn increase';
+            increaseBtn.textContent = '+';
+            increaseBtn.setAttribute('aria-label', 'Increase word length');
+            
+            container.appendChild(decreaseBtn);
+            container.appendChild(increaseBtn);
+            
+            // Add event listeners
+            decreaseBtn.addEventListener('click', () => this.changeWordLength(-1));
+            increaseBtn.addEventListener('click', () => this.changeWordLength(1));
+            
+            // Insert after stats
+            const stats = document.querySelector('.stats');
+            if (stats && stats.parentNode) {
+                stats.parentNode.insertBefore(container, stats.nextSibling);
+            }
+            
+            this.updateWordLengthInfo();
+            
+            // Add styles for selector
+            const style = document.createElement('style');
+            style.textContent = `
+                .word-length-selector {
+                    display: flex;
+                    justify-content: center;
+                    gap: 20px;
+                    margin-bottom: 8px; /* Increased from 5px for better spacing */
+                    margin-top: 5px; /* Added top margin to separate from stats */
+                }
+                .length-btn {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    border: none;
+                    background-color: #d3d6da;
+                    color: #121213;
+                    font-size: 20px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background-color 0.2s;
+                }
+                .length-btn:hover {
+                    background-color: #878a8c;
+                    color: #ffffff;
+                }
+                .length-btn:active {
+                    transform: scale(0.95);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        changeWordLength(delta) {
+            if (this.gameStarted && !this.gameOver) {
+                this.showMessage(this.languages[this.currentLanguage].messages.finishGame, 'lose');
+                return;
+            }
+            
+            const availableLengths = Object.keys(this.languages[this.currentLanguage].words)
+                                          .map(Number)
+                                          .sort((a, b) => a - b);
+            
+            if (availableLengths.length === 0) return;
+            
+            const currentIndex = availableLengths.indexOf(this.selectedWordLength);
+            let newIndex = currentIndex + delta;
+            
+            if (newIndex < 0) newIndex = availableLengths.length - 1;
+            if (newIndex >= availableLengths.length) newIndex = 0;
+            
+            this.selectedWordLength = availableLengths[newIndex];
+            this.updateWordLengthInfo();
+            this.createGameBoard();
+            this.clearMessage();
+        }
+
+        updateWordLengthInfo() {
+            const infoElement = document.getElementById('word-length-info');
+            if (infoElement) {
+                if (this.currentLanguage === 'english') {
+                    infoElement.innerHTML = `Word length: <span class="word-length-value">${this.selectedWordLength} letters</span>`;
+                } else {
+                    infoElement.innerHTML = `Longitud de palabra: <span class="word-length-value">${this.selectedWordLength} letras</span>`;
+                }
             }
         }
 
-        // Space Invaders Game
-        class SpaceInvadersGame {
-            constructor() {
-                this.canvas = document.getElementById('gameCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.gameRunning = false;
-                this.gamePaused = false;
-                
-                // Game state
-                this.score = 0;
-                this.lives = 3;
-                this.level = 1;
-                this.gameSpeed = 60; // FPS
-                
-                // Game objects
-                this.player = null;
-                this.bullets = [];
-                this.aliens = [];
-                this.alienBullets = [];
-                this.particles = [];
-                
-                // Input handling
-                this.keys = {};
-                this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                
-                // Game timing
-                this.lastTime = 0;
-                this.alienMoveTimer = 0;
-                this.alienShootTimer = 0;
-                
-                // Sound manager
-                this.soundManager = new SoundManager();
-                
-                this.init();
-            }
+        createGameBoard() {
+            const gameBoard = document.getElementById('game-board');
+            if (!gameBoard) return;
             
-            init() {
-                this.setupCanvas();
-                this.setupEventListeners();
-                this.showMobileControls();
-                this.createPlayer();
-                this.createAliens();
-                this.updateUI();
-                this.addSoundToggle();
-            }
+            gameBoard.innerHTML = '';
             
-            addSoundToggle() {
-                const soundBtn = document.createElement('button');
-                soundBtn.id = 'soundToggle';
-                soundBtn.textContent = '🔊 Sound: ON';
-                soundBtn.className = 'start-btn';
-                soundBtn.style.fontSize = '0.9em';
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('div');
+                row.className = `row length-${this.selectedWordLength}`;
+                row.id = 'row-' + i;
                 
-                soundBtn.addEventListener('click', () => {
-                    const enabled = this.soundManager.toggle();
-                    soundBtn.textContent = enabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
-                });
+                for (let j = 0; j < this.selectedWordLength; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.id = 'tile-' + i + '-' + j;
+                    row.appendChild(tile);
+                }
                 
-                document.querySelector('.game-controls').appendChild(soundBtn);
+                gameBoard.appendChild(row);
             }
+        }
+
+        createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            if (!keyboard) return;
             
-            setupCanvas() {
-                // Make canvas responsive
-                const container = this.canvas.parentElement;
-                const rect = container.getBoundingClientRect();
+            keyboard.innerHTML = '';
+            
+            const keyboardLayout = this.languages[this.currentLanguage].keyboard;
+            
+            for (let i = 0; i < keyboardLayout.length; i++) {
+                const row = document.createElement('div');
+                row.className = 'keyboard-row';
                 
-                if (this.isMobile) {
-                    this.canvas.width = Math.min(400, window.innerWidth - 20);
-                    // Increase mobile height and use more available screen space
-                    const availableHeight = window.innerHeight - 180; // Leave space for UI
-                    this.canvas.height = Math.max(500, Math.min(700, availableHeight));
+                for (let j = 0; j < keyboardLayout[i].length; j++) {
+                    const key = document.createElement('button');
+                    key.className = 'key';
+                    key.setAttribute('type', 'button');
+                    
+                    const letter = keyboardLayout[i][j];
+                    key.textContent = letter === 'BACKSPACE' ? '⌫' : 
+                                     letter === 'ENTER' ? this.languages[this.currentLanguage].messages.enter : 
+                                     letter;
+                    
+                    if (letter === 'ENTER' || letter === 'BACKSPACE') {
+                        key.classList.add('wide');
+                    }
+                    
+                    key.addEventListener('click', () => {
+                        // Just use the handleKeyPress method which now handles the async logic internally
+                        this.handleKeyPress(letter);
+                    });
+                    row.appendChild(key);
+                }
+                
+                keyboard.appendChild(row);
+            }
+        }
+
+        setupEventListeners() {
+            // Physical keyboard support
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) return;
+                
+                if (e.key === 'Enter') {
+                    this.handleKeyPress('ENTER');
+                } else if (e.key === 'Backspace') {
+                    this.handleKeyPress('BACKSPACE');
                 } else {
-                    this.canvas.width = 800;
-                    this.canvas.height = 600;
+                    const key = e.key.toUpperCase();
+                    if (/^[A-ZÑ]$/.test(key)) {
+                        this.handleKeyPress(key);
+                    }
                 }
-                
-                // Set canvas style
-                this.canvas.style.border = '2px solid #00ff00';
-                this.canvas.style.backgroundColor = '#000';
-            }
+            });
             
-            setupEventListeners() {
-                // Keyboard controls for desktop
-                document.addEventListener('keydown', (e) => {
-                    this.keys[e.code] = true;
-                    if (e.code === 'Space') {
-                        e.preventDefault();
-                        this.shootBullet();
+            // New Game/Enter button
+            const newGameBtn = document.getElementById('new-game-btn');
+            if (newGameBtn) {
+                newGameBtn.addEventListener('click', () => {
+                    if (this.gameOver) {
+                        this.newGame(); // Start a new game when game is over
+                    } else if (this.gameStarted) {
+                        this.submitGuess(); // Submit guess when game is in progress
+                    } else {
+                        // Show message when no letters have been entered yet
+                        this.showMessage(this.languages[this.currentLanguage].messages.startGame);
                     }
                 });
+            }
+        }
+
+        handleKeyPress(key) {
+            if (this.gameOver) return;
+
+            if (key === 'ENTER') {
+                // Prevent multiple submits while processing
+                if (this.isSubmitting) return;
                 
-                document.addEventListener('keyup', (e) => {
-                    this.keys[e.code] = false;
+                this.isSubmitting = true;
+                
+                // Use non-async approach since we've disabled the Python server
+                this.submitGuess().finally(() => {
+                    this.isSubmitting = false;
                 });
-                
-                // Mobile touch controls
-                if (this.isMobile) {
-                    document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        this.keys['ArrowLeft'] = true;
-                    });
-                    
-                    document.getElementById('leftBtn').addEventListener('touchend', (e) => {
-                        e.preventDefault();
-                        this.keys['ArrowLeft'] = false;
-                    });
-                    
-                    document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        this.keys['ArrowRight'] = true;
-                    });
-                    
-                    document.getElementById('rightBtn').addEventListener('touchend', (e) => {
-                        e.preventDefault();
-                        this.keys['ArrowRight'] = false;
-                    });
-                    
-                    document.getElementById('shootBtn').addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        this.shootBullet();
-                    });
-                }
-                
-                // Game control buttons
-                document.getElementById('startBtn').addEventListener('click', () => this.startGame());
-                document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
-                document.getElementById('restartBtn').addEventListener('click', () => this.restartGame());
-                
-                // Window resize
-                window.addEventListener('resize', () => this.setupCanvas());
+            } else if (key === 'BACKSPACE') {
+                this.deleteLetter();
+            } else if (this.currentTile < this.selectedWordLength) {
+                this.addLetter(key);
+            }
+        }
+
+        addLetter(letter) {
+            // Clear any invalid word message when user starts editing
+            if (this.isShowingInvalidWordMessage) {
+                this.clearMessage();
+                this.isShowingInvalidWordMessage = false;
             }
             
-            showMobileControls() {
-                const mobileControls = document.getElementById('mobileControls');
-                if (this.isMobile) {
-                    mobileControls.style.display = 'flex';
+            if (!this.gameStarted) {
+                this.gameStarted = true;
+                this.hideLanguageToggle();
+                this.updateButtonText();
+                
+                if (this.currentWord === '') {
+                    this.currentWord = this.getRandomWord();
+                }
+                
+                // Start timer if in lightning mode
+                if (this.lightningMode) {
+                    this.startTimer();
+                }
+            }
+
+            const tile = document.getElementById('tile-' + this.currentRow + '-' + this.currentTile);
+            if (tile) {
+                tile.textContent = letter;
+                tile.classList.add('filled');
+                this.currentTile++;
+                
+                // Save game state after adding a letter
+                this.saveGameState();
+            }
+        }
+
+        deleteLetter() {
+            if (this.currentTile > 0) {
+                // Clear any invalid word message when user starts editing
+                if (this.isShowingInvalidWordMessage) {
+                    this.clearMessage();
+                    this.isShowingInvalidWordMessage = false;
+                }
+                
+                this.currentTile--;
+                const tile = document.getElementById('tile-' + this.currentRow + '-' + this.currentTile);
+                if (tile) {
+                    tile.textContent = '';
+                    tile.classList.remove('filled');
+                    
+                    // Save game state after deleting a letter
+                    this.saveGameState();
+                }
+            }
+        }
+
+        async submitGuess() {
+            console.log("Submit guess called");
+            if (this.currentTile < this.selectedWordLength) {
+                this.showMessage(this.languages[this.currentLanguage].messages.notEnoughLetters);
+                console.log("Not enough letters");
+                return;
+            }
+
+            const guess = this.getCurrentGuess();
+            console.log(`Submitting guess: ${guess}`);
+            
+            // If Python server is enabled, use async validation
+            if (this.usePythonServer()) {
+                try {
+                    const isValid = await this.isValidWordAsync(guess);
+                    if (!isValid) {
+                        this.showMessage(this.languages[this.currentLanguage].messages.invalidWord, 'invalid', true);
+                        
+                        // Add a shake animation to indicate invalid word
+                        const currentRow = document.getElementById('row-' + this.currentRow);
+                        if (currentRow) {
+                            currentRow.classList.add('shake');
+                            setTimeout(() => {
+                                currentRow.classList.remove('shake');
+                            }, 500);
+                        }
+                        return;
+                    }
+                } catch (error) {
+                    console.error(`Error in async validation: ${error.message}`);
+                    // Fall back to local validation in case of error
+                    if (!this.isValidWordLocal(guess.toUpperCase(), this.languages[this.currentLanguage].words[this.selectedWordLength])) {
+                        this.showMessage(this.languages[this.currentLanguage].messages.invalidWord, 'invalid', true);
+                        
+                        const currentRow = document.getElementById('row-' + this.currentRow);
+                        if (currentRow) {
+                            currentRow.classList.add('shake');
+                            setTimeout(() => {
+                                currentRow.classList.remove('shake');
+                            }, 500);
+                        }
+                        return;
+                    }
+                }
+            } else {
+                // Use synchronous local validation if Python server is disabled
+                if (!this.isValidWordLocal(guess.toUpperCase(), this.languages[this.currentLanguage].words[this.selectedWordLength])) {
+                    this.showMessage(this.languages[this.currentLanguage].messages.invalidWord, 'invalid', true);
+                    
+                    // Add a shake animation to indicate invalid word
+                    const currentRow = document.getElementById('row-' + this.currentRow);
+                    if (currentRow) {
+                        currentRow.classList.add('shake');
+                        setTimeout(() => {
+                            currentRow.classList.remove('shake');
+                        }, 500);
+                    }
+                    return;
+                }
+            }
+            
+            this.checkGuess(guess);
+            
+            if (guess === this.currentWord) {
+                this.gameWon();
+            } else if (this.currentRow === 5) {
+                this.gameLost();
+            } else {
+                this.currentRow++;
+                this.currentTile = 0;
+                
+                // Note: We don't save the game state here anymore
+                // saveGameState is called after animations complete in updateTiles
+            }
+        }
+
+        getCurrentGuess() {
+            let guess = '';
+            for (let i = 0; i < this.selectedWordLength; i++) {
+                const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
+                if (tile) guess += tile.textContent;
+            }
+            
+            // Debug logging
+            console.log(`Retrieved guess: '${guess}' (length: ${guess.length}, expected: ${this.selectedWordLength})`);
+            
+            return guess;
+        }
+
+        checkGuess(guess) {
+            const result = [];
+            const wordArray = [...this.currentWord];
+            const guessArray = [...guess];
+            const letterCount = {};
+            
+            // Count occurrences of each letter in the target word
+            for (let letter of wordArray) {
+                letterCount[letter] = (letterCount[letter] || 0) + 1;
+            }
+            
+            // First pass: Mark correct positions
+            for (let i = 0; i < this.selectedWordLength; i++) {
+                if (guessArray[i] === wordArray[i]) {
+                    result[i] = 'correct';
+                    letterCount[guessArray[i]]--;
                 } else {
-                    mobileControls.style.display = 'none';
+                    result[i] = null; // Placeholder for second pass
                 }
             }
             
-            createPlayer() {
-                // Position player relative to canvas height for better mobile experience
-                const playerY = this.canvas.height - 60; // Give more space from bottom
-                this.player = new Player(this.canvas.width / 2, playerY, this.canvas);
-            }
-            
-            createAliens() {
-                this.aliens = [];
-                const rows = 5;
-                const cols = 10;
-                const alienWidth = 40;
-                const alienHeight = 30;
-                const spacing = this.isMobile ? 40 : 50; // Tighter spacing on mobile
-                const startX = (this.canvas.width - (cols * spacing)) / 2;
-                // Give more space at top for mobile
-                const startY = this.isMobile ? 30 : 50;
-                
-                for (let row = 0; row < rows; row++) {
-                    for (let col = 0; col < cols; col++) {
-                        const x = startX + col * spacing;
-                        const y = startY + row * spacing;
-                        this.aliens.push(new Alien(x, y, row));
+            // Second pass: Mark present or absent letters
+            for (let i = 0; i < this.selectedWordLength; i++) {
+                if (result[i] === null) { // Skip already marked positions
+                    if (letterCount[guessArray[i]] && letterCount[guessArray[i]] > 0) {
+                        result[i] = 'present';
+                        letterCount[guessArray[i]]--;
+                    } else {
+                        result[i] = 'absent';
                     }
                 }
             }
-            
-            startGame() {
-                this.gameRunning = true;
-                this.gamePaused = false;
-                document.getElementById('startBtn').style.display = 'none';
-                document.getElementById('pauseBtn').style.display = 'inline-block';
-                document.getElementById('gameOver').classList.add('hidden');
-                this.gameLoop();
+
+            if (this.debugMode) {
+                console.log(`Guess: ${guess}, Result:`, result);
             }
+
+            this.updateTiles(result);
+            this.updateKeyboard(guess, result);
             
-            togglePause() {
-                this.gamePaused = !this.gamePaused;
-                const pauseBtn = document.getElementById('pauseBtn');
-                pauseBtn.textContent = this.gamePaused ? 'Resume' : 'Pause';
-                if (!this.gamePaused) {
-                    this.gameLoop();
+            // Multiple staged saves to ensure we catch all color changes
+            
+            // First backup save - immediate
+            setTimeout(() => {
+                if (this.debugMode) console.log("First backup save");
+                this.saveGameState();
+            }, 50);
+            
+            // Second backup save - mid-animation
+            setTimeout(() => {
+                if (this.debugMode) console.log("Second backup save");
+                this.saveGameState();
+            }, (this.selectedWordLength * 100) / 2);
+            
+            // Third backup save - after animations should be done
+            setTimeout(() => {
+                if (this.debugMode) console.log("Third backup save");
+                this.saveGameState();
+            }, (this.selectedWordLength * 100) + 300); // Extra buffer time after animations
+        }
+
+        updateTiles(result) {
+            // Calculate total animation time
+            const totalDelay = this.selectedWordLength * 100;
+            
+            for (let i = 0; i < this.selectedWordLength; i++) {
+                const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
+                if (tile) {
+                    setTimeout(() => {
+                        // First remove any existing state classes to ensure clean state
+                        tile.classList.remove('correct', 'present', 'absent');
+                        
+                        // Only apply color classes if the tile has content (is filled)
+                        if (tile.textContent && tile.textContent.trim() !== '') {
+                            // Then add the new class
+                            tile.classList.add(result[i]);
+                        }
+                        
+                        if (this.debugMode) {
+                            console.log(`Setting tile ${this.currentRow}-${i} to "${result[i]}" class`);
+                        }
+                    }, i * 100); // Stagger animation
                 }
             }
             
-            restartGame() {
-                this.score = 0;
-                this.lives = 3;
-                this.level = 1;
-                this.bullets = [];
-                this.alienBullets = [];
-                this.particles = [];
-                this.createPlayer();
-                this.createAliens();
-                this.updateUI();
-                this.startGame();
-            }
-            
-            gameLoop(currentTime = 0) {
-                if (!this.gameRunning || this.gamePaused) return;
+            // Save game state after all animations are complete
+            setTimeout(() => {
+                this.saveGameState();
                 
-                const deltaTime = currentTime - this.lastTime;
-                this.lastTime = currentTime;
-                
-                this.update(deltaTime);
-                this.draw();
-                
-                requestAnimationFrame((time) => this.gameLoop(time));
-            }
-            
-            update(deltaTime) {
-                // Update player
-                this.player.update(this.keys);
-                
-                // Update bullets
-                this.bullets.forEach((bullet, index) => {
-                    bullet.update();
-                    if (bullet.y < 0) {
-                        this.bullets.splice(index, 1);
+                // Extra safety check - verify all tiles have proper classes
+                if (this.debugMode) {
+                    for (let i = 0; i < this.selectedWordLength; i++) {
+                        const tile = document.getElementById('tile-' + this.currentRow + '-' + i);
+                        if (tile) {
+                            console.log(`Verification - tile ${this.currentRow}-${i} has classes: ${Array.from(tile.classList).join(', ')}`);
+                        }
                     }
-                });
-                
-                // Update alien bullets
-                this.alienBullets.forEach((bullet, index) => {
-                    bullet.update();
-                    if (bullet.y > this.canvas.height) {
-                        this.alienBullets.splice(index, 1);
-                    }
-                });
-                
-                // Update aliens
-                this.alienMoveTimer += deltaTime;
-                if (this.alienMoveTimer > 1000) { // Move aliens every second
-                    this.moveAliens();
-                    this.alienMoveTimer = 0;
                 }
-                
-                // Alien shooting
-                this.alienShootTimer += deltaTime;
-                if (this.alienShootTimer > 2000 + Math.random() * 3000) { // Random alien shooting
-                    this.alienShoot();
-                    this.alienShootTimer = 0;
-                }
-                
-                // Check collisions
-                this.checkCollisions();
-                
-                // Check win/lose conditions
-                this.checkGameState();
-            }
+            }, totalDelay + 150); // Increased buffer time for safety
+        }
+
+        updateKeyboard(guess, result) {
+            const keys = document.querySelectorAll('.key');
+            const guessArray = [...guess];
             
-            draw() {
-                // Clear canvas
-                this.ctx.fillStyle = '#000';
-                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            for (let i = 0; i < guessArray.length; i++) {
+                const letter = guessArray[i];
+                const status = result[i];
                 
-                // Draw stars background
-                this.drawStars();
-                
-                // Draw game objects
-                this.player.draw(this.ctx);
-                
-                this.bullets.forEach(bullet => bullet.draw(this.ctx));
-                this.alienBullets.forEach(bullet => bullet.draw(this.ctx));
-                this.aliens.forEach(alien => alien.draw(this.ctx));
-                this.particles.forEach(particle => particle.draw(this.ctx));
-            }
-            
-            drawStars() {
-                this.ctx.fillStyle = '#fff';
-                for (let i = 0; i < 100; i++) {
-                    const x = (i * 37) % this.canvas.width;
-                    const y = (i * 71) % this.canvas.height;
-                    const size = Math.random() * 2;
-                    this.ctx.fillRect(x, y, size, size);
-                }
-            }
-            
-            shootBullet() {
-                if (this.gameRunning && !this.gamePaused) {
-                    this.bullets.push(new Bullet(this.player.x + this.player.width / 2, this.player.y, -5));
-                    this.soundManager.play('shoot');
-                }
-            }
-            
-            alienShoot() {
-                if (this.aliens.length > 0) {
-                    const randomAlien = this.aliens[Math.floor(Math.random() * this.aliens.length)];
-                    this.alienBullets.push(new Bullet(randomAlien.x + randomAlien.width / 2, randomAlien.y + randomAlien.height, 3));
-                }
-            }
-            
-            moveAliens() {
-                let moveDown = false;
-                
-                // Check if aliens hit the edge
-                for (let alien of this.aliens) {
-                    if (alien.x <= 0 || alien.x + alien.width >= this.canvas.width) {
-                        moveDown = true;
+                // Find the corresponding key in the keyboard
+                for (let key of keys) {
+                    if (key.textContent === letter) {
+                        // Only update if the new status is better than the current one
+                        if (status === 'correct' || 
+                            (status === 'present' && !key.classList.contains('correct')) ||
+                            (status === 'absent' && !key.classList.contains('correct') && !key.classList.contains('present'))) {
+                        
+                            key.classList.remove('correct', 'present', 'absent');
+                            key.classList.add(status);
+                        }
                         break;
                     }
                 }
+            }
+        }
+
+        getRandomWord() {
+            // Debug logging
+            console.log(`=== SELECTING WORD FOR ${this.currentLanguage.toUpperCase()} ===`);
+            console.log(`Target word length: ${this.selectedWordLength}`);
+            
+            // Get words for the current length and language
+            const words = this.languages[this.currentLanguage].words[this.selectedWordLength];
+            
+            if (!words || words.length === 0) {
+                console.error(`No words found for ${this.currentLanguage} with length ${this.selectedWordLength}`);
+                return "ERROR";
+            }
+            
+            console.log(`Found word list with ${words.length} words for length ${this.selectedWordLength}`);
+            
+            // TRIPLE VALIDATION SYSTEM:
+            
+            // 1. First validation - strict filtering for exact length match
+            const validWords = words.filter(word => {
+                if (word.length !== this.selectedWordLength) {
+                    console.warn(`INVALID WORD DETECTED: "${word}" is ${word.length} letters, but should be ${this.selectedWordLength} letters`);
+                    return false;
+                }
+                return true;
+            });
+            
+            // 2. Second validation - check if any valid words were found
+            if (validWords.length === 0) {
+                console.error(`No valid words of length ${this.selectedWordLength} found in ${this.currentLanguage}`);
+                return "ERROR";
+            }
+            
+            // Log validation results
+            console.log(`Found ${validWords.length} valid ${this.selectedWordLength}-letter words for ${this.currentLanguage}`);
+            
+            // Get used words for this language and length
+            const usedWordsKey = `usedWords_${this.currentLanguage}_${this.selectedWordLength}`;
+            let usedWords = JSON.parse(localStorage.getItem(usedWordsKey)) || [];
+            
+            // Reset used words if all words have been used
+            if (usedWords.length >= validWords.length) {
+                console.log(`All ${validWords.length} words for ${this.currentLanguage} ${this.selectedWordLength}-letter words have been used. Resetting.`);
+                usedWords = [];
+                localStorage.setItem(usedWordsKey, JSON.stringify(usedWords));
+            }
+            
+            // Filter out already used words
+            const availableWords = validWords.filter(word => !usedWords.includes(word));
+            
+            if (availableWords.length === 0) {
+                // This should not happen with the reset above, but just in case
+                usedWords = [];
+                localStorage.setItem(usedWordsKey, JSON.stringify(usedWords));
+                return validWords[Math.floor(Math.random() * validWords.length)];
+            }
+            
+            // Select a random word from available words
+            const selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+            
+            // 3. Third validation - final verification before returning
+            if (selectedWord.length !== this.selectedWordLength) {
+                console.error(`CRITICAL ERROR: Selected word "${selectedWord}" has length ${selectedWord.length}, expected ${this.selectedWordLength}`);
+                // Try again with a different word
+                return this.getRandomWord();
+            }
+            
+            // Add to used words and save
+            usedWords.push(selectedWord);
+            localStorage.setItem(usedWordsKey, JSON.stringify(usedWords));
+            
+            console.log(`✓ FINAL SELECTION: "${selectedWord}" (${selectedWord.length} letters) - ${availableWords.length-1} words remaining in current cycle`);
+            console.log(`=== WORD SELECTION COMPLETE ===`);
+            
+            return selectedWord;
+        }
+
+        // Check if Python server is enabled
+        usePythonServer() {
+            // You can toggle this based on user preference or environment
+            return true; // Re-enabled to use Python server for better validation
+        }
+        
+        // Async validation using Python API
+        async validateWordWithPython(word, language) {
+            try {
+                // Handle Spanish special characters for URL encoding
+                const encodedWord = encodeURIComponent(word);
+                const apiUrl = `http://localhost:8000/validate?word=${encodedWord}&language=${language}`;
+                console.log(`Validating word via API: ${word} (${language})`);
                 
-                if (moveDown) {
-                    // Change direction and move down
-                    this.aliens.forEach(alien => {
-                        alien.direction *= -1;
-                        alien.y += 20;
-                    });
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    console.error(`API error: ${response.status}`);
+                    this.updateServerStatus(false);
+                    return null; // Return null to indicate we should fall back to local validation
+                }
+                
+                const data = await response.json();
+                console.log(`Python API response for ${word}: ${JSON.stringify(data)}`);
+                this.updateServerStatus(true);
+                return data.valid;
+            } catch (error) {
+                console.error(`Error calling Python API: ${error.message}`);
+                this.updateServerStatus(false);
+                return null; // Return null to indicate we should fall back to local validation
+            }
+        }
+        
+        // Check if server is running and update status indicator
+        async checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:8000', { 
+                    method: 'GET',
+                    signal: AbortSignal.timeout(1500) // Timeout after 1.5 seconds
+                });
+                const isConnected = response.ok;
+                this.updateServerStatus(isConnected);
+                return isConnected;
+            } catch (error) {
+                console.log('Dictionary server not detected:', error);
+                this.updateServerStatus(false);
+                return false;
+            }
+        }
+        
+        // Update the server status indicator - very simplified
+        updateServerStatus(isConnected) {
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            const statusContainer = document.getElementById('server-status');
+            
+            const langLabel = this.currentLanguage === 'english' ? 'EN' : 'ES';
+            
+            if (isConnected) {
+                indicator.textContent = '🟢';
+                text.style.display = 'none'; // Hide the text completely
+                
+                // Simple tooltip
+                statusContainer.title = `Dictionary server connected (${langLabel})`;
+            } else {
+                indicator.textContent = '🔴';
+                text.style.display = 'inline'; // Show text only when offline
+                text.textContent = `Offline`;
+                
+                // Simple tooltip
+                statusContainer.title = `Dictionary server offline (${langLabel})`;
+            }
+            
+            // We'll keep the double-click to refresh functionality
+            if (!statusContainer.hasClickHandler) {
+                statusContainer.addEventListener('dblclick', () => {
+                    // Double click to refresh connection status
+                    indicator.textContent = '⚪';
+                    this.checkServerStatus();
+                });
+                statusContainer.hasClickHandler = true;
+            }
+        }
+        
+        async isValidWordAsync(word) {
+            // Convert to uppercase for consistent comparison
+            const uppercaseWord = word.toUpperCase();
+            
+            // Debug logging
+            console.log(`Checking if '${uppercaseWord}' is a valid ${this.selectedWordLength}-letter word in ${this.currentLanguage}`);
+            
+            try {
+                // Try Python server validation first
+                const pythonResult = await this.validateWordWithPython(uppercaseWord, this.currentLanguage);
+                if (pythonResult !== null) {
+                    console.log(`Python API validation result for '${uppercaseWord}': ${pythonResult ? 'VALID' : 'INVALID'}`);
+                    return pythonResult;
+                }
+            } catch (error) {
+                console.error(`Error in Python validation: ${error.message}`);
+                // Fall back to local validation
+            }
+            
+            // Fall back to local validation if Python server is unavailable
+            return this.isValidWordLocal(uppercaseWord, this.languages[this.currentLanguage].words[this.selectedWordLength]);
+        }
+        
+        // This method is used for synchronous validation only
+        // For async validation, use isValidWordAsync directly
+        isValidWord(word) {
+            // Convert to uppercase for consistent comparison
+            const uppercaseWord = word.toUpperCase();
+            
+            // Get the word list for the current language and word length
+            const words = this.languages[this.currentLanguage].words[this.selectedWordLength];
+            
+            // Use local validation for immediate results
+            return this.isValidWordLocal(uppercaseWord, words);
+        }
+        
+        isValidWordLocal(uppercaseWord, words) {
+            console.log(`Checking if ${uppercaseWord} is valid locally`);
+            // Check if the word list exists
+            if (!words) {
+                console.error(`No word list found for ${this.currentLanguage} with length ${this.selectedWordLength}`);
+                return true; // If no word list is available, accept all words
+            }
+            
+            // First check: Is the word in our primary dictionary?
+            // Add debug to print all 6-letter Spanish words to help find "LIMPIO"
+            if ((uppercaseWord === 'LIMPIO' || uppercaseWord === 'SUCIO') && this.currentLanguage === 'spanish') {
+                console.log(`Searching for ${uppercaseWord} in Spanish dictionary...`);
+                const index = words.indexOf(uppercaseWord);
+                console.log(`${uppercaseWord} index in dictionary: ${index}`);
+                if (index >= 0) {
+                    console.log(`${uppercaseWord} was found in the Spanish dictionary!`);
+                    return true;
+                }
+            }
+            
+            const isInPrimaryDictionary = words.includes(uppercaseWord);
+            console.log(`Is ${uppercaseWord} in primary dictionary? ${isInPrimaryDictionary}`);
+            
+            // If it's in our primary dictionary, it's definitely valid
+            if (isInPrimaryDictionary) {
+                console.log(`Word '${uppercaseWord}' found in primary dictionary - VALID`);
+                return true;
+            }
+            
+            // For English words, check the extended common words dictionary
+            if (this.currentLanguage === 'english' && this.selectedWordLength === 5) {
+                // Check if the word is in our extended dictionary (defined in common-5-letter-words.js)
+                if (typeof commonFiveLetterWords !== 'undefined' && commonFiveLetterWords.includes(uppercaseWord)) {
+                    console.log(`Word '${uppercaseWord}' found in extended dictionary - VALID`);
+                    return true;
+                }
+            }
+            
+            // Known invalid words - always reject these
+            const knownInvalidWords = [
+                // Test cases
+                'ZZZZZ', 'QWQWQ', 'AAAAA', 'XXXXX', 'XZXZX', 'QZQZQ',
+                // Observed invalid examples
+                'RANOO', 'LEFJA', 'BEGLE', 'LEFEE'
+            ];
+            
+            if (knownInvalidWords.includes(uppercaseWord)) {
+                console.log(`Known invalid word '${uppercaseWord}' detected - marking as INVALID`);
+                return false;
+            }
+            
+            // Switch to pattern-based validation instead of strict dictionary mode
+            // This allows valid words that might not be in our limited dictionary
+            const vowels = 'AEIOU';
+            const consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
+            
+            // Check for vowels - most English words need at least one vowel
+            const hasVowel = uppercaseWord.split('').some(char => vowels.includes(char));
+            
+            // Check for repeated letters (3+ in a row, like 'AAA')
+            let hasRepeatedLetters = false;
+            for (let i = 0; i < uppercaseWord.length - 2; i++) {
+                if (uppercaseWord[i] === uppercaseWord[i+1] && uppercaseWord[i] === uppercaseWord[i+2]) {
+                    hasRepeatedLetters = true;
+                    break;
+                }
+            }
+            
+            // Check for excessive number of vowels or consonants in a row
+            const maxConsecutiveVowels = uppercaseWord.match(/[AEIOU]+/g)?.reduce((max, curr) => 
+                Math.max(max, curr.length), 0) || 0;
+            const maxConsecutiveConsonants = uppercaseWord.match(/[^AEIOU]+/g)?.reduce((max, curr) => 
+                Math.max(max, curr.length), 0) || 0;
+            
+            // Check for unlikely letter combinations that suggest random typing
+            const unlikelyCombinations = [
+                'QZ', 'JX', 'VX', 'ZQ', 'WX', 'VQ', 'JZ', 'QJ', 'XK', 'VZ'
+            ];
+            let hasUnlikelyCombination = false;
+            for (const combo of unlikelyCombinations) {
+                if (uppercaseWord.includes(combo)) {
+                    hasUnlikelyCombination = true;
+                    break;
+                }
+            }
+            
+            // Exception list for unusual but valid words
+            const validExceptions = [
+                // English words with unusual patterns
+                'RHYTHM', 'LYNX', 'CRYPT', 'MYTH', 'HYMN', 'NYMPH', 'PYGMY', 'GLYPH',
+                // Other potentially valid words with unusual patterns
+                'FJORD', 'CWMS', 'CRWTH', 'FRIED', 'ALGAE', 'MAYBE',
+                // Known Spanish words that might be incorrectly flagged
+                'LIMPIO', 'SUCIO'
+            ];
+            
+            if (validExceptions.includes(uppercaseWord)) {
+                console.log(`Word '${uppercaseWord}' is a known valid exception - VALID`);
+                return true;
+            }
+            
+            // Analyze if this is likely a nonsense word - we're being less strict
+            const redFlags = [];
+            
+            if (!hasVowel && this.currentLanguage === 'english') redFlags.push('No vowels');
+            if (hasRepeatedLetters) redFlags.push('3+ identical letters in a row');
+            if (maxConsecutiveConsonants > 4) redFlags.push('5+ consonants in a row');
+            if (maxConsecutiveVowels > 3) redFlags.push('4+ vowels in a row');
+            if (hasUnlikelyCombination) redFlags.push('Unlikely letter combo');
+            
+            // Only reject a word if it has 2 or more suspicious patterns
+            const likelyNonsense = redFlags.length >= 2;
+            
+            // Log analysis for debugging
+            console.log(`Word '${uppercaseWord}' pattern analysis:`);
+            console.log(`- Red flags (${redFlags.length}): ${redFlags.join(', ')}`);
+            console.log(`- Final determination: ${!likelyNonsense ? 'VALID (likely real word)' : 'INVALID (likely nonsense)'}`);
+            
+            return !likelyNonsense;
+        }
+
+        showMessage(message, type = '', persistent = false) {
+            const messageElement = document.getElementById('message');
+            if (!messageElement) return;
+            
+            messageElement.textContent = message;
+            messageElement.className = 'message';
+            if (type) messageElement.classList.add(type);
+            
+            if (this.messageTimeout) {
+                clearTimeout(this.messageTimeout);
+                this.messageTimeout = null;
+            }
+            
+            // Store if this is an invalid word message
+            this.isShowingInvalidWordMessage = message === this.languages[this.currentLanguage].messages.invalidWord;
+            
+            // Only set timeout for non-persistent messages
+            if (type !== 'win' && type !== 'lose' && !persistent && !this.isShowingInvalidWordMessage) {
+                this.messageTimeout = setTimeout(() => {
+                    messageElement.textContent = '';
+                    messageElement.className = 'message';
+                    this.isShowingInvalidWordMessage = false;
+                }, 2000);
+            }
+        }
+
+        clearMessage() {
+            const messageElement = document.getElementById('message');
+            if (messageElement) {
+                messageElement.textContent = '';
+                messageElement.className = 'message';
+            }
+            
+            if (this.messageTimeout) {
+                clearTimeout(this.messageTimeout);
+                this.messageTimeout = null;
+            }
+            
+            // Reset the invalid word message flag
+            this.isShowingInvalidWordMessage = false;
+        }
+
+        gameWon() {
+            this.gameOver = true;
+            this.showMessage(this.languages[this.currentLanguage].messages.congratulations, 'win');
+            this.updateStats(true);
+            this.showLanguageToggle();
+            this.stopTimer();
+            this.updateButtonText(); // Add this line
+            
+            // Clear game state on win
+            this.clearGameState();
+        }
+
+        gameLost() {
+            this.gameOver = true;
+            this.showMessage(this.languages[this.currentLanguage].messages.gameOver + ' ' + this.currentWord, 'lose');
+            this.updateStats(false);
+            this.showLanguageToggle();
+            this.stopTimer();
+            this.updateButtonText(); // Add this line
+            
+            // Clear game state on loss
+            this.clearGameState();
+        }
+        
+        startTimer() {
+            // Make timer visible
+            const timerContainer = document.getElementById('timer-container');
+            if (timerContainer) {
+                timerContainer.style.visibility = 'visible';
+            }
+            
+            // Reset time remaining
+            this.timeRemaining = 60;
+            
+            // Update timer display with formatted time
+            const timerDisplay = document.getElementById('timer-display');
+            if (timerDisplay) {
+                const minutes = Math.floor(this.timeRemaining / 60);
+                const seconds = this.timeRemaining % 60;
+                const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timerDisplay.textContent = formattedTime;
+                
+                // Set initial color to green at the start
+                timerDisplay.style.color = '#6aaa64'; // Green
+                timerDisplay.style.fontWeight = 'normal';
+            }
+            
+            // Clear any existing interval
+            this.stopTimer();
+            
+            // Start new interval
+            this.timerInterval = setInterval(() => {
+                this.updateTimer();
+            }, 1000);
+        }
+        
+        stopTimer() {
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+            }
+        }
+        
+        updateTimer() {
+            if (this.timeRemaining <= 0) {
+                // Time's up
+                this.stopTimer();
+                
+                // Show time's up message
+                this.gameOver = true;
+                this.showMessage(this.languages[this.currentLanguage].messages.timeUp + ' ' + this.currentWord, 'lose');
+                this.updateStats(false);
+                this.showLanguageToggle();
+                this.updateButtonText();
+                
+                // Clear game state when time's up
+                this.clearGameState();
+                return;
+            }
+            
+            this.timeRemaining--;
+            
+            // Update timer display
+            const timerDisplay = document.getElementById('timer-display');
+            if (timerDisplay) {
+                // Format time as MM:SS
+                const minutes = Math.floor(this.timeRemaining / 60);
+                const seconds = this.timeRemaining % 60;
+                const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timerDisplay.textContent = formattedTime;
+                
+                // Add visual indication based on remaining time
+                if (this.timeRemaining <= 10) {
+                    // Red for last 10 seconds - urgent!
+                    timerDisplay.style.color = '#e74c3c'; // Red
+                    timerDisplay.style.fontWeight = 'bold';
+                } else if (this.timeRemaining <= 30) {
+                    // Yellow for 11-30 seconds - getting low
+                    timerDisplay.style.color = '#f39c12'; // Yellow/amber
+                    timerDisplay.style.fontWeight = 'bold';
                 } else {
-                    // Move horizontally
-                    this.aliens.forEach(alien => {
-                        alien.x += alien.direction * 10;
-                    });
+                    // Green for more than 30 seconds - plenty of time
+                    timerDisplay.style.color = '#6aaa64'; // Green (matches the game's green)
+                    timerDisplay.style.fontWeight = 'normal';
                 }
             }
             
-            checkCollisions() {
-                const initialAlienCount = this.aliens.length;
-                
-                // Player bullets vs aliens
-                this.bullets.forEach((bullet, bulletIndex) => {
-                    this.aliens.forEach((alien, alienIndex) => {
-                        if (this.isColliding(bullet, alien)) {
-                            // Remove bullet and alien
-                            this.bullets.splice(bulletIndex, 1);
-                            this.aliens.splice(alienIndex, 1);
-                            
-                            // Add score
-                            this.score += (alien.type + 1) * 10;
-                            this.updateUI();
-                            
-                            // Add explosion effect
-                            this.createExplosion(alien.x + alien.width / 2, alien.y + alien.height / 2);
-                        }
-                    });
-                });
-                
-                // Play sound if alien was hit
-                if (this.aliens.length < initialAlienCount) {
-                    this.soundManager.play('alienHit');
+            // Save game state with updated timer
+            if (this.gameStarted && !this.gameOver) {
+                this.saveGameState();
+            }
+        }
+
+        loadStats() {
+            const statsKey = `stats_${this.currentLanguage}`;
+            const stats = JSON.parse(localStorage.getItem(statsKey)) || {
+                streak: 0,
+                maxStreak: 0,
+                played: 0,
+                won: 0
+            };
+            
+            const streakElement = document.getElementById('streak');
+            const playedElement = document.getElementById('played');
+            const winRateElement = document.getElementById('win-rate');
+            
+            if (streakElement) streakElement.textContent = stats.streak;
+            if (playedElement) playedElement.textContent = stats.played;
+            if (winRateElement) {
+                const winRate = stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0;
+                winRateElement.textContent = `${winRate}%`;
+            }
+        }
+
+        updateStats(win) {
+            const statsKey = `stats_${this.currentLanguage}`;
+            const stats = JSON.parse(localStorage.getItem(statsKey)) || {
+                streak: 0,
+                maxStreak: 0,
+                played: 0,
+                won: 0
+            };
+            
+            stats.played += 1;
+            
+            if (win) {
+                stats.won += 1;
+                stats.streak += 1;
+                stats.maxStreak = Math.max(stats.maxStreak, stats.streak);
+            } else {
+                stats.streak = 0;
+            }
+            
+            localStorage.setItem(statsKey, JSON.stringify(stats));
+            this.loadStats();
+        }
+
+        hideLanguageToggle() {
+            // Hide the entire toggles container when game starts
+            const togglesContainer = document.querySelector('.toggles-container');
+            if (togglesContainer) togglesContainer.style.visibility = 'hidden';
+            
+            // Also hide word length selector when game starts
+            const lengthSelector = document.querySelector('.word-length-selector');
+            if (lengthSelector) lengthSelector.style.visibility = 'hidden';
+        }
+
+        showLanguageToggle() {
+            // Show the entire toggles container when game ends
+            const togglesContainer = document.querySelector('.toggles-container');
+            if (togglesContainer) togglesContainer.style.visibility = 'visible';
+            
+            // Also show word length selector when game ends
+            const lengthSelector = document.querySelector('.word-length-selector');
+            if (lengthSelector) lengthSelector.style.visibility = 'visible';
+        }
+
+        updateButtonText() {
+            const button = document.getElementById('new-game-btn');
+            if (button) {
+                if (this.gameOver) {
+                    // Show "New Game" when game is over
+                    button.textContent = this.languages[this.currentLanguage].messages.newGame;
+                } else {
+                    // Show "Enter" in all other cases (whether game started or not)
+                    button.textContent = this.currentLanguage === 'english' ? 'Enter' : 'Enviar';
+                }
+            }
+        }
+
+        newGame() {
+            this.currentWord = this.getRandomWord();
+            this.currentRow = 0;
+            this.currentTile = 0;
+            this.gameOver = false;
+            this.gameStarted = false;
+            
+            // Stop any running timer
+            this.stopTimer();
+            
+            // Reset timer display
+            if (this.lightningMode) {
+                const timerDisplay = document.getElementById('timer-display');
+                if (timerDisplay) {
+                    // Format time as MM:SS
+                    timerDisplay.textContent = '00:60';
+                    // Set color back to green
+                    timerDisplay.style.color = '#6aaa64'; 
+                    timerDisplay.style.fontWeight = 'normal';
                 }
                 
-                // Alien bullets vs player
-                this.alienBullets.forEach((bullet, index) => {
-                    if (this.isColliding(bullet, this.player)) {
-                        this.alienBullets.splice(index, 1);
-                        this.lives--;
-                        this.updateUI();
-                        this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+                // Show timer container in lightning mode
+                const timerContainer = document.getElementById('timer-container');
+                if (timerContainer) {
+                    timerContainer.style.visibility = 'visible';
+                }
+            } else {
+                // Hide timer container in normal mode
+                const timerContainer = document.getElementById('timer-container');
+                if (timerContainer) {
+                    timerContainer.style.visibility = 'hidden';
+                }
+            }
+            
+            const tiles = document.querySelectorAll('.tile');
+            for (let i = 0; i < tiles.length; i++) {
+                tiles[i].textContent = '';
+                tiles[i].className = 'tile';
+            }
+            
+            const keys = document.querySelectorAll('.key');
+            for (let i = 0; i < keys.length; i++) {
+                keys[i].classList.remove('correct', 'present', 'absent');
+            }
+            
+            this.clearMessage();
+            this.showLanguageToggle();
+            this.updateButtonText(); // This will now set it to "Enter"/"Enviar"
+            
+            // Clear saved game state
+            this.clearGameState();
+        }
+
+        validateWordLists() {
+            console.log("Validating word lists...");
+            let fixedWords = 0;
+            let duplicatesRemoved = 0;
+            
+            // Define allowed word lengths (5-8 only)
+            const allowedLengths = [5, 6, 7, 8];
+            
+            for (const language of Object.keys(this.languages)) {
+                const wordsByLength = this.languages[language].words;
+                
+                // First, remove any length categories that aren't allowed (9, 10, etc.)
+                for (const length of Object.keys(wordsByLength)) {
+                    const numericLength = parseInt(length, 10);
+                    if (!allowedLengths.includes(numericLength)) {
+                        console.warn(`Removing entire category: ${language} ${length}-letter words`);
+                        delete wordsByLength[length];
+                        continue;
+                    }
+                    
+                    // Filter each category to only include correctly sized words
+                    const originalList = [...wordsByLength[length]];
+                    
+                    // Remove duplicates and keep only words of correct length
+                    const uniqueWords = new Set();
+                    wordsByLength[length] = originalList.filter(word => {
+                        // Check if word has correct length
+                        const isCorrectLength = word.length === numericLength;
                         
-                        if (this.lives <= 0) {
-                            this.gameOver();
+                        if (!isCorrectLength) {
+                            console.warn(`Removing invalid word "${word}" (${word.length} letters) from ${language} ${numericLength}-letter list`);
+                            return false;
+                        }
+                        
+                        // Check if word is a duplicate
+                        if (uniqueWords.has(word)) {
+                            console.warn(`Removing duplicate word "${word}" from ${language} ${numericLength}-letter list`);
+                            duplicatesRemoved++;
+                            return false;
+                        }
+                        uniqueWords.add(word);
+                        return true;
+                    });
+                    
+                    const removedCount = originalList.length - wordsByLength[length].length;
+                    if (removedCount > 0) {
+                        fixedWords += removedCount;
+                        console.warn(`Removed ${removedCount} invalid words from ${language} ${length}-letter word list`);
+                        
+                        // Log examples of invalid words that were removed
+                        const invalidWords = originalList.filter(word => !wordsByLength[length].includes(word));
+                        console.warn(`Examples of invalid words: ${invalidWords.slice(0, 5).join(', ')}`);
+                    }
+                }
+            }
+            
+            if (duplicatesRemoved > 0) {
+                console.log(`Removed ${duplicatesRemoved} duplicate words`);
+            }
+            
+            if (fixedWords > 0) {
+                console.log(`Total fixed words: ${fixedWords}`);
+            } else {
+                console.log("All word lists are valid!");
+            }
+        }
+
+        verifyAllWordLengths() {
+            console.log("Performing complete word length verification...");
+            let totalErrors = 0;
+            
+            for (const language of Object.keys(this.languages)) {
+                const wordsByLength = this.languages[language].words;
+                
+                for (const length of Object.keys(wordsByLength)) {
+                    const numericLength = parseInt(length, 10);
+                    const words = wordsByLength[length];
+                    
+                    // Check each word in this category
+                    const incorrectWords = words.filter(word => word.length !== numericLength);
+                    
+                    if (incorrectWords.length > 0) {
+                        console.error(`CRITICAL: Found ${incorrectWords.length} incorrect length words in ${language} ${length}-letter list:`);
+                        console.error(incorrectWords);
+                        totalErrors += incorrectWords.length;
+                        
+                        // Show detailed information about each incorrect word
+                        incorrectWords.forEach(word => {
+                            console.error(`  - "${word}" is ${word.length} letters but listed in ${length}-letter category`);
+                        });
+                    } else {
+                        console.log(`✓ ${language} ${length}-letter words: All ${words.length} words are correct length`);
+                    }
+                }
+            }
+            
+            if (totalErrors > 0) {
+                console.error(`TOTAL ERRORS FOUND: ${totalErrors} words need to be moved to correct categories`);
+                alert(`Word list validation found ${totalErrors} errors! Check console for details.`);
+                
+                // Auto-fix the word lists
+                this.autoFixWordLists();
+            } else {
+                console.log("✓ All word lists validated successfully - no length errors found!");
+            }
+        }
+        
+        autoFixWordLists() {
+            console.log("Auto-fixing word lists...");
+            let totalFixed = 0;
+            
+            for (const language of Object.keys(this.languages)) {
+                const wordsByLength = this.languages[language].words;
+                
+                for (const length of Object.keys(wordsByLength)) {
+                    const numericLength = parseInt(length, 10);
+                    const words = wordsByLength[length];
+                    
+                    // Find words that don't belong in this category
+                    const correctWords = [];
+                    const incorrectWords = [];
+                    
+                    words.forEach(word => {
+                        if (word.length === numericLength) {
+                            correctWords.push(word);
+                        } else {
+                            incorrectWords.push(word);
+                            totalFixed++;
+                        }
+                    });
+                    
+                    // Update the current category with only correct words
+                    this.languages[language].words[length] = correctWords;
+                    
+                    // Move incorrect words to their proper categories
+                    incorrectWords.forEach(word => {
+                        const correctLength = word.length;
+                        if (!this.languages[language].words[correctLength]) {
+                            this.languages[language].words[correctLength] = [];
+                        }
+                        this.languages[language].words[correctLength].push(word);
+                        console.log(`Moved "${word}" from ${length}-letter to ${correctLength}-letter category`);
+                    });
+                }
+            }
+            
+            console.log(`Auto-fix complete! Fixed ${totalFixed} word placements.`);
+            
+            // Re-verify after fixing
+            this.verifyAllWordLengths();
+        }
+        
+        // Save current game state to localStorage
+        saveGameState() {
+            if (!this.gameStarted || this.gameOver) {
+                return;
+            }
+            
+            if (this.debugMode) {
+                console.log("Saving game state...");
+            }
+            
+            // Build a matrix of the current board state
+            const boardState = [];
+            const boardClasses = [];
+            
+            for (let i = 0; i <= 5; i++) {
+                const rowLetters = [];
+                const rowClasses = [];
+                
+                for (let j = 0; j < this.selectedWordLength; j++) {
+                    const tile = document.getElementById(`tile-${i}-${j}`);
+                    if (tile) {
+                        rowLetters.push(tile.textContent || '');
+                        
+                        // Save the tile classes (correct, present, absent)
+                        const classList = Array.from(tile.classList);
+                        let classStatus = '';
+                        
+                        // Check for status classes in priority order
+                        // IMPORTANT: We must check for exact class presence, not just includes
+                        // This ensures we correctly identify the color status
+                        if (classList.includes('correct')) {
+                            classStatus = 'correct';
+                        } else if (classList.includes('present')) {
+                            classStatus = 'present';
+                        } else if (classList.includes('absent')) {
+                            classStatus = 'absent';
+                        } else if (classList.includes('filled')) {
+                            classStatus = 'filled';
+                        }
+                        
+                        // Debug logging for class status
+                        // console.log(`Tile ${i}-${j}: "${tile.textContent}", classList=[${classList.join(',')}], status=${classStatus}`);
+                        
+                        rowClasses.push(classStatus);
+                    } else {
+                        rowLetters.push('');
+                        rowClasses.push('');
+                    }
+                }
+                
+                boardState.push(rowLetters);
+                boardClasses.push(rowClasses);
+            }
+            
+            // Save keyboard state
+            const keyboardState = {};
+            const keys = document.querySelectorAll('.key');
+            
+            keys.forEach(key => {
+                const letter = key.textContent === '⌫' ? 'BACKSPACE' : 
+                              key.textContent === this.languages[this.currentLanguage].messages.enter ? 'ENTER' : 
+                              key.textContent;
+                
+                if (key.classList.contains('correct')) {
+                    keyboardState[letter] = 'correct';
+                } else if (key.classList.contains('present')) {
+                    keyboardState[letter] = 'present';
+                } else if (key.classList.contains('absent')) {
+                    keyboardState[letter] = 'absent';
+                }
+            });
+            
+            // Create the game state object
+            const gameState = {
+                currentLanguage: this.currentLanguage,
+                lightningMode: this.lightningMode,
+                selectedWordLength: this.selectedWordLength,
+                currentWord: this.currentWord,
+                currentRow: this.currentRow,
+                currentTile: this.currentTile,
+                boardState: boardState,
+                boardClasses: boardClasses,
+                keyboardState: keyboardState,
+                gameStarted: this.gameStarted,
+                gameOver: this.gameOver,
+                timeRemaining: this.timeRemaining
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('wordleGameState', JSON.stringify(gameState));
+        }
+        
+        // Load saved game state from localStorage
+        loadGameState() {
+            const savedState = localStorage.getItem('wordleGameState');
+            if (!savedState) {
+                return false;
+            }
+            
+            try {
+                const gameState = JSON.parse(savedState);
+                
+                // Verify the saved game state has the same parameters as current
+                if (gameState.currentLanguage !== this.currentLanguage || 
+                    gameState.lightningMode !== this.lightningMode) {
+                    // Game parameters changed, don't restore
+                    this.clearGameState();
+                    return false;
+                }
+                
+                // Restore game settings
+                this.selectedWordLength = gameState.selectedWordLength;
+                this.currentWord = gameState.currentWord;
+                this.currentRow = gameState.currentRow;
+                this.currentTile = gameState.currentTile;
+                this.gameStarted = gameState.gameStarted;
+                this.gameOver = gameState.gameOver;
+                
+                // Recreate the board with the correct word length, but don't recreate controls
+                // First, remove any existing word length selectors to avoid duplicates
+                const existingSelectors = document.querySelectorAll('.word-length-selector');
+                existingSelectors.forEach(selector => selector.remove());
+                
+                // Create the game board without recreating the word length selector
+                this.createGameBoard();
+                
+                // Restore the board state
+                for (let i = 0; i <= 5; i++) {
+                    for (let j = 0; j < this.selectedWordLength; j++) {
+                        const tile = document.getElementById(`tile-${i}-${j}`);
+                        if (tile && gameState.boardState[i]) {
+                            // Restore letter if exists
+                            if (gameState.boardState[i][j]) {
+                                tile.textContent = gameState.boardState[i][j];
+                                tile.classList.add('filled');
+                            } else {
+                                // Ensure empty tiles have no filled class
+                                tile.classList.remove('filled');
+                            }
+                            
+                            // Restore tile status classes
+                            if (gameState.boardClasses[i] && gameState.boardClasses[i][j]) {
+                                const className = gameState.boardClasses[i][j];
+                                
+                                // First remove status classes only, not the filled class
+                                tile.classList.remove('correct', 'present', 'absent');
+                                
+                                // Then apply the correct class based on saved state
+                                // Only apply color classes if the tile has content (is filled)
+                                if (className && className !== '' && tile.textContent && tile.textContent.trim() !== '') {
+                                    tile.classList.add(className);
+                                    
+                                    // Debug logging to verify correct class application
+                                    // console.log(`Restoring tile ${i}-${j}: "${tile.textContent}" with class "${className}"`);
+                                }
+                            }
                         }
                     }
-                });
+                }
                 
-                // Aliens vs player (collision)
-                this.aliens.forEach(alien => {
-                    if (alien.y + alien.height >= this.player.y) {
-                        this.gameOver();
+                // Restore keyboard state
+                if (gameState.keyboardState) {
+                    const keys = document.querySelectorAll('.key');
+                    keys.forEach(key => {
+                        const letter = key.textContent === '⌫' ? 'BACKSPACE' : 
+                                      key.textContent === this.languages[this.currentLanguage].messages.enter ? 'ENTER' : 
+                                      key.textContent;
+                        
+                        // Remove any existing status classes first
+                        key.classList.remove('correct', 'present', 'absent');
+                        
+                        // Then apply the saved class
+                        const keyState = gameState.keyboardState[letter];
+                        if (keyState) {
+                            key.classList.add(keyState);
+                            
+                            if (this.debugMode) {
+                                console.log(`Restoring key "${letter}" with class "${keyState}"`);
+                            }
+                        }
+                    });
+                }
+                
+                // Update word length info display - just update text, don't recreate the selector
+                this.updateWordLengthInfo();
+                
+                // Restore timer if in lightning mode
+                if (this.lightningMode && gameState.timeRemaining) {
+                    this.timeRemaining = gameState.timeRemaining;
+                    
+                    // Update timer display
+                    const timerDisplay = document.getElementById('timer-display');
+                    if (timerDisplay) {
+                        const minutes = Math.floor(this.timeRemaining / 60);
+                        const seconds = this.timeRemaining % 60;
+                        const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        timerDisplay.textContent = formattedTime;
+                        
+                        // Set timer color based on remaining time
+                        if (this.timeRemaining <= 10) {
+                            // Red for last 10 seconds - urgent!
+                            timerDisplay.style.color = '#e74c3c'; // Red
+                            timerDisplay.style.fontWeight = 'bold';
+                        } else if (this.timeRemaining <= 30) {
+                            // Yellow for 11-30 seconds - getting low
+                            timerDisplay.style.color = '#f39c12'; // Yellow/amber
+                            timerDisplay.style.fontWeight = 'bold';
+                        } else {
+                            // Green for more than 30 seconds - plenty of time
+                            timerDisplay.style.color = '#6aaa64'; // Green (matches the game's green)
+                            timerDisplay.style.fontWeight = 'normal';
+                        }
                     }
-                });
-            }
-            
-            isColliding(obj1, obj2) {
-                return obj1.x < obj2.x + obj2.width &&
-                       obj1.x + obj1.width > obj2.x &&
-                       obj1.y < obj2.y + obj2.height &&
-                       obj1.y + obj1.height > obj2.y;
-            }
-            
-            createExplosion(x, y) {
-                for (let i = 0; i < 10; i++) {
-                    this.particles.push(new Particle(x, y));
-                }
-                this.soundManager.play('explosion');
-            }
-            
-            checkGameState() {
-                const currentLevel = this.level;
-                
-                // Check if all aliens are destroyed
-                if (this.aliens.length === 0) {
-                    this.level++;
-                    this.createAliens();
-                    this.updateUI();
-                }
-                
-                // Play level complete sound
-                if (this.level > currentLevel) {
-                    this.soundManager.play('levelComplete');
-                }
-                
-                // Update particles
-                this.particles.forEach((particle, index) => {
-                    particle.update();
-                    if (particle.life <= 0) {
-                        this.particles.splice(index, 1);
+                    
+                    // Make timer visible
+                    const timerContainer = document.getElementById('timer-container');
+                    if (timerContainer) {
+                        timerContainer.style.visibility = 'visible';
                     }
-                });
-            }
-            
-            gameOver() {
-                this.gameRunning = false;
-                document.getElementById('startBtn').style.display = 'inline-block';
-                document.getElementById('pauseBtn').style.display = 'none';
-                document.getElementById('finalScore').textContent = this.score;
-                document.getElementById('gameOver').classList.remove('hidden');
-                this.soundManager.play('gameOver');
-            }
-            
-            updateUI() {
-                document.getElementById('score').textContent = `Score: ${this.score}`;
-                document.getElementById('lives').textContent = `Lives: ${this.lives}`;
-                document.getElementById('level').textContent = `Level: ${this.level}`;
-            }
-        }
-
-        // Player class
-        class Player {
-            constructor(x, y, canvas) {
-                this.x = x;
-                this.y = y;
-                this.width = 40;
-                this.height = 30;
-                this.speed = 5;
-                this.canvas = canvas;
-            }
-            
-            update(keys) {
-                if (keys['ArrowLeft'] && this.x > 0) {
-                    this.x -= this.speed;
+                    
+                    // Restart timer if game is in progress
+                    if (this.gameStarted && !this.gameOver) {
+                        this.startTimer();
+                    }
                 }
-                if (keys['ArrowRight'] && this.x < this.canvas.width - this.width) {
-                    this.x += this.speed;
+                
+                // Update UI based on game state
+                if (this.gameStarted) {
+                    this.hideLanguageToggle();
+                    this.updateButtonText();
                 }
-            }
-            
-            draw(ctx) {
-                ctx.fillStyle = '#00ff00';
-                ctx.fillRect(this.x, this.y, this.width, this.height);
                 
-                // Draw ship details
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(this.x + 15, this.y - 5, 10, 5);
-                ctx.fillRect(this.x + 5, this.y + 25, 10, 8);
-                ctx.fillRect(this.x + 25, this.y + 25, 10, 8);
+                return true;
+            } catch (error) {
+                console.error('Error loading game state:', error);
+                this.clearGameState();
+                return false;
             }
         }
-
-        // Alien class
-        class Alien {
-            constructor(x, y, type) {
-                this.x = x;
-                this.y = y;
-                this.width = 30;
-                this.height = 20;
-                this.type = type; // Different types for different rows
-                this.direction = 1;
-            }
-            
-            draw(ctx) {
-                const colors = ['#ff0000', '#ff8800', '#ffff00', '#00ff88', '#0088ff'];
-                ctx.fillStyle = colors[this.type] || '#ff0000';
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Draw alien details
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(this.x + 5, this.y + 5, 5, 5);
-                ctx.fillRect(this.x + 20, this.y + 5, 5, 5);
-                ctx.fillRect(this.x + 10, this.y + 12, 10, 3);
-            }
+        
+        // Clear saved game state
+        clearGameState() {
+            localStorage.removeItem('wordleGameState');
         }
+    }
 
-        // Bullet class
-        class Bullet {
-            constructor(x, y, speed) {
-                this.x = x;
-                this.y = y;
-                this.width = 4;
-                this.height = 10;
-                this.speed = speed;
-            }
-            
-            update() {
-                this.y += this.speed;
-            }
-            
-            draw(ctx) {
-                ctx.fillStyle = this.speed < 0 ? '#00ff00' : '#ff0000';
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
-        }
-
-        // Particle class for explosions
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.vx = (Math.random() - 0.5) * 10;
-                this.vy = (Math.random() - 0.5) * 10;
-                this.life = 30;
-                this.maxLife = 30;
-            }
-            
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.life--;
-            }
-            
-            draw(ctx) {
-                const alpha = this.life / this.maxLife;
-                ctx.fillStyle = `rgba(255, 255, 0, ${alpha})`;
-                ctx.fillRect(this.x, this.y, 3, 3);
-            }
-        }
-
-        // Initialize the game when the page loads
-        window.addEventListener('load', () => {
-            new SpaceInvadersGame();
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+        new WordleGame();
+    });
     </script>
 </body>
 </html>
