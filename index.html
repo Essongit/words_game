@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>My Wordle Game</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #121213;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 5px;
+            -webkit-user-select: none;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 0 5px;
+        }
+
+        /* All styles from wordle_game.html */
+        /* Copy the entire style section from wordle_game.html */
+        
+        /* Game styles would be here */
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="game-title">My Wordle</h1>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="streak">0</div>
+                    <div class="stat-label" id="streak-label">Streak</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="played">0</div>
+                    <div class="stat-label" id="played-label">Played</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="win-rate">0%</div>
+                    <div class="stat-label" id="win-rate-label">Win Rate</div>
+                </div>
+                <div class="server-status" id="server-status" title="Dictionary server status">
+                    <span id="status-indicator">●</span>
+                    <span id="status-text" class="status-text"></span>
+                </div>
+            </div>
+            <div class="word-length-info" id="word-length-info"></div>
+        </header>
+
+        <!-- Rest of the HTML from wordle_game.html -->
+        <!-- Copy all HTML content -->
+
+    </div>
+
+    <!-- Copy all script tags and JavaScript -->
+    <script>
+        // Inline the content of common-5-letter-words.js here
+        // This is critical since GitHub Pages won't have access to your local JS files
+        const COMMON_FIVE_LETTER_WORDS = [
+            // Array of words would go here
+            "ABOUT", "ABOVE", "ABUSE", "ACTOR", "ADAPT", /* more words... */
+        ];
+    </script>
+    
+    <script>
+        // Copy the full JavaScript from wordle_game.html
+        // Class WordleGame { ... }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            new WordleGame();
+        });
+    </script>
+</body>
+</html>
